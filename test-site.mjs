@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 
 const pages = ["index.html", "community/index.html", "download/index.html"];
 const required = {
-  "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign"],
+  "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign", "WebView2", "Authenticode", "glibc 2.35", "WebKitGTK 4.1", "AppImage", "NSIS"],
   "index.html": ["Download", "Command-line setup", "Docs", "Explorer", "Community", "GitHub"],
   "community/index.html": ["Run a node", "Launch a child chain", "Mine", "Understand the protocol", "Build software", "Help the community"],
 };

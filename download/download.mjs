@@ -11,7 +11,10 @@ export function renderRelease(release, document, prefix = "") {
   element("verification-links").hidden = true;
   element("release-status").textContent = "The download is not available yet.";
   element("verification-status").textContent = "Verification files are not available yet.";
-  element("requirements").textContent = "Release version, architecture, and supported OS versions will be listed with the download.";
+  const metadata = [release?.version && `Version ${release.version}`, release?.architecture, release?.requirements];
+  element("requirements").textContent = metadata.every(value => typeof value === "string" && value.trim())
+    ? metadata.join(" · ")
+    : "Release version, architecture, and supported OS versions will be listed with the download.";
   element("platform-choice").textContent = `${platform} · not available yet`;
   if (!isAvailable(release)) return;
   for (const [id, value] of Object.entries({

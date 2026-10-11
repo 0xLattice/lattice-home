@@ -141,12 +141,17 @@ section:target { scroll-margin-top: 24px; }
   </section>
   <section id="linux" aria-labelledby="linux-title">
     <h2 id="linux-title">Linux</h2>
-    <p id="linux-requirements" class="meta">Release version, architecture, and supported OS versions will be listed with the download.</p>
+    <p id="linux-requirements" class="meta">Version 0.1.0 · amd64 (x86-64) · glibc 2.35 or later and WebKitGTK 4.1</p>
     <p id="linux-release-status" role="status">The download is not available yet.</p>
     <a id="linux-download-link" class="btn primary" hidden>Download for Linux</a>
     <details><summary>Before installing on Linux</summary>
-      <p>The Linux packaging repository targets .deb and AppImage packages. It documents glibc 2.35 or later and WebKitGTK 4.1. Final supported distributions and architecture will be confirmed with the release.</p>
-      <p>Installation steps will be provided for the verified package format. Check your distribution and version in your system’s About settings before choosing a download.</p>
+      <p>Linux packages are built for amd64 (x86-64) as .deb and AppImage files. Check your distribution and architecture in your system’s About settings. You need glibc 2.35 or later and WebKitGTK 4.1; the bundled node also needs SQLite.</p>
+      <ol>
+        <li><strong>Choose a package when available.</strong> Use the .deb on a compatible Debian or Ubuntu system. Use AppImage only on a system that meets the documented dependencies; it does not remove those requirements.</li>
+        <li><strong>Install or open.</strong> Open the .deb with your system’s package installer and review its dependency prompts. For AppImage, use your file manager’s Properties → Permissions to allow running it as a program, then open it. Exact labels vary by desktop.</li>
+        <li><strong>Open Lattice and set up your wallet.</strong> Follow the app’s create or import prompts and back up your recovery phrase. The node starts syncing when the app opens; mining is optional.</li>
+      </ol>
+      <p>If a dependency is missing or your system blocks the app, stop and check the platform requirements. Final package installation checks are still in progress.</p>
       <p><a href="https://github.com/adalinxx/lattice-desktop-linux">Linux packaging and requirements</a></p>
     </details>
     <details><summary>Verify the Linux download (advanced)</summary>
@@ -161,13 +166,19 @@ section:target { scroll-margin-top: 24px; }
   </section>
   <section id="windows" aria-labelledby="windows-title">
     <h2 id="windows-title">Windows</h2>
-    <p id="windows-requirements" class="meta">Release version, architecture, and supported OS versions will be listed with the download.</p>
+    <p id="windows-requirements" class="meta">Version 0.1.0 · x64 · WebView2 and an initialized default WSL distribution</p>
     <p id="windows-release-status" role="status">The download is not available yet.</p>
     <a id="windows-download-link" class="btn primary" hidden>Download for Windows</a>
+    <p class="meta">The Windows installer is not signed with Authenticode. Windows may show an unknown-publisher or SmartScreen warning. A project signature does not establish Windows publisher trust; do not disable Windows security protections.</p>
     <details><summary>Before installing on Windows</summary>
       <p>The Windows app runs its node in Windows Subsystem for Linux (WSL). It uses your default Linux distribution, which needs glibc 2.35 or later and SQLite; the repository lists Ubuntu 22.04 or later and Debian 12 or later.</p>
-      <ol><li>Before installing Lattice, follow <a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s WSL setup instructions</a>. WSL setup may require administrator access and a restart.</li><li>Open your Linux distribution once to finish its setup.</li><li>When the verified installer is available, follow the release-specific installation steps here.</li></ol>
-      <p>The installer’s supported Windows versions, architecture, and signing details will be listed with the release. Follow Windows security warnings; a project signature does not establish Windows publisher trust.</p>
+      <ol>
+        <li><strong>Prepare WSL.</strong> Follow <a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s WSL setup instructions</a>. This may require administrator access and a restart. Open your default Linux distribution once to finish its setup, and ensure it meets the glibc and SQLite requirements above.</li>
+        <li><strong>Check WebView2.</strong> The app also requires <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/">Microsoft’s WebView2 Runtime</a>. WSL and WebView2 are prerequisites; do not assume the Lattice installer sets them up.</li>
+        <li><strong>Install when available.</strong> Download the verified x64 .exe installer, open it, and follow the setup prompts. It is an NSIS installer. Read any Windows security warnings before deciding whether to proceed.</li>
+        <li><strong>Open Lattice and set up your wallet.</strong> Follow the create or import prompts and back up your recovery phrase. The app starts its node in your default WSL distribution and shows sync progress. Mining is optional.</li>
+      </ol>
+      <p>Supported Windows versions and final installation checks are still being confirmed. A malware alert is a reason to stop, not to bypass a protection.</p>
       <p><a href="https://github.com/adalinxx/lattice-desktop-windows">Windows packaging and requirements</a></p>
     </details>
     <details><summary>Verify the Windows download (advanced)</summary>

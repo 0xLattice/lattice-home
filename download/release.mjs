@@ -14,14 +14,16 @@ export const release = Object.freeze({
   publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub",
 });
 
-// Unpublished platforms intentionally contain no guessed artifacts or requirements.
+// Known platform prerequisites are separate from unverified release artifacts.
 export const releases = Object.freeze({
   mac: release,
-  linux: Object.freeze({ platform: "linux", published: false, version: null,
-    source: null, architecture: null, requirements: null, format: null,
+  linux: Object.freeze({ platform: "linux", published: false, version: "0.1.0",
+    source: null, architecture: "amd64 (x86-64)",
+    requirements: "glibc 2.35 or later and WebKitGTK 4.1", format: null,
     artifact: null, sha256: null, checksums: null, signature: null, publicKey: null }),
-  windows: Object.freeze({ platform: "windows", published: false, version: null,
-    source: null, architecture: null, requirements: null, format: null,
+  windows: Object.freeze({ platform: "windows", published: false, version: "0.1.0",
+    source: null, architecture: "x64",
+    requirements: "WebView2 and an initialized default WSL distribution", format: "exe",
     artifact: null, sha256: null, checksums: null, signature: null, publicKey: null }),
 });
 
