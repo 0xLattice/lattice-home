@@ -162,7 +162,14 @@ section:target { scroll-margin-top: 24px; }
         <li><a id="linux-signature-link">Project signature for the checksums</a></li>
         <li><a id="linux-public-key-link">Project public key</a></li>
       </ul>
-      <p>Verification steps will accompany the published files. A checksum compares bytes; a project signature authenticates them only to the key you trust. Neither guarantees software safety.</p>
+      <p>When the files are published, save SHA256SUMS, SHA256SUMS.minisig and lattice-releases.pub in the same folder as your download. Install <a href="https://jedisct1.github.io/minisign/">Minisign</a>, and confirm the public key against a previously trusted copy or a separately trusted project source before using it.</p>
+      <p>In that folder, authenticate the checksum file:</p>
+      <pre><code>minisign -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
+      <p>Then run the command for the package you downloaded and compare its result with that filename’s entry in SHA256SUMS. For the .deb:</p>
+      <pre><code>sha256sum Lattice_0.1.0_amd64.deb</code></pre>
+      <p>For the AppImage:</p>
+      <pre><code>sha256sum Lattice_0.1.0_amd64.AppImage</code></pre>
+      <p>A checksum compares bytes; a project signature authenticates the checksum file only to the key you trust. Neither guarantees software safety. If either check fails, do not open the package.</p>
     </details>
     <p><a href="#linux-appimage">Prefer AppImage?</a></p>
     <details id="linux-appimage"><summary>AppImage option</summary>
@@ -209,7 +216,12 @@ section:target { scroll-margin-top: 24px; }
         <li><a id="windows-signature-link">Project signature for the checksums</a></li>
         <li><a id="windows-public-key-link">Project public key</a></li>
       </ul>
-      <p>Verification steps will accompany the published files. A checksum compares bytes; a project signature authenticates them only to the key you trust. Neither guarantees software safety.</p>
+      <p>When the files are published, save SHA256SUMS, SHA256SUMS.minisig and lattice-releases.pub in the same folder as your download. Install <a href="https://jedisct1.github.io/minisign/">Minisign</a>, and confirm the public key against a previously trusted copy or a separately trusted project source before using it.</p>
+      <p>In PowerShell in that folder, authenticate the checksum file:</p>
+      <pre><code>minisign.exe -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
+      <p>Then calculate the installer’s hash and compare it with its entry in SHA256SUMS (letter case does not matter):</p>
+      <pre><code>Get-FileHash -LiteralPath .\Lattice_0.1.0_x64-setup.exe -Algorithm SHA256</code></pre>
+      <p>A matching checksum compares bytes; a project signature authenticates the checksum file only to the key you trust. Neither establishes Windows publisher trust or guarantees software safety. If either check fails, do not open the installer.</p>
     </details>
   </section>
 </main>
