@@ -39,36 +39,40 @@ No token/price/roadmap-hype, team grid, partner logos, illustrations, or animati
 
 ## Desktop download publication
 
-`download/release.mjs` holds the verified public Mac version 0.1.0 release URLs
-and independent unpublished Linux and Windows records.
+`download/release.mjs` holds verified public version 0.1.0 releases for Mac, Linux
+(.deb and AppImage), and Windows. Each package has an independent record.
 No download URL is emitted unless `published` is true, release metadata is
 complete, and all four URL fields pass validation. Missing JavaScript leaves the links hidden with an explanation.
 
-For a new release, download the exact public ZIP, SHA256SUMS,
-SHA256SUMS.minisig, and project public key. Verify the ZIP digest and manifest
+For a new release, download the exact public package, SHA256SUMS,
+SHA256SUMS.minisig, and project public key. Verify the package digest and manifest
 signature against the trusted key, and confirm the version, source revision,
 requirements, and setup instructions before setting `published: true`.
 Run `node test-site.mjs` and the token checks above, then test the direct download
 in a browser. This change does not create releases or modify release keys.
 
-Candidate filenames, versions, source revisions, sizes, digests and planned
-release URLs are recorded. Linux/Windows destinations are not live yet; keep
-`published: false` until signatures and re-downloaded public assets are verified.
-Linux and Windows remain unavailable until their exact version, source revision,
-architecture, supported OS versions, package format, digest, checksum manifest,
-project signature and trusted public-key URL are verified. The current schema
-supports independent Linux .deb and AppImage records and a Windows .exe installer. Verify
-installation steps and signing behavior on each target OS before enabling its
-record; update the platform help at the same time. Do not infer support from the
-browser or reuse the Mac release metadata for another platform.
+Published filenames, versions, build-source revisions, sizes, digests and release
+URLs are recorded. The `source` field identifies the tested build revision;
+release merge commits are separate. Linux was released at
+`2d35ebff55f0a990ce086d084400c0280dabe742`, and Windows at
+`8f482b8f39fda131ae7388e0bf61bc0fbb3da37b`. Public installers were downloaded
+without authentication and checked against their sizes, SHA256 digests and signed
+manifests before publication was enabled. Both manifests verify against the
+existing project release key.
+
+Keep future records unpublished until their exact public assets, metadata,
+requirements and signatures are verified. Update platform help alongside each
+release. Do not infer support from the browser or reuse the Mac release metadata
+for another platform.
 
 `node test-site.mjs` validates real records against their declared publication
 state and uses independent published/unpublished fixtures for every supported
 format. Invalid metadata must hide and clear both new and previously rendered
 links. Mac publication is independent of other platforms.
 
-Current candidate validation: the installed Linux .deb and extracted AppImage UI
+Current release validation: the installed Linux .deb and extracted AppImage UI
 were tested; normal AppImage FUSE mounting was not. The Windows shipped executable
 passed startup and mining checks on Windows Server 2025; full UI tests used an
-instrumented build. The Windows test environment used Ubuntu 24.04 in WSL. The WSL setup minimum is not a desktop Windows app support
+instrumented build. Installing WebView2 on a machine missing that runtime was not
+tested. The Windows test environment used Ubuntu 24.04 in WSL. The WSL setup minimum is not a desktop Windows app support
 matrix. Physical GPU and live-network behavior are not established by these tests.

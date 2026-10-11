@@ -15,11 +15,11 @@ export const release = Object.freeze({
   publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub",
 });
 
-// Linux/Windows URLs are reserved release destinations, not yet published.
-// Keep published false until signatures and public downloads are verified.
+// source identifies the tested build revision, not the later release merge commit.
+// Public assets and signed manifests were verified before enabling these records.
 export const releases = Object.freeze({
   mac: release,
-  linux: Object.freeze({ platform: "linux", published: false, version: "0.1.0",
+  linux: Object.freeze({ platform: "linux", published: true, version: "0.1.0",
     source: "62d1ed6888ab38752972659259fec9480fa5d800", architecture: "amd64 (x86-64)",
     requirements: "Debian/Ubuntu with glibc 2.35 or later; WebKitGTK 4.1, GTK 3 and SQLite", format: "deb",
     filename: "Lattice_0.1.0_amd64.deb", bytes: 137233768,
@@ -28,7 +28,7 @@ export const releases = Object.freeze({
     checksums: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.0/SHA256SUMS",
     signature: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.0/SHA256SUMS.minisig",
     publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub" }),
-  "linux-appimage": Object.freeze({ platform: "linux", published: false, version: "0.1.0",
+  "linux-appimage": Object.freeze({ platform: "linux", published: true, version: "0.1.0",
     source: "62d1ed6888ab38752972659259fec9480fa5d800", architecture: "amd64 (x86-64)",
     requirements: "glibc 2.35 or later; FUSE mounting or extraction", format: "AppImage",
     filename: "Lattice_0.1.0_amd64.AppImage", bytes: 201021944,
@@ -37,7 +37,7 @@ export const releases = Object.freeze({
     checksums: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.0/SHA256SUMS",
     signature: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.0/SHA256SUMS.minisig",
     publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub" }),
-  windows: Object.freeze({ platform: "windows", published: false, version: "0.1.0",
+  windows: Object.freeze({ platform: "windows", published: true, version: "0.1.0",
     source: "0b6d3fa9152be1b99a9a0947ef0d6583bf15d3a2", architecture: "x64",
     requirements: "WebView2 and an initialized default WSL distribution", format: "exe",
     filename: "Lattice_0.1.0_x64-setup.exe", bytes: 86694054,

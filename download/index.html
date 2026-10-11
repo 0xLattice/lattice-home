@@ -148,7 +148,7 @@ section:target { scroll-margin-top: 24px; }
     <details><summary>Before installing on Linux</summary>
       <p>Linux packages are built for amd64 (x86-64) as .deb and AppImage files. Check your distribution and architecture in your system’s About settings. Both need glibc 2.35 or later. The .deb declares WebKitGTK 4.1, GTK 3 and SQLite dependencies; the AppImage bundles those libraries.</p>
       <ol>
-        <li><strong>Choose a package when available.</strong> Use the .deb on a compatible Debian or Ubuntu system. The AppImage is a separate option; review its requirements below.</li>
+        <li><strong>Choose a package.</strong> Use the .deb on a compatible Debian or Ubuntu system. The AppImage is a separate option; review its requirements below.</li>
         <li><strong>Install or open.</strong> Open the .deb with your system’s package installer and review its dependency prompts.</li>
         <li><strong>Open Lattice and set up your wallet.</strong> Follow the app’s create or import prompts and back up your recovery phrase. The node starts syncing when the app opens; mining is optional.</li>
       </ol>
@@ -162,7 +162,7 @@ section:target { scroll-margin-top: 24px; }
         <li><a id="linux-signature-link">Project signature for the checksums</a></li>
         <li><a id="linux-public-key-link">Project public key</a></li>
       </ul>
-      <p>When the files are published, save SHA256SUMS, SHA256SUMS.minisig and lattice-releases.pub in the same folder as your download. Install <a href="https://jedisct1.github.io/minisign/">Minisign</a>, and confirm the public key against a previously trusted copy or a separately trusted project source before using it.</p>
+      <p>Save SHA256SUMS, SHA256SUMS.minisig and lattice-releases.pub in the same folder as your download. Install <a href="https://jedisct1.github.io/minisign/">Minisign</a>, and confirm the public key against a previously trusted copy or a separately trusted project source before using it.</p>
       <p>In that folder, authenticate the checksum file:</p>
       <pre><code>minisign -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
       <p>Then run the command for the package you downloaded and compare its result with that filename’s entry in SHA256SUMS. For the .deb:</p>
@@ -203,7 +203,7 @@ section:target { scroll-margin-top: 24px; }
       <ol>
         <li><strong>Prepare WSL.</strong> Follow <a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s WSL setup instructions</a>. This may require administrator access and a restart. Open your default Linux distribution once to finish its setup, and ensure it meets the glibc and SQLite requirements above.</li>
         <li><strong>Check WebView2.</strong> The app also requires <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/">Microsoft’s WebView2 Runtime</a>. The installer downloads WebView2 if it is missing, so an internet connection is needed for that step. You must set up WSL and its default distribution separately.</li>
-        <li><strong>Install when available.</strong> Download the verified x64 .exe installer, open it, and follow the setup prompts. It is an NSIS installer. Read any Windows security warnings before deciding whether to proceed.</li>
+        <li><strong>Install Lattice.</strong> Download the verified x64 .exe installer, open it, and follow the setup prompts. It is an NSIS installer. Read any Windows security warnings before deciding whether to proceed.</li>
         <li><strong>Open Lattice and set up your wallet.</strong> Follow the create or import prompts and back up your recovery phrase. The app starts its node in your default WSL distribution and shows sync progress. Mining is optional.</li>
       </ol>
       <p>Microsoft’s WSL setup recipe requires Windows 10 version 2004 (build 19041) or later, or Windows 11. That is a WSL prerequisite, not a tested Lattice desktop support matrix. Compatibility checks used Windows Server 2025; desktop Windows versions do not yet have a formal test matrix. A malware alert is a reason to stop, not to bypass a protection.</p>
@@ -216,7 +216,7 @@ section:target { scroll-margin-top: 24px; }
         <li><a id="windows-signature-link">Project signature for the checksums</a></li>
         <li><a id="windows-public-key-link">Project public key</a></li>
       </ul>
-      <p>When the files are published, save SHA256SUMS, SHA256SUMS.minisig and lattice-releases.pub in the same folder as your download. Install <a href="https://jedisct1.github.io/minisign/">Minisign</a>, and confirm the public key against a previously trusted copy or a separately trusted project source before using it.</p>
+      <p>Save SHA256SUMS, SHA256SUMS.minisig and lattice-releases.pub in the same folder as your download. Install <a href="https://jedisct1.github.io/minisign/">Minisign</a>, and confirm the public key against a previously trusted copy or a separately trusted project source before using it.</p>
       <p>In PowerShell in that folder, authenticate the checksum file:</p>
       <pre><code>minisign.exe -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
       <p>Then calculate the installer’s hash and compare it with its entry in SHA256SUMS (letter case does not matter):</p>
