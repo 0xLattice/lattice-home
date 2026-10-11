@@ -115,20 +115,24 @@ delete elements["linux-appimage-platform-choice"];
 const catalogPage = { getElementById: id => elements[id] };
 renderCatalog(releases, catalogPage);
 assert.equal(elements["download-link"].hidden, false);
-for (const key of ["linux", "linux-appimage", "windows"]) {
-  assert.equal(elements[`${key}-download-link`].hidden, true);
-  assert.equal(elements[`${key}-download-link`].href, undefined);
+for (const [key, data] of Object.entries(releases)) {
+  const prefix = key === "mac" ? "" : `${key}-`;
+  assert.equal(elements[`${prefix}download-link`].hidden, !data.published);
+  assert.equal(elements[`${prefix}download-link`].href, data.published ? data.artifact : undefined);
 }
+// Explicit mixed-publication fixture: independent of production publication flags.
+const unavailableCatalog = Object.fromEntries(Object.entries(releases).map(([key, data]) =>
+  [key, key === "mac" ? data : { ...data, published: false }]));
 const appImage = releases["linux-appimage"];
 const appImageBase = "https://github.com/adalinxx/lattice-desktop-linux/releases/download/test/";
 const appImageReady = { ...appImage, published: true, artifact: appImageBase + appImage.filename,
   checksums: appImageBase + "SHA256SUMS", signature: appImageBase + "SHA256SUMS.minisig", publicKey: appImageBase + "lattice-releases.pub" };
-renderCatalog({ ...releases, "linux-appimage": appImageReady }, catalogPage);
+renderCatalog({ ...unavailableCatalog, "linux-appimage": appImageReady }, catalogPage);
 assert.equal(elements["linux-download-link"].hidden, true);
 assert.equal(elements["linux-appimage-download-link"].hidden, false);
 assert.equal(elements["linux-platform-choice"].textContent, "Linux");
 assert.equal(elements["download-link"].href, releases.mac.artifact);
-renderCatalog(releases, catalogPage);
+renderCatalog(unavailableCatalog, catalogPage);
 assert.equal(elements["linux-appimage-download-link"].href, undefined);
 assert.equal(elements["linux-platform-choice"].textContent, "Linux · not available yet");
 console.log("platform release validation and published/unpublished rendering checks passed");
