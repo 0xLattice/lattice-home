@@ -51,10 +51,11 @@ requirements, and setup instructions before setting `published: true`.
 Run `node test-site.mjs` and the token checks above, then test the direct download
 in a browser. This change does not create releases or modify release keys.
 
+Candidate filenames, versions, source revisions and digests are recorded.
 Linux and Windows remain unavailable until their exact version, source revision,
 architecture, supported OS versions, package format, digest, checksum manifest,
 project signature and trusted public-key URL are verified. The current schema
-supports a primary Linux .deb or AppImage and a Windows .exe installer. Verify
+supports independent Linux .deb and AppImage records and a Windows .exe installer. Verify
 installation steps and signing behavior on each target OS before enabling its
 record; update the platform help at the same time. Do not infer support from the
 browser or reuse the Mac release metadata for another platform.
@@ -63,3 +64,9 @@ browser or reuse the Mac release metadata for another platform.
 state and uses independent published/unpublished fixtures for every supported
 format. Invalid metadata must hide and clear both new and previously rendered
 links. Mac publication is independent of other platforms.
+
+Current candidate validation: the installed Linux .deb and extracted AppImage UI
+were tested; normal AppImage FUSE mounting was not. The Windows shipped executable
+passed startup and mining checks on Windows Server 2025; full UI tests used an
+instrumented build. The WSL setup minimum is not a desktop Windows app support
+matrix. Physical GPU and live-network behavior are not established by these tests.

@@ -15,7 +15,8 @@ export function renderRelease(release, document, prefix = "") {
   element("requirements").textContent = metadata.every(value => typeof value === "string" && value.trim())
     ? metadata.join(" · ")
     : "Release version, architecture, and supported OS versions will be listed with the download.";
-  element("platform-choice").textContent = `${platform} · not available yet`;
+  const choice = element("platform-choice");
+  if (choice) choice.textContent = `${platform} · not available yet`;
   if (!isAvailable(release)) return;
   for (const [id, value] of Object.entries({
     "download-link": release.artifact,
@@ -23,7 +24,7 @@ export function renderRelease(release, document, prefix = "") {
     "signature-link": release.signature,
     "public-key-link": release.publicKey,
   })) element(id).href = value;
-  element("platform-choice").textContent = platform;
+  if (choice) choice.textContent = platform;
   element("release-status").textContent = `Lattice Desktop ${release.version} is available for ${platform}.`;
   element("requirements").textContent = `Version ${release.version} · ${release.architecture} · ${release.requirements}`;
   element("download-link").textContent = `Download for ${platform} — ${release.format === "zip" ? "ZIP" : release.format}`;
@@ -32,8 +33,13 @@ export function renderRelease(release, document, prefix = "") {
   element("verification-status").textContent = `Download SHA256: ${release.sha256}`;
 }
 
-if (typeof document !== "undefined") {
-  for (const [platform, release] of Object.entries(releases)) {
+export function renderCatalog(catalog, document) {
+  for (const [platform, release] of Object.entries(catalog)) {
     renderRelease(release, document, platform === "mac" ? "" : `${platform}-`);
   }
+  document.getElementById("linux-platform-choice").textContent =
+    Object.values(catalog).some(data => data.platform === "linux" && isAvailable(data))
+      ? "Linux" : "Linux · not available yet";
 }
+
+if (typeof document !== "undefined") renderCatalog(releases, document);

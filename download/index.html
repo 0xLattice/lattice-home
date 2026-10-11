@@ -90,6 +90,7 @@ section:target { scroll-margin-top: 24px; }
       <a class="btn" id="windows-platform-choice" href="#windows">Windows · not available yet</a>
     </div>
     <p class="meta">Choose the operating system you use.</p>
+    <p class="meta">Optional GPU mining on Linux and Windows needs compatible OpenCL drivers installed separately. Physical GPU and live-network behavior have not been validated by the release checks.</p>
   </header>
   <section id="mac" aria-labelledby="mac-title">
     <h2 id="mac-title">Mac</h2>
@@ -141,17 +142,17 @@ section:target { scroll-margin-top: 24px; }
   </section>
   <section id="linux" aria-labelledby="linux-title">
     <h2 id="linux-title">Linux</h2>
-    <p id="linux-requirements" class="meta">Version 0.1.0 · amd64 (x86-64) · glibc 2.35 or later and WebKitGTK 4.1</p>
+    <p id="linux-requirements" class="meta">Version 0.1.0 · amd64 (x86-64) · Debian/Ubuntu with glibc 2.35 or later; WebKitGTK 4.1, GTK 3 and SQLite</p>
     <p id="linux-release-status" role="status">The download is not available yet.</p>
-    <a id="linux-download-link" class="btn primary" hidden>Download for Linux</a>
+    <a id="linux-download-link" class="btn primary" hidden>Download for Linux — .deb</a>
     <details><summary>Before installing on Linux</summary>
-      <p>Linux packages are built for amd64 (x86-64) as .deb and AppImage files. Check your distribution and architecture in your system’s About settings. You need glibc 2.35 or later and WebKitGTK 4.1; the bundled node also needs SQLite.</p>
+      <p>Linux packages are built for amd64 (x86-64) as .deb and AppImage files. Check your distribution and architecture in your system’s About settings. Both need glibc 2.35 or later. The .deb declares WebKitGTK 4.1, GTK 3 and SQLite dependencies; the AppImage bundles those libraries.</p>
       <ol>
-        <li><strong>Choose a package when available.</strong> Use the .deb on a compatible Debian or Ubuntu system. Use AppImage only on a system that meets the documented dependencies; it does not remove those requirements.</li>
-        <li><strong>Install or open.</strong> Open the .deb with your system’s package installer and review its dependency prompts. For AppImage, use your file manager’s Properties → Permissions to allow running it as a program, then open it. Exact labels vary by desktop.</li>
+        <li><strong>Choose a package when available.</strong> Use the .deb on a compatible Debian or Ubuntu system. The AppImage is a separate option; review its requirements below.</li>
+        <li><strong>Install or open.</strong> Open the .deb with your system’s package installer and review its dependency prompts.</li>
         <li><strong>Open Lattice and set up your wallet.</strong> Follow the app’s create or import prompts and back up your recovery phrase. The node starts syncing when the app opens; mining is optional.</li>
       </ol>
-      <p>If a dependency is missing or your system blocks the app, stop and check the platform requirements. Final package installation checks are still in progress.</p>
+      <p>If a dependency is missing or your system blocks the app, stop and check the platform requirements. The installed .deb has passed startup and UI checks.</p>
       <p><a href="https://github.com/adalinxx/lattice-desktop-linux">Linux packaging and requirements</a></p>
     </details>
     <details><summary>Verify the Linux download (advanced)</summary>
@@ -162,6 +163,26 @@ section:target { scroll-margin-top: 24px; }
         <li><a id="linux-public-key-link">Project public key</a></li>
       </ul>
       <p>Verification steps will accompany the published files. A checksum compares bytes; a project signature authenticates them only to the key you trust. Neither guarantees software safety.</p>
+    </details>
+    <p><a href="#linux-appimage">Prefer AppImage?</a></p>
+    <details id="linux-appimage"><summary>AppImage option</summary>
+      <p id="linux-appimage-requirements" class="meta">Version 0.1.0 · amd64 (x86-64) · glibc 2.35 or later; FUSE mounting or extraction</p>
+      <p id="linux-appimage-release-status" role="status">The download is not available yet.</p>
+      <a id="linux-appimage-download-link" class="btn primary" hidden>Download for Linux — AppImage</a>
+      <p>The AppImage bundles WebKitGTK 4.1, GTK 3 and SQLite. In your file manager’s Properties → Permissions, allow the verified AppImage to run as a program, then open it. Labels vary by desktop.</p>
+      <p>Normal opening needs working FUSE mounting and helper access. This build does not require the libfuse2 package. FUSE mounting has not been tested; the extracted AppImage UI has been tested.</p>
+      <p>If mounting is unavailable, extraction is an alternative. In a terminal in the download folder, after verifying the file:</p>
+      <pre><code>chmod +x Lattice_0.1.0_amd64.AppImage
+./Lattice_0.1.0_amd64.AppImage --appimage-extract
+./squashfs-root/AppRun</code></pre>
+      <p>Extraction creates a squashfs-root folder. Keep it to run AppRun again.</p>
+      <p id="linux-appimage-verification-status">Verification files are not available yet.</p>
+      <ul id="linux-appimage-verification-links" hidden>
+        <li><a id="linux-appimage-checksums-link">SHA256 checksums</a></li>
+        <li><a id="linux-appimage-signature-link">Project signature for the checksums</a></li>
+        <li><a id="linux-appimage-public-key-link">Project public key</a></li>
+      </ul>
+      <p>Compare the checksum for the AppImage, not the .deb. A checksum or signature does not guarantee software safety.</p>
     </details>
   </section>
   <section id="windows" aria-labelledby="windows-title">
@@ -174,11 +195,11 @@ section:target { scroll-margin-top: 24px; }
       <p>The Windows app runs its node in Windows Subsystem for Linux (WSL). It uses your default Linux distribution, which needs glibc 2.35 or later and SQLite; the repository lists Ubuntu 22.04 or later and Debian 12 or later.</p>
       <ol>
         <li><strong>Prepare WSL.</strong> Follow <a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s WSL setup instructions</a>. This may require administrator access and a restart. Open your default Linux distribution once to finish its setup, and ensure it meets the glibc and SQLite requirements above.</li>
-        <li><strong>Check WebView2.</strong> The app also requires <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/">Microsoft’s WebView2 Runtime</a>. WSL and WebView2 are prerequisites; do not assume the Lattice installer sets them up.</li>
+        <li><strong>Check WebView2.</strong> The app also requires <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/">Microsoft’s WebView2 Runtime</a>. The installer downloads WebView2 if it is missing, so an internet connection is needed for that step. You must set up WSL and its default distribution separately.</li>
         <li><strong>Install when available.</strong> Download the verified x64 .exe installer, open it, and follow the setup prompts. It is an NSIS installer. Read any Windows security warnings before deciding whether to proceed.</li>
         <li><strong>Open Lattice and set up your wallet.</strong> Follow the create or import prompts and back up your recovery phrase. The app starts its node in your default WSL distribution and shows sync progress. Mining is optional.</li>
       </ol>
-      <p>Supported Windows versions and final installation checks are still being confirmed. A malware alert is a reason to stop, not to bypass a protection.</p>
+      <p>Microsoft’s WSL setup recipe requires Windows 10 version 2004 (build 19041) or later, or Windows 11. That is a WSL prerequisite, not a tested Lattice desktop support matrix. Compatibility checks used Windows Server 2025; desktop Windows versions do not yet have a formal test matrix. A malware alert is a reason to stop, not to bypass a protection.</p>
       <p><a href="https://github.com/adalinxx/lattice-desktop-windows">Windows packaging and requirements</a></p>
     </details>
     <details><summary>Verify the Windows download (advanced)</summary>

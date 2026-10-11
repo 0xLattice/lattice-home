@@ -4,6 +4,7 @@ export const release = Object.freeze({
   architecture: "Apple silicon",
   requirements: "macOS 15 or later",
   format: "zip",
+  filename: "Lattice-0.1.0-macos-arm64.zip",
   version: "0.1.0",
   source: "578dad10c7ca7a95e06187534fc9e803d54144b2",
   sha256: "62fccf7c5c0fee158fd99ac615a036cd4082aa7549b34926a16ee365033a7993",
@@ -18,13 +19,23 @@ export const release = Object.freeze({
 export const releases = Object.freeze({
   mac: release,
   linux: Object.freeze({ platform: "linux", published: false, version: "0.1.0",
-    source: null, architecture: "amd64 (x86-64)",
-    requirements: "glibc 2.35 or later and WebKitGTK 4.1", format: null,
-    artifact: null, sha256: null, checksums: null, signature: null, publicKey: null }),
+    source: "62d1ed6888ab38752972659259fec9480fa5d800", architecture: "amd64 (x86-64)",
+    requirements: "Debian/Ubuntu with glibc 2.35 or later; WebKitGTK 4.1, GTK 3 and SQLite", format: "deb",
+    filename: "Lattice_0.1.0_amd64.deb", artifact: null,
+    sha256: "24451008ab68bd8426e0951b9464019175d5fc930fa98656ccb38ae72999b809",
+    checksums: null, signature: null, publicKey: null }),
+  "linux-appimage": Object.freeze({ platform: "linux", published: false, version: "0.1.0",
+    source: "62d1ed6888ab38752972659259fec9480fa5d800", architecture: "amd64 (x86-64)",
+    requirements: "glibc 2.35 or later; FUSE mounting or extraction", format: "AppImage",
+    filename: "Lattice_0.1.0_amd64.AppImage", artifact: null,
+    sha256: "54305d0d35b3378fbc48df725de076e529065dea7dc8363b6ca76134c18ea4b3",
+    checksums: null, signature: null, publicKey: null }),
   windows: Object.freeze({ platform: "windows", published: false, version: "0.1.0",
-    source: null, architecture: "x64",
+    source: "0b6d3fa9152be1b99a9a0947ef0d6583bf15d3a2", architecture: "x64",
     requirements: "WebView2 and an initialized default WSL distribution", format: "exe",
-    artifact: null, sha256: null, checksums: null, signature: null, publicKey: null }),
+    filename: "Lattice_0.1.0_x64-setup.exe", artifact: null,
+    sha256: "0cdf6c3d313c1bba6fabe1dda1de58d22a118ae235cd0a550858e32956201b05",
+    checksums: null, signature: null, publicKey: null }),
 });
 
 const repositories = {
@@ -39,6 +50,7 @@ export function isAvailable(data) {
   if (!data || data.published !== true || !/^[a-f0-9]{64}$/.test(data.sha256) ||
       !/^[a-f0-9]{40}$/.test(data.source) || !/^[0-9]+\.[0-9]+\.[0-9]+$/.test(data.version) ||
       ![data.architecture, data.requirements].every(value => typeof value === "string" && value.trim()) ||
+      !/^[A-Za-z0-9_.-]+$/.test(data.filename || "") ||
       !Object.hasOwn(repositories, data.platform) || !formats[data.platform].includes(data.format)) return false;
   try {
     const repository = repositories[data.platform];
@@ -49,7 +61,7 @@ export function isAvailable(data) {
     return assets.every(url => valid(url) && url.hostname === "github.com" &&
       url.pathname.startsWith(prefix) && /^[^/]+\/[^/]+$/.test(url.pathname.slice(prefix.length))) &&
       assets.every(url => url.pathname.split('/').slice(0, 6).join('/') === assets[0].pathname.split('/').slice(0, 6).join('/')) &&
-      assets[0].pathname.endsWith(`.${data.format}`) && /\/SHA256SUMS$/.test(assets[1].pathname) &&
+      assets[0].pathname.endsWith(`/${data.filename}`) && data.filename.endsWith(`.${data.format}`) && /\/SHA256SUMS$/.test(assets[1].pathname) &&
       /\/SHA256SUMS\.minisig$/.test(assets[2].pathname) && valid(key) &&
       ["github.com", "raw.githubusercontent.com"].includes(key.hostname) &&
       [repository, "lattice-desktop"].some(repo => key.pathname.startsWith(`/adalinxx/${repo}/`));

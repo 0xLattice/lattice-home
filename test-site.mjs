@@ -41,7 +41,7 @@ console.log("site checks passed");
 
 // Published fixtures are deliberately independent of the current release config.
 const { releases, isAvailable } = await import("./download/release.mjs");
-const { renderRelease } = await import("./download/download.mjs");
+const { renderRelease, renderCatalog } = await import("./download/download.mjs");
 const download = readFileSync("download/index.html", "utf8");
 const ids = ["download-link", "checksums-link", "signature-link", "public-key-link", "release-status", "verification-links", "verification-status", "requirements", "platform-choice"];
 function page(prefix) {
@@ -60,7 +60,7 @@ for (const [platform, repository, format] of [
   const base = `https://github.com/adalinxx/${repository}/releases/download/test/`;
   const ready = { platform, architecture: "test architecture", requirements: "test OS", format,
     version: "0.1.0", source: "a".repeat(40), sha256: "b".repeat(64), published: true,
-    artifact: base + `Lattice.${format}`, checksums: base + "SHA256SUMS",
+    filename: `Lattice.${format}`, artifact: base + `Lattice.${format}`, checksums: base + "SHA256SUMS",
     signature: base + "SHA256SUMS.minisig", publicKey: base + "lattice-releases.pub" };
   const unavailable = { ...ready, published: false };
   assert.equal(isAvailable(ready), true, `${platform}/${format} published fixture`);
@@ -72,7 +72,7 @@ for (const [platform, repository, format] of [
     for (const value of [undefined, null, "", "javascript:alert(1)", "https://example.com/file", "http://github.com/file"])
       invalid.push({ ...ready, [field]: value });
   }
-  for (const field of ["sha256", "source", "version", "architecture", "requirements"]) {
+  for (const field of ["filename", "sha256", "source", "version", "architecture", "requirements"]) {
     for (const value of [undefined, null, ""])
       invalid.push({ ...ready, [field]: value });
   }
@@ -96,11 +96,11 @@ for (const [platform, repository, format] of [
   assert.ok(!doc.elements[prefix + "platform-choice"].textContent.includes("not available"));
 }
 for (const [platform, release] of Object.entries(releases)) {
-  assert.equal(release.platform, platform, "release belongs to its platform");
+  assert.equal(release.platform, platform === "linux-appimage" ? "linux" : platform, "release belongs to its platform");
   assert.equal(isAvailable(release), release.published, `${platform} configured state is valid`);
   const prefix = platform === "mac" ? "" : `${platform}-`;
   const doc = page(prefix);
-  for (const id of ids) assert.equal([...download.matchAll(new RegExp(`id="${prefix}${id}"`, "g"))].length, 1, `${prefix}${id} exists once in HTML`);
+  for (const id of ids.filter(id => platform !== "linux-appimage" || id !== "platform-choice")) assert.equal([...download.matchAll(new RegExp(`id="${prefix}${id}"`, "g"))].length, 1, `${prefix}${id} exists once in HTML`);
   renderRelease(release, doc, prefix);
   assert.equal(doc.elements[prefix + "download-link"].hidden, !release.published);
   assert.match(download, new RegExp(`id="${prefix}download-link"[^>]*hidden`));
@@ -110,4 +110,25 @@ for (const [platform, release] of Object.entries(releases)) {
 }
 assert.equal(releases.mac.artifact, "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/Lattice-0.1.0-macos-arm64.zip", "preserve the live Mac ZIP");
 assert.match(readFileSync("index.html", "utf8"), /href="\.\/download\/">Download Lattice Desktop/);
+const elements = Object.assign({}, ...Object.keys(releases).map(key => page(key === "mac" ? "" : `${key}-`).elements));
+delete elements["linux-appimage-platform-choice"];
+const catalogPage = { getElementById: id => elements[id] };
+renderCatalog(releases, catalogPage);
+assert.equal(elements["download-link"].hidden, false);
+for (const key of ["linux", "linux-appimage", "windows"]) {
+  assert.equal(elements[`${key}-download-link`].hidden, true);
+  assert.equal(elements[`${key}-download-link`].href, undefined);
+}
+const appImage = releases["linux-appimage"];
+const appImageBase = "https://github.com/adalinxx/lattice-desktop-linux/releases/download/test/";
+const appImageReady = { ...appImage, published: true, artifact: appImageBase + appImage.filename,
+  checksums: appImageBase + "SHA256SUMS", signature: appImageBase + "SHA256SUMS.minisig", publicKey: appImageBase + "lattice-releases.pub" };
+renderCatalog({ ...releases, "linux-appimage": appImageReady }, catalogPage);
+assert.equal(elements["linux-download-link"].hidden, true);
+assert.equal(elements["linux-appimage-download-link"].hidden, false);
+assert.equal(elements["linux-platform-choice"].textContent, "Linux");
+assert.equal(elements["download-link"].href, releases.mac.artifact);
+renderCatalog(releases, catalogPage);
+assert.equal(elements["linux-appimage-download-link"].href, undefined);
+assert.equal(elements["linux-platform-choice"].textContent, "Linux · not available yet");
 console.log("platform release validation and published/unpublished rendering checks passed");
