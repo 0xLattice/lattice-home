@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Lattice Desktop — Lattice</title>
+<meta name="description" content="Lattice Desktop for Mac: a full node and wallet in one app. Download and setup instructions for Apple silicon.">
+<link rel="icon" href="../lattice-mark.svg">
+<style>
+:root {
+  --paper: #fff; --ink: #0a0a0a; --ink-soft: #333; --line: #e6e6e6;
+  --font: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --fs-12: .75rem; --fs-14: .875rem; --fs-16: 1rem; --fs-20: 1.25rem; --fs-28: 1.75rem;
+  --lh-body: 1.6; --track-display: .08em;
+  --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px; --s-5: 40px; --s-6: 64px;
+  --rule: 1px solid var(--line); --measure: 66ch;
+}
+@media (prefers-color-scheme: dark) { :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --line: #1c1c1c; } }
+* { box-sizing: border-box; }
+html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body); -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding: 0 var(--s-4); background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+nav, main, footer { max-width: 880px; margin: 0 auto; }
+nav { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) 0; font-size: var(--fs-14); }
+nav a { text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: var(--s-2); }
+.links { margin-left: auto; display: flex; gap: var(--s-3); }
+.wordmark, h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+h1 { margin: 0 0 var(--s-3); font-size: var(--fs-28); }
+h2 { margin: 0 0 var(--s-3); font-size: var(--fs-20); }
+h3 { margin: 0 0 var(--s-2); font-size: var(--fs-14); }
+p { max-width: var(--measure); margin: 0 0 var(--s-3); color: var(--ink-soft); }
+a { color: inherit; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.intro { padding: var(--s-6) 0; border-top: var(--rule); }
+.intro p { font-size: var(--fs-20); }
+section { padding: var(--s-5) 0; border-top: var(--rule); }
+.paths { display: grid; grid-template-columns: repeat(2, 1fr); border-top: var(--rule); border-left: var(--rule); }
+.path { min-width: 0; padding: var(--s-4); border-right: var(--rule); border-bottom: var(--rule); text-decoration: none; }
+.path:hover h3 { text-decoration: underline; text-underline-offset: 3px; }
+.path p { margin: 0; font-size: var(--fs-14); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.btn { display: inline-block; border: var(--rule); padding: var(--s-2) var(--s-3); text-decoration: none; text-transform: uppercase; letter-spacing: var(--track-display); font-size: var(--fs-14); }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn:hover { background: var(--ink); color: var(--paper); }
+footer { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-6) 0; border-top: var(--rule); font-size: var(--fs-12); }
+footer .links { margin-left: auto; }
+@media (max-width: 640px) {
+  nav { align-items: flex-start; }
+  nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
+  .paths { grid-template-columns: 1fr; }
+}
+
+summary { cursor: pointer; font-weight: 600; padding: 16px 0; }
+summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+details { border-top: var(--rule); }
+li { max-width: var(--measure); margin-bottom: 16px; color: var(--ink-soft); }
+.notice { border: var(--rule); padding: 24px; margin: 24px 0; }
+.intro .meta { font-size: var(--fs-14); }
+code, #verification-status { overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); padding: 16px; font-size: var(--fs-14); }
+#download-link { margin-bottom: 16px; }
+[hidden] { display: none !important; }
+.skip { position: absolute; left: -10000px; }
+.skip:focus { position: static; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav>
+  <a class="brand" href="../" aria-label="Lattice home"><img src="../lattice-mark.svg" width="22" height="22" alt=""><span class="wordmark">LATTICE</span></a>
+  <span class="links">
+    <a href="./" aria-current="page">Download</a>
+    <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
+    <a href="../explorer/">Explorer</a>
+    <a href="../community/">Community</a>
+    <a href="https://github.com/adalinxx">GitHub</a>
+  </span>
+</nav>
+<main id="main">
+  <header class="intro">
+    <h1>Download Lattice Desktop</h1>
+    <p>A full Lattice node and Lattice Wallet in one Mac app.</p>
+    <p class="meta">Version 0.1.0 · Mac with Apple silicon · macOS 15 or later</p>
+    <p class="meta">Check Apple menu → About This Mac for your chip and macOS version.</p>
+    <div class="notice">
+      <p id="release-status" role="status">The download is unavailable.</p>
+      <noscript><p class="meta">Enable JavaScript to load the release links.</p></noscript>
+      <a id="download-link" class="btn primary" hidden>Download for Mac — ZIP</a>
+      <p class="meta">macOS may warn that the developer cannot be verified or that Apple cannot check the app for malicious software. Review the guidance below before opening.</p>
+    </div>
+    <p>Opening the app automatically starts a node and syncs the blockchain. This uses your internet connection and disk space. Mining is a separate choice.</p>
+    <p class="meta">Prefer the terminal? <a href="../#quickstart">Command-line setup</a></p>
+  </header>
+  <section aria-labelledby="setup">
+    <h2 id="setup">Get started</h2>
+    <ol>
+      <li><strong>Download and unzip.</strong> Save the ZIP and double-click it in Finder to extract Lattice.</li>
+      <li><strong>Move to Applications.</strong> Drag Lattice into your Applications folder.</li>
+      <li><strong>Open Lattice.</strong> Open it from Applications. If macOS shows an unverified-developer warning, review “Opening on macOS” below.</li>
+      <li><strong>Set up your wallet.</strong> Follow the app’s prompts to create or import a wallet. Keep your recovery phrase private and store a backup. The app shows sync progress; allow it to catch up before using the wallet.</li>
+    </ol>
+    <p>You can manage the node in the app’s Node screen. Use Node → Mining only if you choose to mine.</p>
+  </section>
+  <section aria-label="Download help">
+    <details>
+      <summary>Opening on macOS</summary>
+      <p>Continue only if you trust the source and have checked the download. For an unverified-developer warning or an alert that Apple cannot check the app:</p>
+      <ol>
+        <li>Try opening Lattice from Applications once, then dismiss the warning.</li>
+        <li>Open System Settings → Privacy &amp; Security. Scroll to Security and find the message about Lattice.</li>
+        <li>Choose Open Anyway for Lattice, authenticate if asked, and confirm Open.</li>
+      </ol>
+      <p>This creates an exception for this app. If Open Anyway is unavailable, check <a href="https://support.apple.com/en-us/102445">Apple’s opening-app guidance</a> or your Mac administrator.</p>
+      <p><strong>Stop if macOS reports malware, says the app will damage your computer, or says it is damaged.</strong> Do not override those warnings.</p>
+    </details>
+    <details>
+      <summary>Verify the download (advanced)</summary>
+      <p id="verification-status">Checksums, the project signature, and the public key will be linked here when the release is available.</p>
+      <ul id="verification-links" hidden>
+        <li><a id="checksums-link">SHA256 checksums</a></li>
+        <li><a id="signature-link">Project signature for the checksums</a></li>
+        <li><a id="public-key-link">Project public key</a></li>
+      </ul>
+      <p>Compare the ZIP’s SHA256 with its entry in the release’s SHA256SUMS file. In Terminal, type <code>shasum -a 256 </code> (including a trailing space), drag the ZIP into Terminal, then press Return.</p>
+      <p>To authenticate the checksum file, use <a href="https://jedisct1.github.io/minisign/">Minisign</a> with the project’s public key. Confirm the key against a previously trusted copy or a separately trusted project source. Save the signature beside SHA256SUMS as SHA256SUMS.minisig, and the public key as lattice-releases.pub, then run this in that folder:</p>
+      <pre><code>minisign -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
+      <p>A matching checksum shows that your ZIP matches the listed bytes. A valid project signature authenticates the checksums only to the key you trust. Neither is Apple notarization or a guarantee that the software is safe. If either check fails, do not open the app.</p>
+    </details>
+  </section>
+</main>
+<footer><span class="wordmark">LATTICE</span><span class="links"><a href="../">Home</a><a href="../community/">Community</a></span></footer>
+<script type="module" src="./download.mjs"></script>
+</body>
+</html>
