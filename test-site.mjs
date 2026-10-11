@@ -39,53 +39,75 @@ for (const component of ["lattice-node", "nexus-wallet", "lattice-home", "lattic
 
 console.log("site checks passed");
 
-// Release links must fail closed until complete, verified publication data exists.
-const { release, isAvailable } = await import("./download/release.mjs");
-assert.equal(isAvailable(release), release.published, "configured publication state is valid");
-const base = "https://github.com/adalinxx/lattice-desktop/releases/download/test/";
-const ready = { ...release, published: true, zip: base + "Lattice.zip", checksums: base + "SHA256SUMS", signature: base + "SHA256SUMS.minisig", publicKey: "https://raw.githubusercontent.com/adalinxx/lattice-desktop/main/key.pub" };
-assert.equal(isAvailable(ready), true);
-const unpublished = { ...ready, published: false };
-assert.equal(isAvailable(unpublished), false);
-for (const field of ["zip", "checksums", "signature", "publicKey"]) {
-  for (const value of [null, "", "javascript:alert(1)", "https://example.com/file", "http://github.com/file"]) {
-    assert.equal(isAvailable({ ...ready, [field]: value }), false, `reject invalid ${field}`);
-  }
-}
-assert.equal(isAvailable({ ...ready, signature: base.replace("/test/", "/other/") + "SHA256SUMS.minisig" }), false);
-assert.equal(isAvailable({ ...ready, zip: "https://github.com/adalinxx/lattice-desktop/releases" }), false);
-const download = readFileSync("download/index.html", "utf8");
-assert.match(download, /id="download-link"[^>]*hidden/);
-assert.doesNotMatch(download, /id="download-link"[^>]*href=/);
-assert.match(readFileSync("index.html", "utf8"), /href="\.\/download\/">Download Lattice Desktop/);
-console.log("download release gate checks passed");
-
-// Exercise what is actually exposed to users, with fresh DOM state per fixture.
+// Published fixtures are deliberately independent of the current release config.
+const { releases, isAvailable } = await import("./download/release.mjs");
 const { renderRelease } = await import("./download/download.mjs");
-const invalid = [unpublished];
-for (const field of ["zip", "checksums", "signature", "publicKey"]) {
-  for (const value of [undefined, null, "", "javascript:alert(1)", "https://example.com/file"])
-    invalid.push({ ...ready, [field]: value });
+const download = readFileSync("download/index.html", "utf8");
+const ids = ["download-link", "checksums-link", "signature-link", "public-key-link", "release-status", "verification-links", "verification-status", "requirements", "platform-choice"];
+function page(prefix) {
+  const elements = Object.fromEntries(ids.map(id => [prefix + id, {
+    hidden: true, removeAttribute(name) { delete this[name]; },
+  }]));
+  return { elements, getElementById: id => elements[id] };
 }
-for (const sha256 of [undefined, null, "", "abc", "g".repeat(64)])
-  invalid.push({ ...ready, sha256 });
-function render(data) {
-  const elements = Object.fromEntries(["download-link", "checksums-link", "signature-link", "public-key-link", "release-status", "verification-links", "verification-status"].map(id => [id, { hidden: true }]));
-  renderRelease(data, { getElementById: id => elements[id] });
-  return elements;
+for (const [platform, repository, format] of [
+  ["mac", "lattice-desktop", "zip"],
+  ["linux", "lattice-desktop-linux", "deb"],
+  ["linux", "lattice-desktop-linux", "AppImage"],
+  ["windows", "lattice-desktop-windows", "exe"],
+]) {
+  const prefix = platform === "mac" ? "" : `${platform}-`;
+  const base = `https://github.com/adalinxx/${repository}/releases/download/test/`;
+  const ready = { platform, architecture: "test architecture", requirements: "test OS", format,
+    version: "0.1.0", source: "a".repeat(40), sha256: "b".repeat(64), published: true,
+    artifact: base + `Lattice.${format}`, checksums: base + "SHA256SUMS",
+    signature: base + "SHA256SUMS.minisig", publicKey: base + "lattice-releases.pub" };
+  const unavailable = { ...ready, published: false };
+  assert.equal(isAvailable(ready), true, `${platform}/${format} published fixture`);
+  assert.equal(isAvailable(unavailable), false, `${platform}/${format} unpublished fixture`);
+  const invalid = [unavailable, null, { ...ready, platform: "other" }, { ...ready, format: "html" },
+    { ...ready, signature: base.replace("/test/", "/other/") + "SHA256SUMS.minisig" },
+    { ...ready, artifact: "https://github.com/adalinxx/lattice-desktop/releases" }];
+  for (const field of ["artifact", "checksums", "signature", "publicKey"]) {
+    for (const value of [undefined, null, "", "javascript:alert(1)", "https://example.com/file", "http://github.com/file"])
+      invalid.push({ ...ready, [field]: value });
+  }
+  for (const field of ["sha256", "source", "version", "architecture", "requirements"]) {
+    for (const value of [undefined, null, ""])
+      invalid.push({ ...ready, [field]: value });
+  }
+  invalid.push({ ...ready, sha256: "g".repeat(64) });
+  for (const data of invalid) {
+    assert.equal(isAvailable(data), false, `${platform}: invalid data is unavailable`);
+    const doc = page(prefix);
+    renderRelease(ready, doc, prefix); // Invalid metadata must also clear previously rendered links.
+    renderRelease(data, doc, prefix);
+    assert.equal(doc.elements[prefix + "download-link"].hidden, true);
+    assert.equal(doc.elements[prefix + "verification-links"].hidden, true);
+    for (const id of ["download-link", "checksums-link", "signature-link", "public-key-link"])
+      assert.equal(doc.elements[prefix + id].href, undefined);
+  }
+  const doc = page(prefix);
+  renderRelease(ready, doc, prefix);
+  assert.equal(doc.elements[prefix + "download-link"].hidden, false);
+  assert.equal(doc.elements[prefix + "download-link"].href, ready.artifact);
+  assert.equal(doc.elements[prefix + "verification-links"].hidden, false);
+  assert.equal(doc.elements[prefix + "public-key-link"].href, ready.publicKey);
+  assert.ok(!doc.elements[prefix + "platform-choice"].textContent.includes("not available"));
 }
-for (const data of invalid) {
-  assert.equal(isAvailable(data), false);
-  const elements = render(data);
-  assert.equal(elements["download-link"].hidden, true);
-  assert.equal(elements["download-link"].href, undefined);
-  assert.equal(elements["verification-links"].hidden, true);
+for (const [platform, release] of Object.entries(releases)) {
+  assert.equal(release.platform, platform, "release belongs to its platform");
+  assert.equal(isAvailable(release), release.published, `${platform} configured state is valid`);
+  const prefix = platform === "mac" ? "" : `${platform}-`;
+  const doc = page(prefix);
+  for (const id of ids) assert.equal([...download.matchAll(new RegExp(`id="${prefix}${id}"`, "g"))].length, 1, `${prefix}${id} exists once in HTML`);
+  renderRelease(release, doc, prefix);
+  assert.equal(doc.elements[prefix + "download-link"].hidden, !release.published);
+  assert.match(download, new RegExp(`id="${prefix}download-link"[^>]*hidden`));
+  assert.doesNotMatch(download, new RegExp(`id="${prefix}download-link"[^>]*href=`));
+  assert.ok(download.includes(`href="#${platform}"`));
+  assert.ok(download.includes(`id="${platform}"`));
 }
-for (const data of [ready, ...(release.published ? [release] : [])]) {
-  const elements = render(data);
-  assert.equal(elements["download-link"].hidden, false);
-  assert.equal(elements["download-link"].href, data.zip);
-  assert.equal(elements["verification-links"].hidden, false);
-  assert.equal(elements["public-key-link"].href, data.publicKey);
-}
-console.log("published/unpublished rendering fixtures passed");
+assert.equal(releases.mac.artifact, "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/Lattice-0.1.0-macos-arm64.zip", "preserve the live Mac ZIP");
+assert.match(readFileSync("index.html", "utf8"), /href="\.\/download\/">Download Lattice Desktop/);
+console.log("platform release validation and published/unpublished rendering checks passed");

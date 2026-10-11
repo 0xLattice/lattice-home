@@ -39,9 +39,10 @@ No token/price/roadmap-hype, team grid, partner logos, illustrations, or animati
 
 ## Desktop download publication
 
-`download/release.mjs` holds the verified public version 0.1.0 release URLs.
-No download URL is emitted unless `published` is true and all four URL fields
-pass validation. Missing JavaScript leaves the links hidden with an explanation.
+`download/release.mjs` holds the verified public Mac version 0.1.0 release URLs
+and independent unpublished Linux and Windows records.
+No download URL is emitted unless `published` is true, release metadata is
+complete, and all four URL fields pass validation. Missing JavaScript leaves the links hidden with an explanation.
 
 For a new release, download the exact public ZIP, SHA256SUMS,
 SHA256SUMS.minisig, and project public key. Verify the ZIP digest and manifest
@@ -49,3 +50,16 @@ signature against the trusted key, and confirm the version, source revision,
 requirements, and setup instructions before setting `published: true`.
 Run `node test-site.mjs` and the token checks above, then test the direct download
 in a browser. This change does not create releases or modify release keys.
+
+Linux and Windows remain unavailable until their exact version, source revision,
+architecture, supported OS versions, package format, digest, checksum manifest,
+project signature and trusted public-key URL are verified. The current schema
+supports a primary Linux .deb or AppImage and a Windows .exe installer. Verify
+installation steps and signing behavior on each target OS before enabling its
+record; update the platform help at the same time. Do not infer support from the
+browser or reuse the Mac release metadata for another platform.
+
+`node test-site.mjs` validates real records against their declared publication
+state and uses independent published/unpublished fixtures for every supported
+format. Invalid metadata must hide and clear both new and previously rendered
+links. Mac publication is independent of other platforms.

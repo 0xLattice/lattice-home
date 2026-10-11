@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Download Lattice Desktop — Lattice</title>
-<meta name="description" content="Lattice Desktop for Mac: a full node and wallet in one app. Download and setup instructions for Apple silicon.">
+<meta name="description" content="Download Lattice Desktop for Mac and check Linux and Windows availability and setup requirements.">
 <link rel="icon" href="../lattice-mark.svg">
 <style>
 :root {
@@ -56,8 +56,11 @@ details { border-top: var(--rule); }
 li { max-width: var(--measure); margin-bottom: 16px; color: var(--ink-soft); }
 .notice { border: var(--rule); padding: 24px; margin: 24px 0; }
 .intro .meta { font-size: var(--fs-14); }
-code, #verification-status { overflow-wrap: anywhere; }
+code, [id$="verification-status"] { overflow-wrap: anywhere; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); padding: 16px; font-size: var(--fs-14); }
+.actions + p { margin-top: 16px; }
+section:target { scroll-margin-top: 24px; }
+.meta { font-size: var(--fs-14); }
 #download-link { margin-bottom: 16px; }
 [hidden] { display: none !important; }
 .skip { position: absolute; left: -10000px; }
@@ -79,8 +82,18 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); paddi
 <main id="main">
   <header class="intro">
     <h1>Download Lattice Desktop</h1>
-    <p>A full Lattice node and Lattice Wallet in one Mac app.</p>
-    <p class="meta">Version 0.1.0 · Mac with Apple silicon · macOS 15 or later</p>
+    <p>A full Lattice node and Lattice Wallet in one desktop app.</p>
+    <p>Opening the app automatically starts a node and syncs the blockchain. This uses your internet connection and disk space. Mining is a separate choice.</p>
+    <div class="actions" aria-label="Choose your platform">
+      <a class="btn" id="platform-choice" href="#mac">Mac</a>
+      <a class="btn" id="linux-platform-choice" href="#linux">Linux · not available yet</a>
+      <a class="btn" id="windows-platform-choice" href="#windows">Windows · not available yet</a>
+    </div>
+    <p class="meta">Choose the operating system you use.</p>
+  </header>
+  <section id="mac" aria-labelledby="mac-title">
+    <h2 id="mac-title">Mac</h2>
+    <p id="requirements" class="meta">Version 0.1.0 · Mac with Apple silicon · macOS 15 or later</p>
     <p class="meta">Check Apple menu → About This Mac for your chip and macOS version.</p>
     <div class="notice">
       <p id="release-status" role="status">The download is unavailable.</p>
@@ -88,11 +101,10 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); paddi
       <a id="download-link" class="btn primary" hidden>Download for Mac — ZIP</a>
       <p class="meta">macOS may warn that the developer cannot be verified or that Apple cannot check the app for malicious software. Review the guidance below before opening.</p>
     </div>
-    <p>Opening the app automatically starts a node and syncs the blockchain. This uses your internet connection and disk space. Mining is a separate choice.</p>
     <p class="meta">Prefer the terminal? <a href="../#quickstart">Command-line setup</a></p>
-  </header>
+  </section>
   <section aria-labelledby="setup">
-    <h2 id="setup">Get started</h2>
+    <h2 id="setup">Get started on Mac</h2>
     <ol>
       <li><strong>Download and unzip.</strong> Save the ZIP and double-click it in Finder to extract Lattice.</li>
       <li><strong>Move to Applications.</strong> Drag Lattice into your Applications folder.</li>
@@ -114,7 +126,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); paddi
       <p><strong>Stop if macOS reports malware, says the app will damage your computer, or says it is damaged.</strong> Do not override those warnings.</p>
     </details>
     <details>
-      <summary>Verify the download (advanced)</summary>
+      <summary>Verify the Mac download (advanced)</summary>
       <p id="verification-status">Checksums, the project signature, and the public key will be linked here when the release is available.</p>
       <ul id="verification-links" hidden>
         <li><a id="checksums-link">SHA256 checksums</a></li>
@@ -125,6 +137,47 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); paddi
       <p>To authenticate the checksum file, use <a href="https://jedisct1.github.io/minisign/">Minisign</a> with the project’s public key. Confirm the key against a previously trusted copy or a separately trusted project source. Save the signature beside SHA256SUMS as SHA256SUMS.minisig, and the public key as lattice-releases.pub, then run this in that folder:</p>
       <pre><code>minisign -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
       <p>A matching checksum shows that your ZIP matches the listed bytes. A valid project signature authenticates the checksums only to the key you trust. Neither is Apple notarization or a guarantee that the software is safe. If either check fails, do not open the app.</p>
+    </details>
+  </section>
+  <section id="linux" aria-labelledby="linux-title">
+    <h2 id="linux-title">Linux</h2>
+    <p id="linux-requirements" class="meta">Release version, architecture, and supported OS versions will be listed with the download.</p>
+    <p id="linux-release-status" role="status">The download is not available yet.</p>
+    <a id="linux-download-link" class="btn primary" hidden>Download for Linux</a>
+    <details><summary>Before installing on Linux</summary>
+      <p>The Linux packaging repository targets .deb and AppImage packages. It documents glibc 2.35 or later and WebKitGTK 4.1. Final supported distributions and architecture will be confirmed with the release.</p>
+      <p>Installation steps will be provided for the verified package format. Check your distribution and version in your system’s About settings before choosing a download.</p>
+      <p><a href="https://github.com/adalinxx/lattice-desktop-linux">Linux packaging and requirements</a></p>
+    </details>
+    <details><summary>Verify the Linux download (advanced)</summary>
+      <p id="linux-verification-status">Verification files are not available yet.</p>
+      <ul id="linux-verification-links" hidden>
+        <li><a id="linux-checksums-link">SHA256 checksums</a></li>
+        <li><a id="linux-signature-link">Project signature for the checksums</a></li>
+        <li><a id="linux-public-key-link">Project public key</a></li>
+      </ul>
+      <p>Verification steps will accompany the published files. A checksum compares bytes; a project signature authenticates them only to the key you trust. Neither guarantees software safety.</p>
+    </details>
+  </section>
+  <section id="windows" aria-labelledby="windows-title">
+    <h2 id="windows-title">Windows</h2>
+    <p id="windows-requirements" class="meta">Release version, architecture, and supported OS versions will be listed with the download.</p>
+    <p id="windows-release-status" role="status">The download is not available yet.</p>
+    <a id="windows-download-link" class="btn primary" hidden>Download for Windows</a>
+    <details><summary>Before installing on Windows</summary>
+      <p>The Windows app runs its node in Windows Subsystem for Linux (WSL). It uses your default Linux distribution, which needs glibc 2.35 or later and SQLite; the repository lists Ubuntu 22.04 or later and Debian 12 or later.</p>
+      <ol><li>Before installing Lattice, follow <a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft’s WSL setup instructions</a>. WSL setup may require administrator access and a restart.</li><li>Open your Linux distribution once to finish its setup.</li><li>When the verified installer is available, follow the release-specific installation steps here.</li></ol>
+      <p>The installer’s supported Windows versions, architecture, and signing details will be listed with the release. Follow Windows security warnings; a project signature does not establish Windows publisher trust.</p>
+      <p><a href="https://github.com/adalinxx/lattice-desktop-windows">Windows packaging and requirements</a></p>
+    </details>
+    <details><summary>Verify the Windows download (advanced)</summary>
+      <p id="windows-verification-status">Verification files are not available yet.</p>
+      <ul id="windows-verification-links" hidden>
+        <li><a id="windows-checksums-link">SHA256 checksums</a></li>
+        <li><a id="windows-signature-link">Project signature for the checksums</a></li>
+        <li><a id="windows-public-key-link">Project public key</a></li>
+      </ul>
+      <p>Verification steps will accompany the published files. A checksum compares bytes; a project signature authenticates them only to the key you trust. Neither guarantees software safety.</p>
     </details>
   </section>
 </main>
