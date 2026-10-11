@@ -1,6 +1,7 @@
 import { release, isAvailable } from "./release.mjs";
 
-if (isAvailable(release)) {
+export function renderRelease(release, document) {
+  if (!isAvailable(release)) return;
   for (const [id, value] of Object.entries({
     "download-link": release.zip,
     "checksums-link": release.checksums,
@@ -12,3 +13,5 @@ if (isAvailable(release)) {
   document.getElementById("verification-links").hidden = false;
   document.getElementById("verification-status").textContent = `ZIP SHA256: ${release.sha256}`;
 }
+
+if (typeof document !== "undefined") renderRelease(release, document);

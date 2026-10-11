@@ -3,11 +3,11 @@ export const release = Object.freeze({
   version: "0.1.0",
   source: "578dad10c7ca7a95e06187534fc9e803d54144b2",
   sha256: "62fccf7c5c0fee158fd99ac615a036cd4082aa7549b34926a16ee365033a7993",
-  published: false,
-  zip: null,
-  checksums: null,
-  signature: null,
-  publicKey: null,
+  published: true,
+  zip: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/Lattice-0.1.0-macos-arm64.zip",
+  checksums: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/SHA256SUMS",
+  signature: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/SHA256SUMS.minisig",
+  publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub",
 });
 
 export function isAvailable(data) {

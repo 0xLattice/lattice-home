@@ -39,14 +39,13 @@ No token/price/roadmap-hype, team grid, partner logos, illustrations, or animati
 
 ## Desktop download publication
 
-`download/release.mjs` holds the release metadata. This draft remains unavailable:
-no download URL is emitted until `published` is true and all four URL fields pass
-validation. Missing JavaScript also leaves the unavailable state intact.
+`download/release.mjs` holds the verified public version 0.1.0 release URLs.
+No download URL is emitted unless `published` is true and all four URL fields
+pass validation. Missing JavaScript leaves the links hidden with an explanation.
 
-Before publishing the site, supply the exact public ZIP, SHA256SUMS,
-SHA256SUMS.minisig, and project public-key URLs. Download those public assets,
-verify the ZIP digest and manifest signature against the trusted key, and confirm
-the version, source revision, requirements, and setup instructions. Then set
-`published: true`, run `node test-site.mjs` and the token checks above, and test
-the direct download in a browser. Keep this change in draft until that validation
-is complete. This change does not create releases or modify release keys.
+For a new release, download the exact public ZIP, SHA256SUMS,
+SHA256SUMS.minisig, and project public key. Verify the ZIP digest and manifest
+signature against the trusted key, and confirm the version, source revision,
+requirements, and setup instructions before setting `published: true`.
+Run `node test-site.mjs` and the token checks above, then test the direct download
+in a browser. This change does not create releases or modify release keys.

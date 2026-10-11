@@ -58,6 +58,7 @@ li { max-width: var(--measure); margin-bottom: 16px; color: var(--ink-soft); }
 .intro .meta { font-size: var(--fs-14); }
 code, #verification-status { overflow-wrap: anywhere; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); padding: 16px; font-size: var(--fs-14); }
+#download-link { margin-bottom: 16px; }
 [hidden] { display: none !important; }
 .skip { position: absolute; left: -10000px; }
 .skip:focus { position: static; }
@@ -78,11 +79,12 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); paddi
 <main id="main">
   <header class="intro">
     <h1>Download Lattice Desktop</h1>
-    <p>A full Lattice node and wallet in one Mac app.</p>
+    <p>A full Lattice node and Lattice Wallet in one Mac app.</p>
     <p class="meta">Version 0.1.0 · Mac with Apple silicon · macOS 15 or later</p>
     <p class="meta">Check Apple menu → About This Mac for your chip and macOS version.</p>
     <div class="notice">
-      <p id="release-status" role="status">The download is not available yet.</p>
+      <p id="release-status" role="status">The download is unavailable.</p>
+      <noscript><p class="meta">Enable JavaScript to load the release links.</p></noscript>
       <a id="download-link" class="btn primary" hidden>Download for Mac — ZIP</a>
       <p class="meta">macOS may warn that the developer cannot be verified or that Apple cannot check the app for malicious software. Review the guidance below before opening.</p>
     </div>
@@ -92,7 +94,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; border: var(--rule); paddi
   <section aria-labelledby="setup">
     <h2 id="setup">Get started</h2>
     <ol>
-      <li><strong>Download and unzip.</strong> When the download is available, save the ZIP and double-click it in Finder to extract Lattice.</li>
+      <li><strong>Download and unzip.</strong> Save the ZIP and double-click it in Finder to extract Lattice.</li>
       <li><strong>Move to Applications.</strong> Drag Lattice into your Applications folder.</li>
       <li><strong>Open Lattice.</strong> Open it from Applications. If macOS shows an unverified-developer warning, review “Opening on macOS” below.</li>
       <li><strong>Set up your wallet.</strong> Follow the app’s prompts to create or import a wallet. Keep your recovery phrase private and store a backup. The app shows sync progress; allow it to catch up before using the wallet.</li>
