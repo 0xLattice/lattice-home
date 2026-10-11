@@ -51,7 +51,9 @@ requirements, and setup instructions before setting `published: true`.
 Run `node test-site.mjs` and the token checks above, then test the direct download
 in a browser. This change does not create releases or modify release keys.
 
-Candidate filenames, versions, source revisions and digests are recorded.
+Candidate filenames, versions, source revisions, sizes, digests and planned
+release URLs are recorded. Linux/Windows destinations are not live yet; keep
+`published: false` until signatures and re-downloaded public assets are verified.
 Linux and Windows remain unavailable until their exact version, source revision,
 architecture, supported OS versions, package format, digest, checksum manifest,
 project signature and trusted public-key URL are verified. The current schema
@@ -68,5 +70,5 @@ links. Mac publication is independent of other platforms.
 Current candidate validation: the installed Linux .deb and extracted AppImage UI
 were tested; normal AppImage FUSE mounting was not. The Windows shipped executable
 passed startup and mining checks on Windows Server 2025; full UI tests used an
-instrumented build. The WSL setup minimum is not a desktop Windows app support
+instrumented build. The Windows test environment used Ubuntu 24.04 in WSL. The WSL setup minimum is not a desktop Windows app support
 matrix. Physical GPU and live-network behavior are not established by these tests.
