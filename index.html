@@ -87,7 +87,7 @@ figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit
     border: var(--rule); text-align: center; }
   .hero .wordmark { font-size: var(--fs-44); display: block; margin: 0 0 var(--s-2); }
   .hero p { margin: 0 auto var(--s-4); }
-  .hero .actions { display: flex; gap: var(--s-2); justify-content: center; }
+  .hero .actions { display: flex; gap: var(--s-2); justify-content: center; flex-wrap: wrap; }
   section { padding: var(--s-6) 0; border-top: var(--rule); }
   section:first-of-type { border-top: 0; }
   h2 { font-size: var(--fs-20); }
@@ -110,6 +110,9 @@ figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit
     nav { align-items: flex-start; }
     nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
     .claims { grid-template-columns: 1fr; }
+    .hero { padding: var(--s-6) var(--s-3); }
+    #network { overflow-x: auto; }
+    #network code { overflow-wrap: anywhere; }
   }
 </style>
 </head>
@@ -121,6 +124,7 @@ figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit
       <span class="wordmark">LATTICE</span>
     </a>
     <span class="links">
+      <a href="./download/">Download</a>
       <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
       <a href="./explorer/">Explorer</a>
       <a href="./community/">Community</a>
@@ -134,7 +138,7 @@ figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit
     <h1 class="wordmark">LATTICE</h1>
     <p>Launch your own blockchain.</p>
     <div class="actions">
-      <a class="btn btn--primary" href="#quickstart">Run a node</a>
+      <a class="btn btn--primary" href="./download/">Download Lattice Desktop</a>
       <a class="btn" href="#spec">Read the spec</a>
     </div>
   </div>
@@ -157,7 +161,7 @@ figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit
   </section>
 
   <section id="quickstart">
-    <h2>Quickstart</h2>
+    <h2>Command-line setup</h2>
     <p>One <code>lattice-node</code> process hosts one chain tree: RPC, gossip, trustless sync, and mempool for Nexus and any child chains you host. Mining is external — the node serves block templates and validates solutions; <code>lattice-mining-coordinator</code> assigns nonce ranges to stateless <code>lattice-miner</code> workers.</p>
 <figure class="term">
 <figcaption>run a node</figcaption>
