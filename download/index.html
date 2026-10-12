@@ -92,9 +92,18 @@ section:target { scroll-margin-top: 24px; }
     <p class="meta">Choose the operating system you use.</p>
     <p class="meta">Optional GPU mining on Linux and Windows needs compatible OpenCL drivers installed separately. Physical GPU and live-network behavior have not been validated by the release checks.</p>
   </header>
+  <section aria-labelledby="upgrade-title">
+    <h2 id="upgrade-title">Upgrading from an earlier version?</h2>
+    <p>Quit Lattice and stop its node before upgrading. Back up the full application and node profile, including your wallet, node data, and configuration. Keep this pre-upgrade backup if you may need to return to the older version.</p>
+    <details>
+      <summary>Backup and rollback details</summary>
+      <p>A wallet backup alone is not enough for rollback once the new per-chain peer settings are saved. The older node cannot read the new object-valued peer configuration. Returning to the older version requires the full backup made while the app and node were stopped; do not reuse the upgraded profile.</p>
+      <p>An older node may also lose remembered peer addresses when it encounters peerbook v2. That loss concerns remembered peers, not ledger corruption. Peer-format compatibility checks do not prove that arbitrary node data can be downgraded.</p>
+    </details>
+  </section>
   <section id="mac" aria-labelledby="mac-title">
     <h2 id="mac-title">Mac</h2>
-    <p id="requirements" class="meta">Version 0.1.0 · Mac with Apple silicon · macOS 15 or later</p>
+    <p id="requirements" class="meta">Version 0.1.1 · Mac with Apple silicon · macOS 15 or later</p>
     <p class="meta">Check Apple menu → About This Mac for your chip and macOS version.</p>
     <div class="notice">
       <p id="release-status" role="status">The download is unavailable.</p>
@@ -142,7 +151,7 @@ section:target { scroll-margin-top: 24px; }
   </section>
   <section id="linux" aria-labelledby="linux-title">
     <h2 id="linux-title">Linux</h2>
-    <p id="linux-requirements" class="meta">Version 0.1.0 · amd64 (x86-64) · Debian/Ubuntu with glibc 2.35 or later; WebKitGTK 4.1, GTK 3 and SQLite</p>
+    <p id="linux-requirements" class="meta">Version 0.1.1 · amd64 (x86-64) · Debian/Ubuntu with glibc 2.35 or later; WebKitGTK 4.1, GTK 3 and SQLite</p>
     <p id="linux-release-status" role="status">The download is not available yet.</p>
     <a id="linux-download-link" class="btn primary" hidden>Download for Linux — .deb</a>
     <details><summary>Before installing on Linux</summary>
@@ -166,21 +175,21 @@ section:target { scroll-margin-top: 24px; }
       <p>In that folder, authenticate the checksum file:</p>
       <pre><code>minisign -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
       <p>Then run the command for the package you downloaded and compare its result with that filename’s entry in SHA256SUMS. For the .deb:</p>
-      <pre><code>sha256sum Lattice_0.1.0_amd64.deb</code></pre>
+      <pre><code>sha256sum Lattice_0.1.1_amd64.deb</code></pre>
       <p>For the AppImage:</p>
-      <pre><code>sha256sum Lattice_0.1.0_amd64.AppImage</code></pre>
+      <pre><code>sha256sum Lattice_0.1.1_amd64.AppImage</code></pre>
       <p>A checksum compares bytes; a project signature authenticates the checksum file only to the key you trust. Neither guarantees software safety. If either check fails, do not open the package.</p>
     </details>
     <p><a href="#linux-appimage">Prefer AppImage?</a></p>
     <details id="linux-appimage"><summary>AppImage option</summary>
-      <p id="linux-appimage-requirements" class="meta">Version 0.1.0 · amd64 (x86-64) · glibc 2.35 or later; FUSE mounting or extraction</p>
+      <p id="linux-appimage-requirements" class="meta">Version 0.1.1 · amd64 (x86-64) · glibc 2.35 or later; FUSE mounting or extraction</p>
       <p id="linux-appimage-release-status" role="status">The download is not available yet.</p>
       <a id="linux-appimage-download-link" class="btn primary" hidden>Download for Linux — AppImage</a>
       <p>The AppImage bundles WebKitGTK 4.1, GTK 3 and SQLite. In your file manager’s Properties → Permissions, allow the verified AppImage to run as a program, then open it. Labels vary by desktop.</p>
       <p>Normal opening needs working FUSE mounting and helper access. This build does not require the libfuse2 package. FUSE mounting has not been tested; the extracted AppImage UI has been tested.</p>
       <p>If mounting is unavailable, extraction is an alternative. In a terminal in the download folder, after verifying the file:</p>
-      <pre><code>chmod +x Lattice_0.1.0_amd64.AppImage
-./Lattice_0.1.0_amd64.AppImage --appimage-extract
+      <pre><code>chmod +x Lattice_0.1.1_amd64.AppImage
+./Lattice_0.1.1_amd64.AppImage --appimage-extract
 ./squashfs-root/AppRun</code></pre>
       <p>Extraction creates a squashfs-root folder. Keep it to run AppRun again.</p>
       <p id="linux-appimage-verification-status">Verification files are not available yet.</p>
@@ -194,7 +203,7 @@ section:target { scroll-margin-top: 24px; }
   </section>
   <section id="windows" aria-labelledby="windows-title">
     <h2 id="windows-title">Windows</h2>
-    <p id="windows-requirements" class="meta">Version 0.1.0 · x64 · WebView2 and an initialized default WSL distribution</p>
+    <p id="windows-requirements" class="meta">Version 0.1.1 · x64 · WebView2 and an initialized default WSL distribution</p>
     <p id="windows-release-status" role="status">The download is not available yet.</p>
     <a id="windows-download-link" class="btn primary" hidden>Download for Windows</a>
     <p class="meta">The Windows installer is not signed with Authenticode. Windows may show an unknown-publisher or SmartScreen warning. A project signature does not establish Windows publisher trust; do not disable Windows security protections.</p>
@@ -220,7 +229,7 @@ section:target { scroll-margin-top: 24px; }
       <p>In PowerShell in that folder, authenticate the checksum file:</p>
       <pre><code>minisign.exe -Vm SHA256SUMS -p lattice-releases.pub</code></pre>
       <p>Then calculate the installer’s hash and compare it with its entry in SHA256SUMS (letter case does not matter):</p>
-      <pre><code>Get-FileHash -LiteralPath .\Lattice_0.1.0_x64-setup.exe -Algorithm SHA256</code></pre>
+      <pre><code>Get-FileHash -LiteralPath .\Lattice_0.1.1_x64-setup.exe -Algorithm SHA256</code></pre>
       <p>A matching checksum compares bytes; a project signature authenticates the checksum file only to the key you trust. Neither establishes Windows publisher trust or guarantees software safety. If either check fails, do not open the installer.</p>
     </details>
   </section>

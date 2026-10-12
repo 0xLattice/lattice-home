@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 
 const pages = ["index.html", "community/index.html", "download/index.html"];
 const required = {
-  "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign", "WebView2", "Authenticode", "glibc 2.35", "WebKitGTK 4.1", "AppImage", "NSIS", "sha256sum Lattice_0.1.0_amd64.deb", "Get-FileHash -LiteralPath", "minisign.exe -Vm"],
+  "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign", "WebView2", "Authenticode", "glibc 2.35", "WebKitGTK 4.1", "AppImage", "NSIS", "sha256sum Lattice_0.1.1_amd64.deb", "Get-FileHash -LiteralPath", "minisign.exe -Vm"],
   "index.html": ["Download", "Command-line setup", "Docs", "Explorer", "Community", "GitHub"],
   "community/index.html": ["Run a node", "Launch a child chain", "Mine", "Understand the protocol", "Build software", "Help the community"],
 };
@@ -108,17 +108,38 @@ for (const [platform, release] of Object.entries(releases)) {
   assert.ok(download.includes(`href="#${platform}"`));
   assert.ok(download.includes(`id="${platform}"`));
 }
-assert.equal(releases.mac.artifact, "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/Lattice-0.1.0-macos-arm64.zip", "preserve the live Mac ZIP");
+for (const data of Object.values(releases)) {
+  assert.equal(data.version, "0.1.1");
+  assert.equal(typeof data.published, "boolean", "publication state is explicit");
+  assert.equal(isAvailable({ ...data, published: true }), true, "candidate URL structure is valid");
+  assert.ok(Number.isSafeInteger(data.bytes) && data.bytes > 0);
+  assert.ok(download.includes(data.filename) || data.platform === "mac");
+  assert.equal(data.publicKey, "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub");
+}
 assert.match(readFileSync("index.html", "utf8"), /href="\.\/download\/">Download Lattice Desktop/);
 const elements = Object.assign({}, ...Object.keys(releases).map(key => page(key === "mac" ? "" : `${key}-`).elements));
 delete elements["linux-appimage-platform-choice"];
 const catalogPage = { getElementById: id => elements[id] };
 renderCatalog(releases, catalogPage);
-assert.equal(elements["download-link"].hidden, false);
+assert.equal(elements["download-link"].hidden, !releases.mac.published);
 for (const [key, data] of Object.entries(releases)) {
   const prefix = key === "mac" ? "" : `${key}-`;
   assert.equal(elements[`${prefix}download-link`].hidden, !data.published);
   assert.equal(elements[`${prefix}download-link`].href, data.published ? data.artifact : undefined);
+}
+const publishedCatalog = Object.fromEntries(Object.entries(releases).map(([key, data]) => [key, { ...data, published: true }]));
+renderCatalog(publishedCatalog, catalogPage);
+for (const [key, data] of Object.entries(publishedCatalog)) {
+  const prefix = key === "mac" ? "" : `${key}-`;
+  assert.equal(elements[prefix + "download-link"].href, data.artifact);
+  assert.equal(elements[prefix + "download-link"].hidden, false);
+}
+const allUnavailable = Object.fromEntries(Object.entries(releases).map(([key, data]) => [key, { ...data, published: false }]));
+renderCatalog(allUnavailable, catalogPage);
+for (const key of Object.keys(releases)) {
+  const prefix = key === "mac" ? "" : `${key}-`;
+  assert.equal(elements[prefix + "download-link"].href, undefined);
+  assert.equal(elements[prefix + "download-link"].hidden, true);
 }
 // Explicit mixed-publication fixture: independent of production publication flags.
 const unavailableCatalog = Object.fromEntries(Object.entries(releases).map(([key, data]) =>
@@ -131,7 +152,7 @@ renderCatalog({ ...unavailableCatalog, "linux-appimage": appImageReady }, catalo
 assert.equal(elements["linux-download-link"].hidden, true);
 assert.equal(elements["linux-appimage-download-link"].hidden, false);
 assert.equal(elements["linux-platform-choice"].textContent, "Linux");
-assert.equal(elements["download-link"].href, releases.mac.artifact);
+assert.equal(elements["download-link"].href, releases.mac.published ? releases.mac.artifact : undefined);
 renderCatalog(unavailableCatalog, catalogPage);
 assert.equal(elements["linux-appimage-download-link"].href, undefined);
 assert.equal(elements["linux-platform-choice"].textContent, "Linux · not available yet");
