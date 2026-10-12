@@ -39,8 +39,10 @@ No token/price/roadmap-hype, team grid, partner logos, illustrations, or animati
 
 ## Desktop download publication
 
-`download/release.mjs` holds verified public version 0.1.0 releases for Mac, Linux
-(.deb and AppImage), and Windows. Each package has an independent record.
+`download/release.mjs` stages unpublished version 0.1.1 candidates for Mac,
+Linux (.deb and AppImage), and Windows. This draft must not be merged or deployed
+until release publication is verified and deployment is approved. The live site
+continues to serve version 0.1.0.
 No download URL is emitted unless `published` is true, release metadata is
 complete, and all four URL fields pass validation. Missing JavaScript leaves the links hidden with an explanation.
 
@@ -51,14 +53,13 @@ requirements, and setup instructions before setting `published: true`.
 Run `node test-site.mjs` and the token checks above, then test the direct download
 in a browser. This change does not create releases or modify release keys.
 
-Published filenames, versions, build-source revisions, sizes, digests and release
-URLs are recorded. The `source` field identifies the tested build revision;
-release merge commits are separate. Linux was released at
-`2d35ebff55f0a990ce086d084400c0280dabe742`, and Windows at
-`8f482b8f39fda131ae7388e0bf61bc0fbb3da37b`. Public installers were downloaded
-without authentication and checked against their sizes, SHA256 digests and signed
-manifests before publication was enabled. Both manifests verify against the
-existing project release key.
+Candidate filenames, versions, build-source revisions, sizes, digests and planned
+release URLs are recorded. The `source` field identifies the tested build revision.
+All packages include node revision `a09d22335117d04ac6e05f4be771dafd7ed4cdc1`.
+The existing project public key remains unchanged. All four records stay
+`published: false` until the public package bytes and checksum manifests are
+downloaded and verified, and all three manifest signatures verify against the
+trusted project key. Planned URLs are not evidence of publication.
 
 Keep future records unpublished until their exact public assets, metadata,
 requirements and signatures are verified. Update platform help alongside each
@@ -70,7 +71,7 @@ state and uses independent published/unpublished fixtures for every supported
 format. Invalid metadata must hide and clear both new and previously rendered
 links. Mac publication is independent of other platforms.
 
-Current release validation: the installed Linux .deb and extracted AppImage UI
+Candidate validation: the installed Linux .deb and extracted AppImage UI
 were tested; normal AppImage FUSE mounting was not. The Windows shipped executable
 passed startup and mining checks on Windows Server 2025; full UI tests used an
 instrumented build. Installing WebView2 on a machine missing that runtime was not
