@@ -55,7 +55,8 @@ in a browser. This change does not create releases or modify release keys.
 
 Candidate filenames, versions, build-source revisions, sizes, digests and planned
 release URLs are recorded. The `source` field identifies the tested build revision.
-All packages include node revision `a09d22335117d04ac6e05f4be771dafd7ed4cdc1`.
+All packages include node revision `fd3684842e8091856b372d2fd56806a3551ba6a4`
+and wallet revision `d1d6b9531994884a98a1abc0557945009c87915e`.
 The existing project public key remains unchanged. All four records stay
 `published: false` until the public package bytes and checksum manifests are
 downloaded and verified, and all three manifest signatures verify against the

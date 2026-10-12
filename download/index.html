@@ -92,6 +92,15 @@ section:target { scroll-margin-top: 24px; }
     <p class="meta">Choose the operating system you use.</p>
     <p class="meta">Optional GPU mining on Linux and Windows needs compatible OpenCL drivers installed separately. Physical GPU and live-network behavior have not been validated by the release checks.</p>
   </header>
+  <section aria-labelledby="upgrade-title">
+    <h2 id="upgrade-title">Upgrading from an earlier version?</h2>
+    <p>Quit Lattice and stop its node before upgrading. Back up the full application and node profile, including your wallet, node data, and configuration. Keep this pre-upgrade backup if you may need to return to the older version.</p>
+    <details>
+      <summary>Backup and rollback details</summary>
+      <p>A wallet backup alone is not enough for rollback once the new per-chain peer settings are saved. The older node cannot read the new object-valued peer configuration. Returning to the older version requires the full backup made while the app and node were stopped; do not reuse the upgraded profile.</p>
+      <p>An older node may also lose remembered peer addresses when it encounters peerbook v2. That loss concerns remembered peers, not ledger corruption. Peer-format compatibility checks do not prove that arbitrary node data can be downgraded.</p>
+    </details>
+  </section>
   <section id="mac" aria-labelledby="mac-title">
     <h2 id="mac-title">Mac</h2>
     <p id="requirements" class="meta">Version 0.1.1 · Mac with Apple silicon · macOS 15 or later</p>
