@@ -9,7 +9,7 @@ export const release = Object.freeze({
   bytes: 41248525,
   source: "fecb3e2e7bf6d387950e48209f28d2c71402356a",
   sha256: "3dc4c20b3079175d646f94a24ecff1f75ac5d8232f453afd07b2e9a0fed2faf5",
-  published: false,
+  published: true,
   artifact: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.1/Lattice-0.1.1-macos-arm64.zip",
   checksums: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.1/SHA256SUMS",
   signature: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.1/SHA256SUMS.minisig",
@@ -17,12 +17,12 @@ export const release = Object.freeze({
 });
 
 // source identifies the tested build revision, not the later release merge commit.
-// Draft v0.1.1: planned URLs only; public assets and signatures await verification.
+// v0.1.1 public package bytes, manifests and signatures verified before enabling.
 // Bundled node source: fd3684842e8091856b372d2fd56806a3551ba6a4
 // Bundled wallet source: d1d6b9531994884a98a1abc0557945009c87915e
 export const releases = Object.freeze({
   mac: release,
-  linux: Object.freeze({ platform: "linux", published: false, version: "0.1.1",
+  linux: Object.freeze({ platform: "linux", published: true, version: "0.1.1",
     source: "a3ef6c2f04d227fc1030ba8671812d6b25848fa6", architecture: "amd64 (x86-64)",
     requirements: "Debian/Ubuntu with glibc 2.35 or later; WebKitGTK 4.1, GTK 3 and SQLite", format: "deb",
     filename: "Lattice_0.1.1_amd64.deb", bytes: 137340426,
@@ -31,7 +31,7 @@ export const releases = Object.freeze({
     checksums: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.1/SHA256SUMS",
     signature: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.1/SHA256SUMS.minisig",
     publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub" }),
-  "linux-appimage": Object.freeze({ platform: "linux", published: false, version: "0.1.1",
+  "linux-appimage": Object.freeze({ platform: "linux", published: true, version: "0.1.1",
     source: "a3ef6c2f04d227fc1030ba8671812d6b25848fa6", architecture: "amd64 (x86-64)",
     requirements: "glibc 2.35 or later; FUSE mounting or extraction", format: "AppImage",
     filename: "Lattice_0.1.1_amd64.AppImage", bytes: 201116152,
@@ -40,7 +40,7 @@ export const releases = Object.freeze({
     checksums: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.1/SHA256SUMS",
     signature: "https://github.com/adalinxx/lattice-desktop-linux/releases/download/v0.1.1/SHA256SUMS.minisig",
     publicKey: "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub" }),
-  windows: Object.freeze({ platform: "windows", published: false, version: "0.1.1",
+  windows: Object.freeze({ platform: "windows", published: true, version: "0.1.1",
     source: "865d9ed977f240b3246cd563e486041418d00151", architecture: "x64",
     requirements: "WebView2 and an initialized default WSL distribution", format: "exe",
     filename: "Lattice_0.1.1_x64-setup.exe", bytes: 86771402,

@@ -110,7 +110,7 @@ for (const [platform, release] of Object.entries(releases)) {
 }
 for (const data of Object.values(releases)) {
   assert.equal(data.version, "0.1.1");
-  assert.equal(data.published, false, "candidate must remain unavailable until verified");
+  assert.equal(typeof data.published, "boolean", "publication state is explicit");
   assert.equal(isAvailable({ ...data, published: true }), true, "candidate URL structure is valid");
   assert.ok(Number.isSafeInteger(data.bytes) && data.bytes > 0);
   assert.ok(download.includes(data.filename) || data.platform === "mac");
@@ -134,7 +134,8 @@ for (const [key, data] of Object.entries(publishedCatalog)) {
   assert.equal(elements[prefix + "download-link"].href, data.artifact);
   assert.equal(elements[prefix + "download-link"].hidden, false);
 }
-renderCatalog(releases, catalogPage);
+const allUnavailable = Object.fromEntries(Object.entries(releases).map(([key, data]) => [key, { ...data, published: false }]));
+renderCatalog(allUnavailable, catalogPage);
 for (const key of Object.keys(releases)) {
   const prefix = key === "mac" ? "" : `${key}-`;
   assert.equal(elements[prefix + "download-link"].href, undefined);
