@@ -262,10 +262,12 @@ const parentOf = (chainPath) => chainPath.split("/").slice(0, -1).join("/");
 // configured Nexus nodes for the root). P's endpoint lists the read URLs the child's hosts
 // declared (unverified), found through the child's rendezvous on P's network. A candidate —
 // P's own endpoint, the browser's choice, then each declared URL, in that order — is accepted
-// if it serves the child chain: a POSITIVE answer naming that chain with a tip, never an
-// omission. What P commits never decides it: a committed child block can be one the child
-// chain did not keep, or one nobody serves. This is a consistency check, not proof (the
-// browser gets JSON, not hashable bytes); the view says so.
+// if it serves the child chain on this network: a POSITIVE answer naming that chain with a
+// tip, from a node whose Nexus has the configured nodes' genesis (every network names its
+// chains Nexus/...), never an omission. What P commits never decides whether an endpoint is
+// accepted: a committed child block can be one the child chain did not keep, or one nobody
+// serves. This is a consistency check, not proof (the browser gets JSON, not hashable
+// bytes); the view says so.
 // Resolves to { ep } (null = configured nodes) or { ep: undefined } when nothing matched.
 // PURE w.r.t. globals so a concurrent navigation can't corrupt it. Cached ~60s.
 const MAX_CHAIN_DEPTH = 8;
@@ -295,10 +297,28 @@ async function matchedChildEndpoint(parentEp, chainPath) {
     try {
       const info = await getFrom(ep, "/api/chain/info", { chainPath });
       const serves = Array.isArray(info?.chain) && info.chain.join("/") === chainPath && info.height != null;
-      if (serves) return { ep }; // positive answer only
+      if (serves && (await onThisNetwork(ep))) return { ep }; // positive answer only
     } catch { /* dead / no CORS / does not serve it → next */ }
   }
   return { ep: undefined };
+}
+
+// Whether an endpoint's Nexus is the configured nodes' Nexus (same genesis). A node names
+// its Nexus genesis at /api/chain/genesis whatever it has synced. The configured nodes are
+// this network; their answer is kept once it arrives, and asked again if it did not.
+let _nexusGenesis = null;
+const nexusGenesisOf = (ep) => getFrom(ep, "/api/chain/genesis", { chainPath: "Nexus" }).then((g) => {
+  if (typeof g?.genesisHash !== "string") throw new Error("no genesis");
+  return g.genesisHash;
+});
+async function onThisNetwork(ep) {
+  if (ep === null) return true;
+  if (!_nexusGenesis) {
+    _nexusGenesis = nexusGenesisOf(null);
+    _nexusGenesis.catch(() => { _nexusGenesis = null; });
+  }
+  const [ours, theirs] = await Promise.all([_nexusGenesis, nexusGenesisOf(ep)]);
+  return ours === theirs;
 }
 
 // Reachability of a chain, from the explorer's vantage. Cached ~30s.
