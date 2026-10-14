@@ -303,20 +303,22 @@ async function matchedChildEndpoint(parentEp, chainPath) {
   return { ep: undefined };
 }
 
-// Whether an endpoint's Nexus is the configured nodes' Nexus (same genesis). A host serves
-// every ancestor of what it hosts, Nexus included. The configured nodes are this network.
+// Whether an endpoint's Nexus is the configured nodes' Nexus (same genesis). A node names
+// its Nexus genesis at /api/chain/genesis whatever it has synced. The configured nodes are
+// this network; their answer is kept once it arrives, and asked again if it did not.
 let _nexusGenesis = null;
+const nexusGenesisOf = (ep) => getFrom(ep, "/api/chain/genesis", { chainPath: "Nexus" }).then((g) => {
+  if (typeof g?.genesisHash !== "string") throw new Error("no genesis");
+  return g.genesisHash;
+});
 async function onThisNetwork(ep) {
   if (ep === null) return true;
   if (!_nexusGenesis) {
-    _nexusGenesis = backboneGet("/api/chain/info", { chainPath: "Nexus" }).then((i) => i?.genesisHash);
+    _nexusGenesis = nexusGenesisOf(null);
     _nexusGenesis.catch(() => { _nexusGenesis = null; });
   }
-  const [ours, theirs] = await Promise.all([
-    _nexusGenesis,
-    getFrom(ep, "/api/chain/info", { chainPath: "Nexus" }).then((i) => i?.genesisHash),
-  ]);
-  return typeof ours === "string" && ours === theirs;
+  const [ours, theirs] = await Promise.all([_nexusGenesis, nexusGenesisOf(ep)]);
+  return ours === theirs;
 }
 
 // Reachability of a chain, from the explorer's vantage. Cached ~30s.
