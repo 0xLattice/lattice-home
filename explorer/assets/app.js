@@ -301,7 +301,7 @@ async function matchedChildEndpoint(parentEp, chainPath) {
       const info = await getFrom(ep, "/api/chain/info", { chainPath });
       const serves = Array.isArray(info?.chain) && info.chain.join("/") === chainPath && info.height != null;
       if (serves && (await onThisNetwork(ep))) return { ep }; // positive answer only
-    } catch { /* dead / no CORS / does not serve it → next */ }
+    } catch (e) { if (e?.status === 429) busy = true; /* else dead / no CORS / not served → next */ }
   }
   return busy ? { ep: undefined, busy: true } : { ep: undefined };
 }
@@ -334,7 +334,10 @@ async function probeChain(chainPath) {
   if (busy) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
   if (ep !== undefined) {
     try { out = { t: Date.now(), ...classifyTip(await getFrom(ep, "/api/block/latest", { chainPath })) }; }
-    catch { /* endpoint died between the match and the probe */ }
+    catch (e) {
+      if (e?.status === 429) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
+      /* else the endpoint died between the match and the probe */
+    }
   }
   _probe.set(chainPath, out);
   return out;
