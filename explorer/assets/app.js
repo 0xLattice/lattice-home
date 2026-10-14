@@ -399,23 +399,32 @@ function homeSkeleton() {
 }
 
 // List the current chain's direct children with live/offline status.
-// The children are every directory the current chain has committed, each with its newest
-// child block, from the node's index; a node without that route lists only what its tip
-// block commits. At most 1000, in pages of 100.
+// The children the current chain has committed, the most recently committed first (at most
+// 100), each with its newest child block, from the node's index. Only a node without that
+// route (404, or refused by a proxy that does not know it) falls back to its tip's children.
 async function chainChildren() {
-  let page;
   try {
-    page = await api("/api/chain/children", { limit: 100 });
-  } catch {
+    return (await api("/api/chain/children", { limit: 100 })).children || [];
+  } catch (e) {
+    if (e.status !== 404 && e.status !== 403) throw e;
     const latest = await api("/api/block/latest");
     return (await api(`/api/block/${encodeURIComponent(latest.hash)}/children`, { limit: 100 })).children || [];
   }
-  const kids = [...(page.children || [])];
-  while (page.next && kids.length < 1000) {
-    page = await api("/api/chain/children", { limit: 100, after: page.next });
-    kids.push(...(page.children || []));
-  }
-  return kids;
+}
+
+// Each row's status is a probe that reads an expensive route; a few run at once.
+const PROBES_AT_ONCE = 4;
+async function probeRows(rows) {
+  let next = 0;
+  const worker = async () => {
+    while (next < rows.length) {
+      const { path, badgeCell, heightCell } = rows[next++];
+      const p = await probeChain(path);
+      badgeCell.innerHTML = ""; badgeCell.appendChild(statusBadge(p.status));
+      heightCell.textContent = p.height == null ? "—" : num(p.height);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(PROBES_AT_ONCE, rows.length) }, worker));
 }
 
 async function chainsSection(host) {
@@ -440,6 +449,7 @@ async function chainsSection(host) {
     tbody.appendChild(el("tr", {}, el("td", { colspan: 4, class: "empty" }, "No child chains.")));
     return;
   }
+  const rows = [];
   for (const c of kids) {
     const path = `${state.chain || "Nexus"}/${c.directory}`;
     const label = c.directory;
@@ -451,11 +461,9 @@ async function chainsSection(host) {
         badgeCell, heightCell,
         el("td", { class: "hide-sm" }, hashEl(c.blockHash, 6)))
     );
-    probeChain(path).then((p) => {
-      badgeCell.innerHTML = ""; badgeCell.appendChild(statusBadge(p.status));
-      heightCell.textContent = p.height == null ? "—" : num(p.height);
-    });
+    rows.push({ path, badgeCell, heightCell });
   }
+  probeRows(rows);
 }
 
 function renderOfflineChain(chainPath) {
