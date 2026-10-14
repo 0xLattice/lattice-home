@@ -406,12 +406,12 @@ function homeSkeleton() {
 }
 
 // List the current chain's direct children with live/offline status.
-// The children the current chain has committed, the most recently committed first (at most
-// 100), each with its newest child block, from the node's index. Only a node without that
-// route (404, or refused by a proxy that does not know it) falls back to its tip's children.
+// The child directories the current chain's executed blocks have committed, from the node's
+// list. Only a node without that route (404, or refused by a proxy that does not know it)
+// falls back to what its tip block commits.
 async function chainChildren() {
   try {
-    return (await api("/api/chain/children", { limit: 100 })).children || [];
+    return ((await api("/api/chain/children")).directories || []).map((directory) => ({ directory }));
   } catch (e) {
     if (e.status !== 404 && e.status !== 403) throw e;
     const latest = await api("/api/block/latest");
@@ -475,7 +475,7 @@ async function chainsSection(host) {
       el("tr", {},
         el("td", {}, link(`#/?c=${encodeURIComponent(path)}`, label)),
         badgeCell, heightCell,
-        el("td", { class: "hide-sm" }, hashEl(c.blockHash, 6)))
+        el("td", { class: "hide-sm" }, c.blockHash ? hashEl(c.blockHash, 6) : "—"))
     );
     rows.push({ path, badgeCell, heightCell });
   }
