@@ -197,9 +197,9 @@ function setView(node) {
   const v = $("#view");
   v.innerHTML = "";
   // Every view of a chain read through an operator-declared endpoint says so: that endpoint
-  // CLAIMS the block its parent commits; the browser cannot hash-check the claim.
+  // CLAIMS to serve this chain; the browser cannot hash-check the claim.
   if (state.chainEndpoint) v.appendChild(el("p", { class: "empty" },
-    `Served by ${new URL(state.chainEndpoint).host}, an operator-declared endpoint that reports the block its parent commits. Not independently verified; your own node is the trustless way to read this chain.`));
+    `Served by ${new URL(state.chainEndpoint).host}, an operator-declared endpoint that says it serves this chain. Not independently verified; your own node is the trustless way to read this chain.`));
   v.appendChild(node);
   window.scrollTo(0, 0);
 }
@@ -236,7 +236,7 @@ const MAX_ENDPOINT_CANDIDATES = 5;
 
 // Bring-your-own-node: a user-supplied endpoint for a chain, persisted only in
 // this browser. It is a candidate like any discovered endpoint — checked by
-// the same commitment match, never trusted for data integrity.
+// the same check (it must serve this chain), never trusted for data integrity.
 const userEndpointKey = (chainPath) => `lattice-user-endpoint:${chainPath}`;
 function userEndpoint(chainPath) {
   try {
@@ -259,11 +259,13 @@ const getFrom = (base, path, params) => (base ? rawFetch(base, path, params) : b
 const parentOf = (chainPath) => chainPath.split("/").slice(0, -1).join("/");
 
 // THE resolver, the same at every depth. A chain's parent P has a matched endpoint (the
-// configured Nexus nodes for the root). P's endpoint names the child block P commits under
-// the child's directory and the read URLs hosts declared for it (unverified). A candidate —
-// P's own endpoint, the browser's choice, then each declared URL — is accepted only if it
-// reports that committed block on the child chain: a POSITIVE match, never an omission. This is a
-// consistency check, not proof (the browser gets JSON, not hashable bytes); the view says so.
+// configured Nexus nodes for the root). P's endpoint lists the read URLs the child's hosts
+// declared (unverified), found through the child's rendezvous on P's network. A candidate —
+// P's own endpoint, the browser's choice, then each declared URL, in that order — is accepted
+// if it serves the child chain: a POSITIVE answer naming that chain with a tip, never an
+// omission. What P commits never decides it: a committed child block can be one the child
+// chain did not keep, or one nobody serves. This is a consistency check, not proof (the
+// browser gets JSON, not hashable bytes); the view says so.
 // Resolves to { ep } (null = configured nodes) or { ep: undefined } when nothing matched.
 // PURE w.r.t. globals so a concurrent navigation can't corrupt it. Cached ~60s.
 const MAX_CHAIN_DEPTH = 8;
@@ -286,15 +288,14 @@ async function resolveChain(chainPath) {
 async function matchedChildEndpoint(parentEp, chainPath) {
   let listing = null;
   try { listing = await getFrom(parentEp, "/api/chain/endpoints", { chainPath }); } catch { /* none */ }
-  const committed = listing && listing.committedBlock;
-  if (!committed) return { ep: undefined }; // nothing to match against → unreachable
   const own = userEndpoint(chainPath);
-  const declared = (listing.endpoints || []).filter(isDeclarableUrl).map((u) => u.replace(/\/$/, ""));
+  const declared = ((listing && listing.endpoints) || []).filter(isDeclarableUrl).map((u) => u.replace(/\/$/, ""));
   const candidates = [parentEp, ...new Set([...(own ? [own] : []), ...declared])].slice(0, MAX_ENDPOINT_CANDIDATES + 1);
   for (const ep of candidates) {
     try {
-      const b = await getFrom(ep, `/api/block/${encodeURIComponent(committed)}`, { chainPath });
-      if (b && b.hash === committed) return { ep }; // positive match only
+      const info = await getFrom(ep, "/api/chain/info", { chainPath });
+      const serves = Array.isArray(info?.chain) && info.chain.join("/") === chainPath && info.height != null;
+      if (serves) return { ep }; // positive answer only
     } catch { /* dead / no CORS / does not serve it → next */ }
   }
   return { ep: undefined };
@@ -318,7 +319,7 @@ async function probeChain(chainPath) {
 function statusBadge(status) {
   const S = {
     live: ["#38d66b", "live", "a node is serving this chain"],
-    offline: ["#8a8f98", "no endpoint", "committed on its parent; no declared read endpoint matched its parent's commitment — run a node to read this chain, or connect your own"],
+    offline: ["#8a8f98", "no endpoint", "no host of this chain declared a read endpoint the explorer can reach — run a node to read this chain, or connect your own"],
     unknown: ["#8a8f98", "…", "checking…"],
   };
   const [color, label, tip] = S[status] || S.unknown;
@@ -426,14 +427,14 @@ function renderOfflineChain(chainPath) {
   root.appendChild(el("h1", {}, chainPath.split("/").pop()));
   appendMarketActions(root, chainPath);
   root.appendChild(el("p", { class: "empty" },
-    `No read endpoint for ${chainPath} was found reporting the block its parent commits. The chain itself may be perfectly alive — a browser page is a convenience view, not the trust path.`));
+    `No read endpoint serving ${chainPath} was found. The chain itself may be perfectly alive — a browser page is a convenience view, not the trust path.`));
   root.appendChild(el("h3", {}, "Read it sovereignly"));
   root.appendChild(el("p", {}, "Any node can host this chain permissionlessly: list it (and its ancestors) in hostedChains. To list it here, also set publicReadURL to the node's public read URL."));
   root.appendChild(el("p", {},
     link("https://github.com/adalinxx/lattice-node/blob/main/docs/operations.md#listing-a-chain-on-an-explorer", "Listing a chain on an explorer"),
     " · your own node is the trustless way to read any chain."));
   root.appendChild(el("h3", {}, "Or connect a node you trust"));
-  root.appendChild(el("p", {}, "If you know a node serving this chain's public reads, connect it. The choice is stored only in this browser, and the node must serve the block the parent commits before it is used."));
+  root.appendChild(el("p", {}, "If you know a node serving this chain's public reads, connect it. The choice is stored only in this browser, and the node must serve this chain before it is used."));
   const input = el("input", {
     type: "url", placeholder: "https://node.example.org",
     value: userEndpoint(chainPath) || "", style: "min-width:22em;margin-right:.6em;",
@@ -449,12 +450,12 @@ function renderOfflineChain(chainPath) {
       setUserEndpoint(chainPath, url);
       const { ep } = await resolveChain(chainPath);
       if (ep === url) {
-        note.textContent = "matches the parent's commitment — loading…";
+        note.textContent = "serves this chain — loading…";
         router();
       } else {
         setUserEndpoint(chainPath, null);
         if (ep !== undefined) { note.textContent = "reachable through another endpoint — loading…"; router(); }
-        else note.textContent = "endpoint did not serve the block the parent commits; not saved";
+        else note.textContent = "endpoint does not serve this chain; not saved";
       }
     } }, "Connect"),
     " ", note));
