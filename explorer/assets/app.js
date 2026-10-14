@@ -282,14 +282,17 @@ async function resolveChain(chainPath) {
     const parent = parentOf(chainPath);
     const up = await resolveChain(parent === "Nexus" ? null : parent);
     if (up.ep !== undefined) val = await matchedChildEndpoint(up.ep, chainPath);
+    else if (up.busy) val = { ep: undefined, busy: true };
   }
-  _access.set(chainPath, { val, t: Date.now() });
+  // A lookup the node turned away for rate (busy) decides nothing: not kept.
+  if (!val.busy) _access.set(chainPath, { val, t: Date.now() });
   return val;
 }
 
 async function matchedChildEndpoint(parentEp, chainPath) {
-  let listing = null;
-  try { listing = await getFrom(parentEp, "/api/chain/endpoints", { chainPath }); } catch { /* none */ }
+  let listing = null, busy = false;
+  try { listing = await getFrom(parentEp, "/api/chain/endpoints", { chainPath }); }
+  catch (e) { busy = e?.status === 429; /* else none */ }
   const own = userEndpoint(chainPath);
   const declared = ((listing && listing.endpoints) || []).filter(isDeclarableUrl).map((u) => u.replace(/\/$/, ""));
   const candidates = [parentEp, ...new Set([...(own ? [own] : []), ...declared])].slice(0, MAX_ENDPOINT_CANDIDATES + 1);
@@ -300,7 +303,7 @@ async function matchedChildEndpoint(parentEp, chainPath) {
       if (serves && (await onThisNetwork(ep))) return { ep }; // positive answer only
     } catch { /* dead / no CORS / does not serve it → next */ }
   }
-  return { ep: undefined };
+  return busy ? { ep: undefined, busy: true } : { ep: undefined };
 }
 
 // Whether an endpoint's Nexus is the configured nodes' Nexus (same genesis). A node names
@@ -327,7 +330,8 @@ async function probeChain(chainPath) {
   const c = _probe.get(chainPath);
   if (c && Date.now() - c.t < 30000) return c;
   let out = { t: Date.now(), status: "offline", height: null };
-  const { ep } = await resolveChain(chainPath);
+  const { ep, busy } = await resolveChain(chainPath);
+  if (busy) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
   if (ep !== undefined) {
     try { out = { t: Date.now(), ...classifyTip(await getFrom(ep, "/api/block/latest", { chainPath })) }; }
     catch { /* endpoint died between the match and the probe */ }
@@ -412,19 +416,28 @@ async function chainChildren() {
   }
 }
 
-// Each row's status is a probe that reads an expensive route; a few run at once.
+// Each row's status is a probe that reads an expensive route; a few run at once, rows no
+// longer on the page are skipped, and a probe the node turned away for rate is asked once
+// more after a pause (the expensive budget refills about one a second).
 const PROBES_AT_ONCE = 4;
-async function probeRows(rows) {
+async function probeRows(rows, retried = false) {
   let next = 0;
+  const busy = [];
   const worker = async () => {
     while (next < rows.length) {
-      const { path, badgeCell, heightCell } = rows[next++];
-      const p = await probeChain(path);
-      badgeCell.innerHTML = ""; badgeCell.appendChild(statusBadge(p.status));
-      heightCell.textContent = p.height == null ? "—" : num(p.height);
+      const row = rows[next++];
+      if (!row.badgeCell.isConnected) continue;
+      const p = await probeChain(row.path);
+      if (p.busy) { busy.push(row); continue; }
+      row.badgeCell.innerHTML = ""; row.badgeCell.appendChild(statusBadge(p.status));
+      row.heightCell.textContent = p.height == null ? "—" : num(p.height);
     }
   };
   await Promise.all(Array.from({ length: Math.min(PROBES_AT_ONCE, rows.length) }, worker));
+  if (busy.length && !retried) {
+    await new Promise((resolve) => setTimeout(resolve, 1100 * Math.min(busy.length, 10)));
+    await probeRows(busy, true);
+  }
 }
 
 async function chainsSection(host) {
@@ -463,7 +476,7 @@ async function chainsSection(host) {
     );
     rows.push({ path, badgeCell, heightCell });
   }
-  probeRows(rows);
+  probeRows(rows).catch(() => { /* a row stays unknown */ });
 }
 
 function renderOfflineChain(chainPath) {
