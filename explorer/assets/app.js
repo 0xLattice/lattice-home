@@ -399,6 +399,25 @@ function homeSkeleton() {
 }
 
 // List the current chain's direct children with live/offline status.
+// The children are every directory the current chain has committed, each with its newest
+// child block, from the node's index; a node without that route lists only what its tip
+// block commits. At most 1000, in pages of 100.
+async function chainChildren() {
+  let page;
+  try {
+    page = await api("/api/chain/children", { limit: 100 });
+  } catch {
+    const latest = await api("/api/block/latest");
+    return (await api(`/api/block/${encodeURIComponent(latest.hash)}/children`, { limit: 100 })).children || [];
+  }
+  const kids = [...(page.children || [])];
+  while (page.next && kids.length < 1000) {
+    page = await api("/api/chain/children", { limit: 100, after: page.next });
+    kids.push(...(page.children || []));
+  }
+  return kids;
+}
+
 async function chainsSection(host) {
   host.appendChild(el("h2", {}, state.chain ? "Sub-chains" : "Child chains"));
   const tbody = el("tbody");
@@ -410,11 +429,9 @@ async function chainsSection(host) {
           el("th", { class: "num hide-sm" }, "Height"), el("th", { class: "hide-sm" }, "Committed block"))),
         tbody))
   );
-  // The children are what the current chain's tip commits, directory → child block.
   let kids;
   try {
-    const latest = await api("/api/block/latest");
-    kids = (await api(`/api/block/${encodeURIComponent(latest.hash)}/children`, { limit: 100 })).children || [];
+    kids = await chainChildren();
   } catch (e) {
     tbody.appendChild(el("tr", {}, el("td", { colspan: 4, class: "empty" }, "Couldn't load child chains.")));
     return;
