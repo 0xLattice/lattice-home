@@ -133,10 +133,30 @@ test("the reader's own endpoint for a chain is tried first", async () => {
   const net = explorer({
     ...nexusGenesis,
     [`${MINE}/api/chain/info?chainPath=Nexus/testnet`]: { chain: ["Nexus", "testnet"], height: "3" },
+    [`${MINE}/api/chain/genesis?chainPath=Nexus`]: { genesisHash: GENESIS },
   }, { stored: { "lattice-user-endpoint:Nexus/testnet": MINE } });
   const resolved = await net.run(`resolveChain("Nexus/testnet")`);
   assert.equal(resolved.ep, MINE);
-  assert.ok(!net.requests.some((r) => r.startsWith(NEXUS)), "the configured nodes are not asked");
+  assert.deepEqual(
+    net.requests.filter((r) => r.startsWith(NEXUS)),
+    [`${NEXUS}/api/chain/genesis?chainPath=Nexus`],
+    "the configured nodes are asked only which network this is",
+  );
+});
+
+test("the reader's own endpoint on another network is passed over", async () => {
+  const MINE = "https://mine.test";
+  const net = explorer({
+    ...nexusGenesis,
+    [`${MINE}/api/chain/info?chainPath=Nexus/testnet`]: { chain: ["Nexus", "testnet"], height: "3" },
+    [`${MINE}/api/chain/genesis?chainPath=Nexus`]: { genesisHash: "bafy-some-other-genesis" },
+    [`${NEXUS}/api/chain/endpoints?chainPath=Nexus/testnet`]: { chainPath: ["Nexus", "testnet"], endpoints: [FOLLOWER], submitEndpoints: [] },
+    [`${FOLLOWER}/api/chain/info?chainPath=Nexus/testnet`]: { chain: ["Nexus", "testnet"], height: "5" },
+    [`${FOLLOWER}/api/chain/genesis?chainPath=Nexus/testnet`]: { genesisHash: GENESIS },
+  }, { stored: { "lattice-user-endpoint:Nexus/testnet": MINE } });
+  const resolved = await net.run(`resolveChain("Nexus/testnet")`);
+  assert.equal(resolved.ep, FOLLOWER);
+  assert.ok(!net.requests.includes(`${MINE}/api/chain/info?chainPath=Nexus/testnet`), "never read as this chain's node");
 });
 
 test("children come from the node's list of directory names", async () => {

@@ -248,6 +248,29 @@ const getFrom = (base, path, params) => (base ? rawFetch(base, path, params) : b
 // node's network; what a parent commits never decides. A consistency check, not proof (the
 // browser gets JSON, not hashable bytes); the view says so.
 const { ChainNodes, normalizeNodeURL } = window.LatticeSDK;
+
+// Whether a node the browser was given is on this network: its Nexus genesis is the
+// configured nodes'. Every network names its chains Nexus/..., so a node of another network
+// (a dev net, a wiped epoch) would otherwise pass for this one. Kept once answered.
+let _nexusGenesis = null;
+const _networkOf = new Map();
+const nexusGenesisOf = (ep) => getFrom(ep, "/api/chain/genesis", { chainPath: "Nexus" }).then((g) => {
+  if (typeof g?.genesisHash !== "string") throw new Error("no genesis");
+  return g.genesisHash;
+});
+async function onThisNetwork(ep) {
+  if (!_nexusGenesis) {
+    _nexusGenesis = nexusGenesisOf(null);
+    _nexusGenesis.catch(() => { _nexusGenesis = null; });
+  }
+  if (!_networkOf.has(ep)) {
+    const theirs = nexusGenesisOf(ep);
+    _networkOf.set(ep, theirs);
+    theirs.catch(() => _networkOf.delete(ep));
+  }
+  const [ours, theirs] = await Promise.all([_nexusGenesis, _networkOf.get(ep)]);
+  return ours === theirs;
+}
 const _chainNodes = new Map();
 function nodesFrom(url) {
   let nodes = _chainNodes.get(url);
@@ -269,6 +292,7 @@ async function resolveChain(chainPath) {
   for (const start of starts) {
     const configured = start !== own;
     try {
+      if (!configured && !(await onThisNetwork(start))) continue; // another network's node
       const nodes = nodesFrom(start);
       const listed = await nodes.list(path);
       if (!listed.length) { if (configured) break; continue; } // an answer: no node
