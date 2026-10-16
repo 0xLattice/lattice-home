@@ -37,17 +37,6 @@ function buildUrl(base, path, params) {
 // Declared child endpoints are attacker-controlled: fetched as untrusted origins.
 // Only ever talk to an http(s) URL, and never hang on a blackholed host.
 function isHttpUrl(u) { try { const p = new URL(u).protocol; return p === "https:" || p === "http:"; } catch { return false; } }
-// A URL a third party declared is dialed only over https to a public host NAME: never an IP
-// literal (the URL parser normalizes every IPv4 spelling) or a local name, so a declaration
-// cannot point this page's visitors at their own network.
-function isDeclarableUrl(u) {
-  try {
-    const x = new URL(u), h = x.hostname.toLowerCase();
-    if (x.protocol !== "https:" || !h.includes(".")) return false;
-    if (/^[0-9.]+$/.test(h) || h.startsWith("[")) return false;
-    return !/(^|\.)(localhost|local|internal|lan|home|arpa)$/.test(h);
-  } catch { return false; }
-}
 
 // Wide consensus integers arrive as canonical decimal strings (current nodes) or JSON
 // numbers (older nodes, during the rollout). Normalize both at this one boundary, by field
@@ -230,13 +219,9 @@ function classifyTip(latest) {
   return { status: "live", height: latest.height };
 }
 
-// Candidate URLs come from GET /api/chain/endpoints (operator declarations, unverified) and
-// the browser's own choice; probe only a few.
-const MAX_ENDPOINT_CANDIDATES = 5;
-
 // Bring-your-own-node: a user-supplied endpoint for a chain, persisted only in
-// this browser. It is a candidate like any discovered endpoint — checked by
-// the same check (it must serve this chain), never trusted for data integrity.
+// this browser. Discovery starts from it first (resolveChain); it is never
+// trusted for data integrity.
 const userEndpointKey = (chainPath) => `lattice-user-endpoint:${chainPath}`;
 function userEndpoint(chainPath) {
   try {
@@ -249,79 +234,76 @@ function setUserEndpoint(chainPath, url) {
     if (url) localStorage.setItem(userEndpointKey(chainPath), url);
     else localStorage.removeItem(userEndpointKey(chainPath));
   } catch { /* storage unavailable */ }
-  _access.clear(); // a deeper chain may resolve through this one
   _probe.clear();
 }
 
 // One read against a resolved endpoint: null = the configured Nexus nodes (with failover),
-// else a matched URL. Every request names the chain it reads with ?chainPath=.
+// else a found URL. Every request names the chain it reads with ?chainPath=.
 const getFrom = (base, path, params) => (base ? rawFetch(base, path, params) : backboneGet(path, params));
-const parentOf = (chainPath) => chainPath.split("/").slice(0, -1).join("/");
 
-// THE resolver, the same at every depth. A chain's parent P has a matched endpoint (the
-// configured Nexus nodes for the root). P's endpoint lists the read URLs the child's hosts
-// declared (unverified), found through the child's rendezvous on P's network. A candidate —
-// P's own endpoint, the browser's choice, then each declared URL, in that order — is accepted
-// if it serves the child chain on this network: a POSITIVE answer naming that chain with a
-// tip, from a node whose Nexus has the configured nodes' genesis (every network names its
-// chains Nexus/...), never an omission. What P commits never decides whether an endpoint is
-// accepted: a committed child block can be one the child chain did not keep, or one nobody
-// serves. This is a consistency check, not proof (the browser gets JSON, not hashable
-// bytes); the view says so.
-// Resolves to { ep } (null = configured nodes) or { ep: undefined } when nothing matched.
-// PURE w.r.t. globals so a concurrent navigation can't corrupt it. Cached ~60s.
-const MAX_CHAIN_DEPTH = 8;
-const _access = new Map();
-async function resolveChain(chainPath) {
-  if (!chainPath) return { ep: null };
-  const c = _access.get(chainPath);
-  if (c && Date.now() - c.t < 60000) return c.val;
-  let val = { ep: undefined };
-  const parts = chainPath.split("/");
-  if (parts.length >= 2 && parts.length <= MAX_CHAIN_DEPTH && parts.every(Boolean)) {
-    const parent = parentOf(chainPath);
-    const up = await resolveChain(parent === "Nexus" ? null : parent);
-    if (up.ep !== undefined) val = await matchedChildEndpoint(up.ep, chainPath);
-    else if (up.busy) val = { ep: undefined, busy: true };
-  }
-  // A lookup the node turned away for rate (busy) decides nothing: not kept.
-  if (!val.busy) _access.set(chainPath, { val, t: Date.now() });
-  return val;
-}
+// Finding a chain's nodes is the SDK's ChainNodes (vendor/lattice-sdk.js), started from a
+// node the reader chose: the browser's own endpoint for this chain first, then the
+// configured Nexus nodes from the active one, a failing node handing over to the next. It
+// lists a declared host only when that host serves the chain at its path on the start
+// node's network; what a parent commits never decides. A consistency check, not proof (the
+// browser gets JSON, not hashable bytes); the view says so.
+const { ChainNodes, normalizeNodeURL } = window.LatticeSDK;
 
-async function matchedChildEndpoint(parentEp, chainPath) {
-  let listing = null, busy = false;
-  try { listing = await getFrom(parentEp, "/api/chain/endpoints", { chainPath }); }
-  catch (e) { busy = e?.status === 429; /* else none */ }
-  const own = userEndpoint(chainPath);
-  const declared = ((listing && listing.endpoints) || []).filter(isDeclarableUrl).map((u) => u.replace(/\/$/, ""));
-  const candidates = [parentEp, ...new Set([...(own ? [own] : []), ...declared])].slice(0, MAX_ENDPOINT_CANDIDATES + 1);
-  for (const ep of candidates) {
-    try {
-      const info = await getFrom(ep, "/api/chain/info", { chainPath });
-      const serves = Array.isArray(info?.chain) && info.chain.join("/") === chainPath && info.height != null;
-      if (serves && (await onThisNetwork(ep))) return { ep }; // positive answer only
-    } catch (e) { if (e?.status === 429) busy = true; /* else dead / no CORS / not served → next */ }
-  }
-  return busy ? { ep: undefined, busy: true } : { ep: undefined };
-}
-
-// Whether an endpoint's Nexus is the configured nodes' Nexus (same genesis). A node names
-// its Nexus genesis at /api/chain/genesis whatever it has synced. The configured nodes are
-// this network; their answer is kept once it arrives, and asked again if it did not.
+// Whether a node the browser was given is on this network: its Nexus genesis is the
+// configured nodes'. Every network names its chains Nexus/..., so a node of another network
+// (a dev net, a wiped epoch) would otherwise pass for this one. Kept once answered.
 let _nexusGenesis = null;
+const _networkOf = new Map();
 const nexusGenesisOf = (ep) => getFrom(ep, "/api/chain/genesis", { chainPath: "Nexus" }).then((g) => {
   if (typeof g?.genesisHash !== "string") throw new Error("no genesis");
   return g.genesisHash;
 });
 async function onThisNetwork(ep) {
-  if (ep === null) return true;
   if (!_nexusGenesis) {
     _nexusGenesis = nexusGenesisOf(null);
     _nexusGenesis.catch(() => { _nexusGenesis = null; });
   }
-  const [ours, theirs] = await Promise.all([_nexusGenesis, nexusGenesisOf(ep)]);
+  if (!_networkOf.has(ep)) {
+    const theirs = nexusGenesisOf(ep);
+    _networkOf.set(ep, theirs);
+    theirs.catch(() => _networkOf.delete(ep));
+  }
+  const [ours, theirs] = await Promise.all([_nexusGenesis, _networkOf.get(ep)]);
   return ours === theirs;
+}
+const _chainNodes = new Map();
+function nodesFrom(url) {
+  let nodes = _chainNodes.get(url);
+  if (!nodes) _chainNodes.set(url, nodes = new ChainNodes(url, { fetch: (input, init) => fetch(input, init) }));
+  return nodes;
+}
+
+// Resolves to { ep, read } (ep null = the configured nodes; read(fn) calls fn(ep) on each of
+// the chain's nodes in order until one answers), { ep: undefined } when no node serves it, or
+// { ep: undefined, busy: true } when a node turned the lookup away for rate. PURE w.r.t.
+// globals so a concurrent navigation can't corrupt it; ChainNodes keeps a list ~30s.
+async function resolveChain(chainPath) {
+  if (!chainPath) return { ep: null, read: (fn) => fn(null) };
+  const path = chainPath.split("/");
+  if (!path.every(Boolean)) return { ep: undefined };
+  let busy = false;
+  const own = userEndpoint(chainPath);
+  const starts = [...(own ? [own] : []), ...NODES.map((_, i) => NODES[(nodeIdx + i) % NODES.length])];
+  for (const start of starts) {
+    const configured = start !== own;
+    try {
+      if (!configured && !(await onThisNetwork(start))) continue; // another network's node
+      const nodes = nodesFrom(start);
+      const listed = await nodes.list(path);
+      if (!listed.length) { if (configured) break; continue; } // an answer: no node
+      const epOf = (node) => (configured && !node.found ? null : node.url);
+      return { ep: epOf(listed[0]), read: (fn) => nodes.read(path, (node) => fn(epOf(node))) };
+    } catch (e) {
+      if (e?.status === 429) busy = true;
+      else if (configured) rotateNode(); // the start node failed, not the chain
+    }
+  }
+  return busy ? { ep: undefined, busy: true } : { ep: undefined };
 }
 
 // Reachability of a chain, from the explorer's vantage. Cached ~30s.
@@ -330,13 +312,13 @@ async function probeChain(chainPath) {
   const c = _probe.get(chainPath);
   if (c && Date.now() - c.t < 30000) return c;
   let out = { t: Date.now(), status: "offline", height: null };
-  const { ep, busy } = await resolveChain(chainPath);
+  const { ep, busy, read } = await resolveChain(chainPath);
   if (busy) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
   if (ep !== undefined) {
-    try { out = { t: Date.now(), ...classifyTip(await getFrom(ep, "/api/block/latest", { chainPath })) }; }
+    try { out = { t: Date.now(), ...classifyTip(await read((at) => getFrom(at, "/api/block/latest", { chainPath }))) }; }
     catch (e) {
       if (e?.status === 429) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
-      /* else the endpoint died between the match and the probe */
+      /* else every node died between the lookup and the probe */
     }
   }
   _probe.set(chainPath, out);
@@ -510,7 +492,9 @@ function renderOfflineChain(chainPath) {
       note.textContent = "checking…";
       setUserEndpoint(chainPath, url);
       const { ep } = await resolveChain(chainPath);
-      if (ep === url) {
+      let typed = null;
+      try { typed = normalizeNodeURL(url); } catch { /* not a URL the SDK dials: never matches */ }
+      if (typed !== null && ep === typed) {
         note.textContent = "serves this chain — loading…";
         router();
       } else {

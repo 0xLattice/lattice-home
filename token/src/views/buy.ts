@@ -4,7 +4,7 @@
 
 import { createTakeIntent, exchangeRate } from "../lib/intent.ts";
 import { confirmations, depositKey, totals, type Deposit } from "../lib/deposits.ts";
-import { endpointFor, listDeposits, nextOpenDeposits } from "../lib/node.ts";
+import { endpointFor, listDeposits, nextOpenDeposits, readChain } from "../lib/node.ts";
 import { WALLET_REQUEST_MAX } from "../lib/config.ts";
 import { formatRate, formatUnits, shorten } from "../lib/format.ts";
 import { walletIntentURI } from "../lib/qr.ts";
@@ -143,8 +143,7 @@ export function buyView(root: HTMLElement, childPath: string): void {
     status.textContent = "Finding sell orders…";
     refresh.disabled = true;
     try {
-      const [childNode, parent] = await Promise.all([endpointFor(childParts), endpointFor(parentParts)]);
-      const listing = await listDeposits(childNode, childParts);
+      const [listing, parent] = await Promise.all([readChain(childParts, (url) => listDeposits(url, childParts)), endpointFor(parentParts)]);
       if (run !== load) return;
       parentNode = parent; sorted = listing.deposits; truncated = listing.truncated; tipHeight = listing.tipHeight; unusable = listing.unusable;
       await showMore();

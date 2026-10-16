@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { byPrice, confirmations, depositKey, parseDepositRow, totals, type Deposit } from "./deposits.ts";
-import { endpointFor, isDeclarableURL, listDeposits, nextOpenDeposits } from "./node.ts";
+import { endpointFor, listDeposits, nextOpenDeposits } from "./node.ts";
 
 const seller = "bafyreibh7ivi6gdwatcnx63uwcgkr5rcygej3lyvgkgma354lnifc6rguy";
 const other = "bafyreiey2mpyfi3k64xe7ixxjyk2uv4hvaqovezmzivccexhekxxp35fee";
@@ -66,16 +66,6 @@ describe("deposit rows", () => {
 describe("node reads", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("accepts only public https node declarations", () => {
-    for (const ok of ["https://lattice-mainnet-testnet.fly.dev", "https://node.example/rpc"]) expect(isDeclarableURL(ok)).toBe(true);
-    for (const bad of [null, 7, "http://node.example", "https://localhost", "https://10.0.0.1", "https://[::1]", "https://printer.local",
-      "https://intranet", "https://u:p@node.example", "https://node.example/x#", "https://node.example/?", "javascript:alert(1)", "http://127.0.0.1:8080"]) {
-      expect(isDeclarableURL(bad)).toBe(false);
-    }
-    expect(isDeclarableURL("http://127.0.0.1:8080", true)).toBe(true);
-    expect(isDeclarableURL("http://192.168.1.1:8080", true)).toBe(false);
-  });
-
   it("follows the node's cursor, drops unusable rows and returns cheapest first", async () => {
     const first = [make(100n, 100n, 1n), make(300n, 100n, 2n)], second = [make(1n, 900n, 3n)];
     const seen: string[] = [];
@@ -100,25 +90,31 @@ describe("node reads", () => {
     await expect(listDeposits("https://child.example", ["Nexus", "Payments"])).rejects.toThrow(/limiting requests.*press Refresh/);
   });
 
-  it("uses a child node only if it serves the block the parent commits", async () => {
-    const committed = "bafyreicso36ijojff6duayrfatyd6wsp4ysxljtnsfqace3gr2rliaz5oq";
+  it("finds a child node through its declared hosts, never through what the parent commits", async () => {
     const asked: string[] = [];
-    const network = (serving: Record<string, string>, listing: Record<string, unknown>) => vi.stubGlobal("fetch", async (input: URL) => {
-      asked.push(input.host + input.pathname);
-      if (input.pathname === "/api/chain/endpoints") return new Response(JSON.stringify(listing));
-      const hash = serving[input.host];
-      return input.pathname === `/api/block/${committed}` && hash ? new Response(JSON.stringify({ hash })) : new Response("{}", { status: 404 });
+    const answers: Record<string, unknown> = {
+      "lattice-mainnet-read.fly.dev/api/chain/info?Nexus": { chain: ["Nexus"], height: "100" },
+      "lattice-mainnet-read.fly.dev/api/chain/genesis?Nexus": { genesisHash: "bafy-nexus" },
+      "lattice-mainnet-read.fly.dev/api/chain/endpoints?Nexus/Alpha": {
+        chainPath: ["Nexus", "Alpha"], committedBlock: "bafy-lost",
+        endpoints: ["https://intranet", "https://other.example", "https://good.example/"],
+      },
+      // Serves Alpha, but on another network.
+      "other.example/api/chain/info?Nexus/Alpha": { chain: ["Nexus", "Alpha"], height: "5" },
+      "other.example/api/chain/genesis?Nexus/Alpha": { genesisHash: "bafy-elsewhere" },
+      "good.example/api/chain/info?Nexus/Alpha": { chain: ["Nexus", "Alpha"], height: "9" },
+      "good.example/api/chain/genesis?Nexus/Alpha": { genesisHash: "bafy-nexus" },
+    };
+    vi.stubGlobal("fetch", async (input: URL) => {
+      const key = `${input.host}${input.pathname}?${input.searchParams.get("chainPath")}`;
+      asked.push(key);
+      const body = answers[key];
+      return body === undefined ? new Response("{}", { status: 404 }) : new Response(JSON.stringify(body));
     });
-    const declared = { committedBlock: committed, endpoints: ["https://stale.example", "https://intranet", "javascript:alert(1)", "https://good.example/"] };
-    // The first declared node answers with a different block; the page moves on.
-    network({ "stale.example": "bafyreiotherblockotherblockotherblockotherblockotherblockoth", "good.example": committed }, declared);
     await expect(endpointFor(["Nexus", "Alpha"])).resolves.toBe("https://good.example");
-    expect(asked.some((url) => url.startsWith("intranet"))).toBe(false);
-    // Nothing serves the committed block: no node is used, rather than any that answers.
-    network({ "stale.example": "bafyreiotherblockotherblockotherblockotherblockotherblockoth" }, declared);
-    await expect(endpointFor(["Nexus", "Beta"])).rejects.toThrow(/No reachable node serves the block Nexus commits/);
-    network({}, { endpoints: ["https://good.example"] });
-    await expect(endpointFor(["Nexus", "Gamma"])).rejects.toThrow(/no block committed/);
+    expect(asked.some((key) => key.includes("bafy-lost") || key.startsWith("intranet"))).toBe(false);
+    // No declared host: the chain has no node.
+    await expect(endpointFor(["Nexus", "Beta"])).rejects.toThrow(/No reachable node serves Nexus\/Beta/);
   });
 
   it("pages through open orders in price order, skipping ones already paid for", async () => {

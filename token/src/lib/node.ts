@@ -2,13 +2,13 @@
 // its sell deposits, and ask the parent which are already paid for. Answers
 // are shown, never trusted: the wallet proves each deposit before it pays.
 
+import { ChainNodes, ChainOfflineError } from "../../../vendor/lattice-sdk.js";
 import { NEXUS_NODE } from "./config.ts";
 import { byPrice, depositKey, parseDepositRow, unsigned, type Deposit } from "./deposits.ts";
 
 const TIMEOUT_MS = 8_000;
 const LIST_PAGE = 100;
 const MAX_LIST_PAGES = 20;
-const MAX_ENDPOINT_CANDIDATES = 5;
 
 export class NodeReadError extends Error {}
 
@@ -28,56 +28,27 @@ async function getJSON(base: string, path: string, params: Record<string, string
   return body as Record<string, unknown>;
 }
 
-/** A node URL declared by another node: public https only. Loopback http is
- * allowed when the page itself is being developed on loopback. */
-export function isDeclarableURL(value: unknown, developing = false): value is string {
-  if (typeof value !== "string") return false;
+// Finding a chain's nodes is the SDK's: the Nexus read service when it serves the
+// chain, then the hosts found through the chain's declared endpoints that serve it
+// on the same network. What a parent commits never decides; consistency, not proof.
+const nodes = new ChainNodes(NEXUS_NODE, { fetch: (input, init) => fetch(input, init) });
+
+/** `read` on each node serving `chain`, in order, until one answers. */
+export async function readChain<T>(chain: readonly string[], read: (url: string) => Promise<T>): Promise<T> {
   try {
-    const url = new URL(value), host = url.hostname.toLowerCase();
-    if (url.username || url.password || value.includes("?") || value.includes("#")) return false;
-    if (developing && url.protocol === "http:" && (host === "127.0.0.1" || host === "localhost")) return true;
-    if (url.protocol !== "https:" || !host.includes(".")) return false;
-    if (/^[0-9.]+$/.test(host) || host.startsWith("[")) return false;
-    return !/(^|\.)(localhost|local|internal|lan|home|arpa)$/.test(host);
-  } catch {
-    return false;
+    return await nodes.read(chain, (node) => read(node.url));
+  } catch (error) {
+    if (error instanceof NodeReadError) throw error;
+    if (error instanceof ChainOfflineError) throw new NodeReadError(`No reachable node serves ${chain.join("/")}.`);
+    const host = new URL(NEXUS_NODE).host;
+    if ((error as { status?: unknown }).status === 429) throw new NodeReadError(`${host} is limiting requests. Wait a moment, then press Refresh.`);
+    throw new NodeReadError(`${host} did not answer.`);
   }
 }
 
-const developing = (): boolean => typeof location !== "undefined" && ["127.0.0.1", "localhost"].includes(location.hostname);
-const endpoints = new Map<string, Promise<string>>();
-
-/** A node that answers for `chain`, walked down from the Nexus read service
- * through each parent's declared endpoints. */
+/** The first node serving `chain`, for reads made later. */
 export function endpointFor(chain: readonly string[]): Promise<string> {
-  const name = chain.join("/");
-  let found = endpoints.get(name);
-  if (!found) {
-    found = resolveEndpoint(chain);
-    endpoints.set(name, found);
-    found.catch(() => endpoints.delete(name));
-  }
-  return found;
-}
-
-async function resolveEndpoint(chain: readonly string[]): Promise<string> {
-  if (chain.length === 1) return NEXUS_NODE;
-  const name = chain.join("/");
-  const parent = await endpointFor(chain.slice(0, -1));
-  const listing = await getJSON(parent, "/api/chain/endpoints", { chainPath: name });
-  // As the explorer does: a node is used only if it serves the child block the
-  // parent commits. A positive match, never an omission; consistency, not proof.
-  const committed = listing.committedBlock;
-  if (typeof committed !== "string" || !/^b[a-z2-7]{20,100}$/.test(committed)) throw new NodeReadError(`${name} has no block committed by its parent yet.`);
-  const declared = (Array.isArray(listing.endpoints) ? listing.endpoints : []).filter((url) => isDeclarableURL(url, developing())) as string[];
-  const candidates = [...new Set([parent, ...declared.map((url) => url.replace(/\/$/, ""))])].slice(0, MAX_ENDPOINT_CANDIDATES + 1);
-  for (const candidate of candidates) {
-    try {
-      const block = await getJSON(candidate, `/api/block/${committed}`, { chainPath: name });
-      if (block.hash === committed) return candidate;
-    } catch { /* does not serve it: try the next */ }
-  }
-  throw new NodeReadError(`No reachable node serves the block ${chain.at(-2)} commits for ${name}.`);
+  return readChain(chain, async (url) => url);
 }
 
 /** Every sell deposit the child node lists, cheapest first. `truncated` when
