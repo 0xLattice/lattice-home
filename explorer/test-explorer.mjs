@@ -80,10 +80,12 @@ test("an endpoint on another network is not accepted", async () => {
 test("a rate-limited lookup is busy, not offline, and is not kept", async () => {
   let limited = true;
   const net = explorer((key) => {
-    if (key === `${NEXUS}/api/chain/info?chainPath=Nexus/testnet`) return limited ? 429 : undefined;
+    // The start node turns the directory lookup away, not the chain check.
+    if (key === `${NEXUS}/api/chain/endpoints?chainPath=Nexus/testnet`) {
+      return limited ? 429 : { chainPath: ["Nexus", "testnet"], endpoints: [FOLLOWER] };
+    }
     return {
       ...nexusGenesis,
-      [`${NEXUS}/api/chain/endpoints?chainPath=Nexus/testnet`]: { chainPath: ["Nexus", "testnet"], endpoints: [FOLLOWER] },
       [`${FOLLOWER}/api/chain/info?chainPath=Nexus/testnet`]: { chain: ["Nexus", "testnet"], height: "1" },
       [`${FOLLOWER}/api/chain/genesis?chainPath=Nexus/testnet`]: { genesisHash: GENESIS },
     }[key];
@@ -94,6 +96,23 @@ test("a rate-limited lookup is busy, not offline, and is not kept", async () => 
   limited = false;
   const found = await net.run(`resolveChain("Nexus/testnet")`);
   assert.equal(found.ep, FOLLOWER, "the busy answer was not cached");
+});
+
+test("a probe moves on to the chain's next node when one fails", async () => {
+  const SECOND = "https://second.test";
+  const net = explorer({
+    ...nexusGenesis,
+    [`${NEXUS}/api/chain/endpoints?chainPath=Nexus/testnet`]: { chainPath: ["Nexus", "testnet"], endpoints: [FOLLOWER, SECOND] },
+    ...Object.fromEntries([FOLLOWER, SECOND].flatMap((host) => [
+      [`${host}/api/chain/info?chainPath=Nexus/testnet`, { chain: ["Nexus", "testnet"], height: "4" }],
+      [`${host}/api/chain/genesis?chainPath=Nexus/testnet`, { genesisHash: GENESIS }],
+    ])),
+    [`${FOLLOWER}/api/block/latest?chainPath=Nexus/testnet`]: 502,
+    [`${SECOND}/api/block/latest?chainPath=Nexus/testnet`]: { hash: "bafy-tip", height: "4" },
+  });
+  const probe = await net.run(`probeChain("Nexus/testnet")`);
+  assert.equal(probe.status, "live");
+  assert.equal(probe.height, 4);
 });
 
 test("a configured node that fails hands over to the next", async () => {

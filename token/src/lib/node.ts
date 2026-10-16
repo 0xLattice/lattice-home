@@ -2,7 +2,7 @@
 // its sell deposits, and ask the parent which are already paid for. Answers
 // are shown, never trusted: the wallet proves each deposit before it pays.
 
-import { ChainNodeFinder, ChainOfflineError } from "../../../vendor/lattice-sdk.js";
+import { ChainNodes, ChainOfflineError } from "../../../vendor/lattice-sdk.js";
 import { NEXUS_NODE } from "./config.ts";
 import { byPrice, depositKey, parseDepositRow, unsigned, type Deposit } from "./deposits.ts";
 
@@ -28,16 +28,17 @@ async function getJSON(base: string, path: string, params: Record<string, string
   return body as Record<string, unknown>;
 }
 
-// Finding a chain's node is the SDK's: the Nexus read service when it serves the
-// chain, else a host found through the chain's declared endpoints that serves it
+// Finding a chain's nodes is the SDK's: the Nexus read service when it serves the
+// chain, then the hosts found through the chain's declared endpoints that serve it
 // on the same network. What a parent commits never decides; consistency, not proof.
-const finder = new ChainNodeFinder(NEXUS_NODE, { fetch: (input, init) => fetch(input, init) });
+const nodes = new ChainNodes(NEXUS_NODE, { fetch: (input, init) => fetch(input, init) });
 
-/** A node that answers for `chain`. */
-export async function endpointFor(chain: readonly string[]): Promise<string> {
+/** `read` on each node serving `chain`, in order, until one answers. */
+export async function readChain<T>(chain: readonly string[], read: (url: string) => Promise<T>): Promise<T> {
   try {
-    return (await finder.nodeFor(chain)).url;
+    return await nodes.read(chain, (node) => read(node.url));
   } catch (error) {
+    if (error instanceof NodeReadError) throw error;
     if (error instanceof ChainOfflineError) throw new NodeReadError(`No reachable node serves ${chain.join("/")}.`);
     const host = new URL(NEXUS_NODE).host;
     if ((error as { status?: unknown }).status === 429) throw new NodeReadError(`${host} is limiting requests. Wait a moment, then press Refresh.`);
@@ -45,9 +46,9 @@ export async function endpointFor(chain: readonly string[]): Promise<string> {
   }
 }
 
-/** `url`, from {@link endpointFor}, failed reading `chain`: find another next time. */
-export function forgetEndpoint(chain: readonly string[], url: string): Promise<void> {
-  return finder.forget(chain, { url, found: url !== finder.startURL });
+/** The first node serving `chain`, for reads made later. */
+export function endpointFor(chain: readonly string[]): Promise<string> {
+  return readChain(chain, async (url) => url);
 }
 
 /** Every sell deposit the child node lists, cheapest first. `truncated` when

@@ -241,26 +241,26 @@ function setUserEndpoint(chainPath, url) {
 // else a found URL. Every request names the chain it reads with ?chainPath=.
 const getFrom = (base, path, params) => (base ? rawFetch(base, path, params) : backboneGet(path, params));
 
-// Finding a chain's node is the SDK's ChainNodeFinder (vendor/lattice-sdk.js), started from
-// a node the reader chose: the browser's own endpoint for this chain first, then the
+// Finding a chain's nodes is the SDK's ChainNodes (vendor/lattice-sdk.js), started from a
+// node the reader chose: the browser's own endpoint for this chain first, then the
 // configured Nexus nodes from the active one, a failing node handing over to the next. It
-// accepts a declared host only when that host serves the chain at its path on the start
+// lists a declared host only when that host serves the chain at its path on the start
 // node's network; what a parent commits never decides. A consistency check, not proof (the
 // browser gets JSON, not hashable bytes); the view says so.
-const { ChainNodeFinder, ChainOfflineError } = window.LatticeSDK;
-const _finders = new Map();
-function finderAt(url) {
-  let finder = _finders.get(url);
-  if (!finder) _finders.set(url, finder = new ChainNodeFinder(url, { fetch: (input, init) => fetch(input, init) }));
-  return finder;
+const { ChainNodes, normalizeNodeURL } = window.LatticeSDK;
+const _chainNodes = new Map();
+function nodesFrom(url) {
+  let nodes = _chainNodes.get(url);
+  if (!nodes) _chainNodes.set(url, nodes = new ChainNodes(url, { fetch: (input, init) => fetch(input, init) }));
+  return nodes;
 }
 
-// Resolves to { ep } (null = the configured nodes), { ep: undefined } when no node is found,
-// or { ep: undefined, busy: true } when a node turned the lookup away for rate. `forget`
-// drops a found node that then failed. PURE w.r.t. globals so a concurrent navigation can't
-// corrupt it; the finder keeps a found node ~30s.
+// Resolves to { ep, read } (ep null = the configured nodes; read(fn) calls fn(ep) on each of
+// the chain's nodes in order until one answers), { ep: undefined } when no node serves it, or
+// { ep: undefined, busy: true } when a node turned the lookup away for rate. PURE w.r.t.
+// globals so a concurrent navigation can't corrupt it; ChainNodes keeps a list ~30s.
 async function resolveChain(chainPath) {
-  if (!chainPath) return { ep: null };
+  if (!chainPath) return { ep: null, read: (fn) => fn(null) };
   const path = chainPath.split("/");
   if (!path.every(Boolean)) return { ep: undefined };
   let busy = false;
@@ -269,12 +269,12 @@ async function resolveChain(chainPath) {
   for (const start of starts) {
     const configured = start !== own;
     try {
-      const finder = finderAt(start);
-      const node = await finder.nodeFor(path);
-      const forget = () => finder.forget(path, node);
-      return { ep: configured && !node.found ? null : node.url, forget };
+      const nodes = nodesFrom(start);
+      const listed = await nodes.list(path);
+      if (!listed.length) { if (configured) break; continue; } // an answer: no node
+      const epOf = (node) => (configured && !node.found ? null : node.url);
+      return { ep: epOf(listed[0]), read: (fn) => nodes.read(path, (node) => fn(epOf(node))) };
     } catch (e) {
-      if (e instanceof ChainOfflineError) { if (configured) break; continue; } // an answer: no node
       if (e?.status === 429) busy = true;
       else if (configured) rotateNode(); // the start node failed, not the chain
     }
@@ -288,13 +288,13 @@ async function probeChain(chainPath) {
   const c = _probe.get(chainPath);
   if (c && Date.now() - c.t < 30000) return c;
   let out = { t: Date.now(), status: "offline", height: null };
-  const { ep, busy, forget } = await resolveChain(chainPath);
+  const { ep, busy, read } = await resolveChain(chainPath);
   if (busy) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
   if (ep !== undefined) {
-    try { out = { t: Date.now(), ...classifyTip(await getFrom(ep, "/api/block/latest", { chainPath })) }; }
+    try { out = { t: Date.now(), ...classifyTip(await read((at) => getFrom(at, "/api/block/latest", { chainPath }))) }; }
     catch (e) {
       if (e?.status === 429) return { t: Date.now(), status: "unknown", height: null, busy: true }; // not kept
-      void forget(); // the endpoint died between the match and the probe
+      /* else every node died between the lookup and the probe */
     }
   }
   _probe.set(chainPath, out);
@@ -468,7 +468,9 @@ function renderOfflineChain(chainPath) {
       note.textContent = "checking…";
       setUserEndpoint(chainPath, url);
       const { ep } = await resolveChain(chainPath);
-      if (ep === url) {
+      let typed = null;
+      try { typed = normalizeNodeURL(url); } catch { /* not a URL the SDK dials: never matches */ }
+      if (typed !== null && ep === typed) {
         note.textContent = "serves this chain — loading…";
         router();
       } else {

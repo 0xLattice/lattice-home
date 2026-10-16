@@ -1,5 +1,5 @@
 // Types for the part of lattice-sdk.js this site uses; the full types are the
-// SDK's own (packages/client/src/node-finder.ts).
+// SDK's own (packages/client/src/chain-nodes.ts).
 
 export type Fetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
 
@@ -13,17 +13,16 @@ export interface ChainNode {
   readonly found: boolean;
 }
 
-export interface ChainNodeFinderOptions {
+export interface ChainNodesOptions {
   readonly fetch?: Fetch;
   readonly ttlMilliseconds?: number;
   readonly timeoutMilliseconds?: number;
   readonly now?: () => number;
 }
 
-export class ChainNodeFinder {
+export class ChainNodes {
   readonly startURL: string;
-  constructor(startURL: string, options?: ChainNodeFinderOptions);
-  serves(url: string, chainPath: readonly string[], signal?: AbortSignal): Promise<boolean>;
-  nodeFor(chainPath: readonly string[]): Promise<ChainNode>;
-  forget(chainPath: readonly string[], node: ChainNode): Promise<void>;
+  constructor(startURL: string, options?: ChainNodesOptions);
+  list(chainPath: readonly string[]): Promise<ChainNode[]>;
+  read<T>(chainPath: readonly string[], read: (node: ChainNode) => Promise<T>): Promise<T>;
 }

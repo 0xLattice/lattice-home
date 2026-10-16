@@ -1,5 +1,5 @@
 `lattice-sdk.js` is `@adalinxx/lattice-sdk` (github.com/adalinxx/lattice-sdk at
-d521636) bundled for the browser (ESM, its `@noble` dependencies included). The
+512e704) bundled for the browser (ESM, its `@noble` dependencies included). The
 explorer loads it as `window.LatticeSDK`; the token module imports it.
 `lattice-sdk.d.ts` types the part the token module uses.
 
