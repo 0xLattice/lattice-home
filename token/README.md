@@ -17,7 +17,7 @@ Amounts are whole units, typed and shown exactly as the chain stores them and as
 
 The page reads, and does not verify:
 
-1. the child chain's node, found by walking declared endpoints down from the Nexus read service (public https hosts only). As in the explorer, a node is used only if it serves the child block its parent commits;
+1. the child chain's node, found by the SDK's `ChainNodeFinder` (`vendor/lattice-sdk.js`, shared with the explorer) from the Nexus read service: that service when it serves the chain, else a declared public https host that serves the chain at its path on the same network. What the parent commits never decides;
 2. `GET /api/chain/info` and then `GET /api/deposits` on that node, all pages up to a bound, sorted by price with exact integer arithmetic. When a row carries `blockHeight` and `blockHash` (the block that created the deposit), the list shows confirmations: the node's tip height minus that height, plus one. Nodes that do not report it show a dash;
 3. `GET /api/receipt-state` on the parent's node for each deposit about to be shown, so orders someone has already paid for are left out.
 

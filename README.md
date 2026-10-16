@@ -19,6 +19,7 @@ House line: **One proof. Every chain.**
 - `index.html` — the landing page. Design tokens (zero-accent; source of truth: `lattice-design`) are inlined so it paints in a single request. A small inline script feeds the live Network table from the public seed nodes.
 - `download/` — beginner desktop setup and a fail-closed release configuration.
 - `explorer/` — the Lattice block explorer, vendored in (client-side, talks to the nodes directly). Served at `/explorer/`.
+- `vendor/` — the Lattice SDK bundled for the browser; the explorer and token module find child-chain nodes with it.
 - `token/` — the cross-chain Buy/Sell module. It stages wallet requests and is built to `/token/` during deployment.
 - `lattice-mark.svg` — the mark (favicon).
 - `.nojekyll` — so GitHub Pages serves the explorer assets raw.
