@@ -4,18 +4,23 @@ The Lattice website — a static website. Text-first, zero-accent, built on the 
 
 ## What it is
 
-A fast, honest front door that routes five audiences into the real substance (docs, spec, code) — it links *out* to `lattice-node/docs` and the repos rather than duplicating them.
+A landing page for developers building apps for people and AI agents. It links *out* to `lattice-node/docs` and the repos rather than duplicating them.
 
-- **Evaluator** — hero + three claims (one proof of work · opt-in subscription · no finality)
-- **Operator** — Run a node
-- **Miner** — Mine (external `lattice-miner`, bundled with lattice-node)
-- **Developer** — Build a chain (deploy + policy model)
-- **Skeptic** — Spec & security
+- **Hero** — "Ship the app. Skip the backend.", with the client code for a paid write and a line to paste into a coding agent
+- **The problem** — what a backend costs today (abuse, data, payments, accounts, agents) and what Lattice replaces it with
+- **What you still write** — your rules and your page; what a ledger of your own buys, and when to use an existing one
+- **Built for agents** — keys without signup, pay per action, verified reads, the lattice-skills plugin
+- **Apps** — featured rows from `apps.json`, linking to `/apps/`
+- **Command-line setup** — node → rules → chain → mining → page
+- **When Lattice is the wrong choice** — latency, no finality, coin not dollars, fixed rules, public data, no automation, hosting, pre-1.0
+- **Network** — live height and peers from the public nodes
 
-House line: **One proof. Every chain.**
+Claims on the page must hold for the shipped software; state the tradeoff rather than round it up.
 
 ## Files
 
+- `apps.json` — the one list of apps on Lattice. `apps/` renders it, with a live status line per app read from the app's chain; the home page features some of them, and `test-site.mjs` checks every entry and that the home page features only listed apps. Third parties list an app by pull request to this file.
+- `agents.md` — the guide coding agents are pointed at from the hero: what Lattice is, the skills plugin, setup, and rules for acting on a user's behalf.
 - `index.html` — the landing page. Design tokens (zero-accent; source of truth: `lattice-design`) are inlined so it paints in a single request. A small inline script feeds the live Network table from the public seed nodes.
 - `download/` — beginner desktop setup and a fail-closed release configuration.
 - `explorer/` — the Lattice block explorer, vendored in (client-side, talks to the nodes directly). Served at `/explorer/`.

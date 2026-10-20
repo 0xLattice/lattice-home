@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Moniker",
+    "summary": "Own your name online: one profile and handle every app reads.",
+    "url": "https://app.moniker.bio/app/",
+    "source": "https://github.com/adalinxx/moniker",
+    "chain": "Nexus/testnet/moniker-da6f57",
+    "network": "testnet",
+    "status": "experimental",
+    "built": [
+      "Profiles and handles live on one shared ledger any app can read.",
+      "Handles are sold person to person; the payment and the transfer land together.",
+      "Only the holder's key can change what a profile says."
+    ],
+    "added": "2026-10-15"
+  },
+  {
+    "name": "Fanfare",
+    "summary": "Show tickets fans own and can resell at any price.",
+    "url": "https://adalinxx.github.io/fanfare/app/",
+    "source": "https://github.com/adalinxx/fanfare",
+    "chain": "Nexus/testnet/fanfare-a5688b",
+    "network": "testnet",
+    "status": "experimental",
+    "built": [
+      "Each ticket is a record its holder controls; buying it pays the seller in the same step.",
+      "Door staff check a pass signed by the holder's wallet.",
+      "An artist can launch a coin of their own for fans to hold."
+    ],
+    "added": "2026-10-16"
+  },
+  {
+    "name": "Stoa",
+    "summary": "Forums where posts belong to their authors and moderators only label.",
+    "url": "https://adalinxx.github.io/stoa/app/",
+    "source": "https://github.com/adalinxx/stoa",
+    "chain": "Nexus/testnet/stoa-41d5ab",
+    "network": "testnet",
+    "status": "experimental",
+    "built": [
+      "Every community gets a ledger of its own, and anyone can start one.",
+      "Each reader chooses which moderators' labels to follow.",
+      "Names and avatars come from Moniker."
+    ],
+    "added": "2026-10-14"
+  },
+  {
+    "name": "Rave",
+    "summary": "Reviews of places that no company owns. You choose whose ratings count.",
+    "url": "https://adalinxx.github.io/rave/app/",
+    "source": "https://github.com/adalinxx/rave",
+    "chain": "Nexus/testnet/rave-186079",
+    "network": "testnet",
+    "status": "experimental",
+    "built": [
+      "Runs on Stoa's rules unchanged: places, reviews and replies are all posts.",
+      "Ranking and filtering happen in the reader's page, and it says why.",
+      "Its public hosts take writes with no fee."
+    ],
+    "added": "2026-10-19"
+  },
+  {
+    "name": "Wheatpaste",
+    "summary": "One shared billboard. Post over anyone; the price is the only rule.",
+    "url": "https://adalinxx.github.io/wheatpaste/app/",
+    "source": "https://github.com/adalinxx/wheatpaste",
+    "chain": "Nexus/testnet/wheatpaste-acbbcf",
+    "network": "testnet",
+    "status": "experimental",
+    "built": [
+      "Space on the board is owned, cut up, and resold like land.",
+      "An ad pays each square's owner for every block it runs, up front.",
+      "Covering an ad refunds its poster for the time it had left."
+    ],
+    "added": "2026-10-19"
+  }
+]

@@ -3,8 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lattice — Launch your own blockchain</title>
-<meta name="description" content="Lattice is a toolkit for launching your own sovereign blockchain, secured from day one by a shared merged proof of work.">
+<title>Lattice — Ship the app. Skip the backend.</title>
+<meta name="description" content="Lattice replaces your backend with permissionless ledgers: records any node can serve and every client can verify, rules the network enforces, payments inside every write, and accounts that are keys. For people and AI agents.">
+<meta property="og:title" content="Lattice — Ship the app. Skip the backend.">
+<meta property="og:description" content="Permissionless ledgers for people and AI agents. No servers to defend, no payment processor, no password database.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lattice.build/">
 <link rel="icon" href="./lattice-mark.svg">
 <!-- Styles are inlined so this self-contained page paints in one request,
      with no render-blocking stylesheet round-trip. -->
@@ -14,6 +18,7 @@
   --paper:    #ffffff;
   --ink:      #0a0a0a;  /* full ink: headings, wordmark, UI */
   --ink-soft: #333333;  /* body copy: softer than pure black, less glare */
+  --ink-mute: #6b6b6b;  /* comments, captions */
   --line:     #e6e6e6;
   --font: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
   --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
@@ -26,7 +31,7 @@
   --measure: 66ch;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --line: #1c1c1c; }
+  :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --ink-mute: #8a8a8a; --line: #262626; }
 }
 * { box-sizing: border-box; }
 html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body);
@@ -34,7 +39,7 @@ html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body);
 body { margin: 0; background: var(--paper); color: var(--ink);
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display);
-  line-height: var(--lh-display); font-weight: 600; margin: 0 0 var(--s-3); }
+  line-height: var(--lh-display); font-weight: 600; margin: 0 0 var(--s-3); text-wrap: balance; }
 h1 { font-size: var(--fs-44); }
 h2 { font-size: var(--fs-28); }
 h3 { font-size: var(--fs-20); }
@@ -44,79 +49,143 @@ a { color: inherit; text-decoration: underline; text-underline-offset: 2px;
   text-decoration-thickness: 1px; }
 a:focus-visible, button:focus-visible, input:focus-visible {
   outline: 2px solid var(--ink); outline-offset: 2px; }
-hr { border: 0; border-top: var(--rule); margin: var(--s-5) 0; }
 button, .btn { font: inherit; text-transform: uppercase; letter-spacing: var(--track-display);
-  background: transparent; color: var(--ink); border: var(--rule);
+  background: transparent; color: var(--ink); border: 1px solid var(--ink);
   border-radius: var(--radius); padding: var(--s-2) var(--s-3); cursor: pointer; }
 .btn--primary { background: var(--ink); color: var(--paper); }
 .btn:hover { background: var(--ink); color: var(--paper); }
-.btn--primary:hover { background: var(--paper); color: var(--ink); border-color: var(--ink); }
-input, textarea, select { font: inherit; color: var(--ink); background: transparent;
-  border: 0; border-bottom: var(--rule); border-radius: 0; padding: var(--s-2) 0; }
+.btn--primary:hover { background: var(--paper); color: var(--ink); }
 table { border-collapse: collapse; width: 100%; }
-th, td { text-align: left; padding: var(--s-2) var(--s-3); border-bottom: var(--rule); }
+th, td { text-align: left; vertical-align: top; padding: var(--s-2) var(--s-3); border-bottom: var(--rule); }
 th { font-weight: 600; }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 code, pre { font-family: var(--font); }
 :not(pre) > code { border: var(--rule); padding: 0 var(--s-1); font-size: 0.9em; }
-figure.term { margin: var(--s-4) 0; border: var(--rule); }
+figure.term { margin: var(--s-4) 0; border: 1px solid var(--ink); min-width: 0; }
 figure.term figcaption {
   display: flex; align-items: center; gap: var(--s-2);
-  padding: var(--s-2) var(--s-3); border-bottom: var(--rule);
+  padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--ink);
   font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); }
 figure.term figcaption::before { content: "$"; }
 figure.term figcaption::after  { content: "\25AE"; margin-left: auto; }
+figure.term.js figcaption::before { content: "//"; }
 figure.term pre {
   margin: 0; padding: var(--s-3); overflow-x: auto;
   background: var(--ink); color: var(--paper);
   font-size: var(--fs-14); line-height: var(--lh-body); }
 figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit; }
+pre .c { opacity: .6; }
 .lattice-bg { background-image: radial-gradient(var(--line) 1px, transparent 1px);
   background-size: var(--s-2) var(--s-2); }
 .wordmark { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
 
 /* === page === */
   body { padding: 0 var(--s-4); }
-  main, nav { max-width: 880px; margin: 0 auto; }
+  main, nav, footer { max-width: 960px; margin: 0 auto; }
   nav { display: flex; align-items: center; gap: var(--s-3);
     padding: var(--s-4) 0; font-size: var(--fs-14); }
   nav a { text-decoration: none; }
+  nav a:hover { text-decoration: underline; }
   nav .brand { display: inline-flex; align-items: center; gap: var(--s-2); }
   nav .links { margin-left: auto; display: flex; align-items: center; gap: var(--s-3); }
-  .hero { padding: var(--s-7) var(--s-4); margin: var(--s-4) 0 0;
-    border: var(--rule); text-align: center; }
-  .hero .wordmark { font-size: var(--fs-44); display: block; margin: 0 0 var(--s-2); }
-  .hero p { margin: 0 auto var(--s-4); }
-  .hero .actions { display: flex; gap: var(--s-2); justify-content: center; flex-wrap: wrap; }
+  .skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); }
+  .skip:focus { top: var(--s-2); }
+  .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: var(--fs-12); color: var(--ink-mute); margin-bottom: var(--s-2); }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .btn { display: inline-block; text-decoration: none; font-size: var(--fs-14); }
+
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: var(--s-4) var(--s-5);
+    align-items: start; padding: var(--s-6) 0 var(--s-6); }
+  .hero-head { grid-column: 1 / -1; }
+  .hero h1 { font-size: clamp(1.6rem, 5.4vw, 3.1rem); margin: 0; }
+  .hero .lede { font-size: var(--fs-16); }
+  .hero .actions { margin-top: var(--s-4); }
+  .hero figure.term { margin: 0; }
+  .hero figure.term pre { font-size: 0.8rem; }
+
+  .ask { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
+    border: var(--rule); padding: var(--s-3); margin: 0 0 var(--s-6); font-size: var(--fs-14); }
+  .ask .label { color: var(--ink-mute); text-transform: uppercase; letter-spacing: var(--track-display); font-size: var(--fs-12); }
+  .ask code { flex: 1 1 24ch; min-width: 0; border: 0 !important; padding: 0 !important; overflow-wrap: anywhere; color: var(--ink); }
+  .ask button { font-size: var(--fs-12); padding: var(--s-1) var(--s-2); }
+
   section { padding: var(--s-6) 0; border-top: var(--rule); }
-  section:first-of-type { border-top: 0; }
   h2 { font-size: var(--fs-20); }
-  .claims { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4); }
-  .claims h3 { font-size: var(--fs-16); text-transform: none; letter-spacing: 0; margin: 0 0 var(--s-2); }
-  .links-list { list-style: none; padding: 0; }
-  .links-list li { margin: 0 0 var(--s-2); }
-  footer { display: flex; align-items: center; gap: var(--s-3);
-    padding: var(--s-6) 0; border-top: var(--rule); font-size: var(--fs-12); }
-  footer .links { margin-left: auto; display: flex; gap: var(--s-3); }
+  .intro { margin-bottom: var(--s-4); }
+
+  .table-wrap { overflow-x: auto; }
+  .table-wrap + .meta { margin-top: var(--s-3); }
+  code.nowrap { white-space: nowrap; }
+  .swap td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .swap td { font-size: var(--fs-14); color: var(--ink-soft); }
+  .swap td:last-child { color: var(--ink); }
+  .swap th { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); color: var(--ink-mute); font-weight: 400; }
+
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-5); align-items: start; }
+  .parts { list-style: none; padding: 0; margin: 0; }
+  .parts li { padding: var(--s-3) 0; border-top: var(--rule); margin: 0; font-size: var(--fs-14); }
+  .parts li:last-child { border-bottom: var(--rule); }
+  .parts b { display: block; color: var(--ink); font-weight: 600; margin-bottom: var(--s-1); font-size: var(--fs-16); }
+
+  .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0;
+    border-top: var(--rule); border-left: var(--rule); }
+  .facts > div { padding: var(--s-4); border-right: var(--rule); border-bottom: var(--rule); min-width: 0; }
+  .facts h3 { font-size: var(--fs-16); text-transform: none; letter-spacing: 0; margin-bottom: var(--s-2); }
+  .facts p { font-size: var(--fs-14); margin: 0; }
+
+  .apps td { font-size: var(--fs-14); }
+  .apps td:first-child { font-weight: 600; white-space: nowrap; }
+  .apps td code { font-size: var(--fs-12); white-space: nowrap; }
+  .apps td.go { white-space: nowrap; }
+
+  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; }
+  ol.steps > li { counter-increment: step; max-width: none; display: grid;
+    grid-template-columns: 3ch minmax(0, 1fr); gap: 0 var(--s-3); padding: var(--s-4) 0; border-top: var(--rule); margin: 0; }
+  ol.steps > li::before { content: counter(step); font-weight: 600; color: var(--ink); }
+  ol.steps h3 { font-size: var(--fs-16); text-transform: none; letter-spacing: 0; margin-bottom: var(--s-2); }
+  ol.steps p { font-size: var(--fs-14); }
+  ol.steps figure.term { margin: var(--s-2) 0 0; }
+
+  .tradeoffs li { font-size: var(--fs-14); margin-bottom: var(--s-2); }
+  .tradeoffs b { color: var(--ink); }
+
   #network table { font-size: var(--fs-14); margin-top: var(--s-3); }
   #network td a { text-decoration: none; }
   #network tr.down td { opacity: .45; }
-  /* status glyph: hollow square = nominal, ink-filled = down (matches the explorer;
-     monochrome, radius 0 — nothing is ever drawn) */
-  #network .dot { display: inline-block; width: 8px; height: 8px; border: var(--rule);
+  /* status glyph: hollow square = nominal, ink-filled = down (matches the explorer) */
+  #network .dot { display: inline-block; width: 8px; height: 8px; border: 1px solid var(--ink-mute);
     margin-right: var(--s-1); vertical-align: baseline; }
   #network .dot.down { background: var(--ink); border-color: var(--ink); }
+  #network code { overflow-wrap: anywhere; }
+
+  .closing { text-align: left; }
+  .closing h2 { font-size: var(--fs-28); }
+
+  footer { display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-5) 0; border-top: var(--rule); font-size: var(--fs-12); }
+  footer .links { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+
+  @media (max-width: 820px) {
+    .hero, .two { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+    .hero { padding-top: var(--s-5); }
+  }
   @media (max-width: 720px) {
+    body { padding: 0 var(--s-3); }
     nav { align-items: flex-start; }
     nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
-    .claims { grid-template-columns: 1fr; }
-    .hero { padding: var(--s-6) var(--s-3); }
-    #network { overflow-x: auto; }
-    #network code { overflow-wrap: anywhere; }
+    .facts { grid-template-columns: minmax(0, 1fr); }
+    .swap thead, .apps thead { display: none; }
+    .swap tr, .apps tr { display: block; padding: var(--s-3) 0; border-bottom: var(--rule); }
+    .swap td, .apps td { display: block; border: 0; padding: var(--s-1) 0; }
+    .swap td[data-label]::before { content: attr(data-label); display: block; font-size: var(--fs-12);
+      text-transform: uppercase; letter-spacing: var(--track-display); color: var(--ink-mute); }
+    .swap td + td { margin-top: var(--s-2); }
+    footer { flex-wrap: wrap; }
   }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
   <nav>
     <a class="brand" href="./" aria-label="Lattice home">
@@ -126,109 +195,220 @@ figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit
     <span class="links">
       <a href="./download/">Download</a>
       <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
+      <a href="./apps/">Apps</a>
       <a href="./explorer/">Explorer</a>
       <a href="./community/">Community</a>
       <a href="https://github.com/adalinxx">GitHub</a>
     </span>
   </nav>
 
-<main>
+<main id="main">
 
-  <div class="hero lattice-bg">
-    <h1 class="wordmark">LATTICE</h1>
-    <p>Launch your own blockchain.</p>
-    <div class="actions">
-      <a class="btn btn--primary" href="./download/">Download Lattice Desktop</a>
-      <a class="btn" href="#spec">Read the spec</a>
+  <header class="hero">
+    <div class="hero-head">
+      <p class="eyebrow">Permissionless ledgers for people and AI agents</p>
+      <h1>Ship the app.<br>Skip the backend.</h1>
     </div>
+    <div>
+      <p class="lede">Every app drags a backend behind it: servers to defend, a database to run, a payment processor to integrate, and passwords to protect. The bill grows with every user, and every bot.</p>
+      <p class="lede">Lattice is that backend as an open network: anyone can run a node, and no one has to ask. You ship the page; people and AI agents bring their own keys and pay as they go.</p>
+      <div class="actions">
+        <a class="btn btn--primary" href="#quickstart">Start building</a>
+        <a class="btn" href="#apps">See live apps</a>
+      </div>
+    </div>
+    <figure class="term js">
+      <figcaption>app.js: sell a ticket, no server</figcaption>
+<pre><code><span class="c">// on a click. lattice is the user's wallet</span>
+const me = await lattice.connect();
+await lattice.writeRecords({
+  chainPath: ["Nexus", "testnet", "fanfare-a5688b"],
+  actions: [{
+    key: "own/&lt;artist&gt;/berlin/A12",
+    oldValue: "&lt;holder&gt;@250", <span class="c">// still 250</span>
+    newValue: me,
+  }],
+  payments: [{ to: "&lt;holder&gt;", amount: "250" }],
+  fee: "1",
+});
+<span class="c">// the ticket and the payment land together,
+// or not at all.</span></code></pre>
+    </figure>
+  </header>
+
+  <div class="ask" id="agents-prompt">
+    <span class="label">Or ask your coding agent</span>
+    <code id="agent-line">Read https://lattice.build/agents.md and build me an app on Lattice.</code>
+    <button type="button" id="copy-agent">Copy</button>
   </div>
 
-  <section>
-    <div class="claims">
-      <div>
-        <h3>Security on day one</h3>
-        <p>Every chain inherits the network's full proof of work from block zero. No validator set to bootstrap, no cold-start attack window.</p>
-      </div>
-      <div>
-        <h3>Your chain, your rules</h3>
-        <p>Launch a sovereign chain with its own policy in one command, no permission needed.</p>
-      </div>
-      <div>
-        <h3>Mine once, earn everywhere</h3>
-        <p>Full hashpower on every chain you subscribe to instead of a slice on each, earning on every block it clears.</p>
-      </div>
+  <section id="why" aria-labelledby="why-title">
+    <p class="eyebrow">The problem</p>
+    <h2 id="why-title">Most of a backend is overhead.</h2>
+    <p class="intro">Little of a typical backend is your product. The rest keeps attackers out, keeps data alive, moves money, and guards logins. You pay for it whether your app takes off or not, and you answer for it when it breaks.</p>
+    <div class="table-wrap">
+    <table class="swap">
+      <thead><tr><th>Overhead</th><th>Today</th><th>With Lattice</th></tr></thead>
+      <tbody>
+        <tr><td>Abuse</td><td data-label="Today">Every bot hits your servers and your bill. A flood can take you offline.</td><td data-label="With Lattice">There is no server of yours to flood. Any node can answer a reader, and writers compete for room on the ledger, not on your machines.</td></tr>
+        <tr><td>Data</td><td data-label="Today">A database to run, back up, scale, and keep online.</td><td data-label="With Lattice">Your data lives on the network. Anyone can host a copy, and readers check each value against its hash, so a stranger’s copy is as good as yours.</td></tr>
+        <tr><td>Payments</td><td data-label="Today">A processor, a merchant account, fees per charge, chargebacks.</td><td data-label="With Lattice">Payment is part of the action. A purchase and what it buys land together or not at all.</td></tr>
+        <tr><td>Accounts</td><td data-label="Today">A password table, resets, 2FA, breach notices.</td><td data-label="With Lattice">Users hold their own keys. There is no credential database to breach.</td></tr>
+        <tr><td>Agents</td><td data-label="Today">Signup forms, API keys, and a credit card no agent can get.</td><td data-label="With Lattice">An agent holds a key and pays as it goes, exactly like a person.</td></tr>
+      </tbody>
+    </table>
     </div>
   </section>
 
-  <section id="quickstart">
-    <h2>Command-line setup</h2>
-    <p>One <code>lattice-node</code> process hosts one chain tree: RPC, gossip, trustless sync, and mempool for Nexus and any child chains you host. Mining is external — the node serves block templates and validates solutions; <code>lattice-mining-coordinator</code> assigns nonce ranges to stateless <code>lattice-miner</code> workers.</p>
-<figure class="term">
-<figcaption>run a node</figcaption>
+  <section id="how" aria-labelledby="how-title">
+    <p class="eyebrow">What you still write</p>
+    <h2 id="how-title">Only the part that is your product.</h2>
+    <div class="two">
+      <ul class="parts">
+        <li><b>Your rules</b>What counts as a valid action in your app: who may edit what, what a ticket costs, who can resell it. Every node enforces them, so no one, including you, can quietly break them.</li>
+        <li><b>Your page</b>Static files, hosted anywhere. It reads data it can verify and asks the user’s wallet to sign and pay.</li>
+      </ul>
+      <div>
+        <p>Your rules get a ledger of their own: a public record of keys and values that every node checks against those rules. Lattice calls it a chain. Another app’s rush never competes with yours for space.</p>
+        <p>Miners can secure it alongside Nexus, the root ledger, from its first block, with no validators to recruit. Its security is the hashpower that chooses to mine it.</p>
+        <p>Don’t need custom rules? Write to a ledger that already has the right ones. The apps here share Moniker’s for profiles.</p>
+      </div>
+    </div>
+    <figure class="term">
+      <figcaption>put your rules on the network</figcaption>
+<pre><code>lattice child create Nexus/testnet/myapp-7f3c --root node \
+  --spec chain/spec.json --policy-module chain/rules.wasm
+<span class="c"># live once your node mines its first block. no deploy fee, no approval.</span></code></pre>
+    </figure>
+  </section>
+
+  <section id="agents" aria-labelledby="agents-title">
+    <p class="eyebrow">Built for agents</p>
+    <h2 id="agents-title">An agent is just another key.</h2>
+    <p class="intro">Today an agent stalls at every signup form, API key, and card field, because each one was built to make sure a human is there. Lattice asks for none of them.</p>
+    <div class="facts">
+      <div><h3>Nothing to sign up for</h3><p>An agent makes its own key and starts working. Where nodes accept zero-fee writes, it needs no money to begin.</p></div>
+      <div><h3>Pays as it goes</h3><p>Any action can carry a payment: buy a ticket, tip a post, rent a spot. No invoices, no account to top up.</p></div>
+      <div><h3>Doesn’t have to trust you</h3><p>Every value it reads is checked against its hash, so a stranger’s node can’t forge data. At worst it serves an out-of-date view, which asking a second node catches.</p></div>
+      <div><h3>Your coding agent already knows it</h3><p>Open agent skills teach it to run nodes, design apps, send payments, and fix what breaks.</p></div>
+    </div>
+    <figure class="term">
+      <figcaption>teach Claude Code lattice</figcaption>
+<pre><code>/plugin marketplace add adalinxx/lattice-skills
+/plugin install lattice@lattice-skills</code></pre>
+    </figure>
+    <p class="meta">Other agents: copy the <code>skills/</code> folders from <a href="https://github.com/adalinxx/lattice-skills">lattice-skills</a>, or point them at <a href="./agents.md">agents.md</a>.</p>
+  </section>
+
+  <section id="apps" aria-labelledby="apps-title">
+    <p class="eyebrow">Running today</p>
+    <h2 id="apps-title">Apps with no backend.</h2>
+    <p class="intro">Each is a static page on GitHub Pages with no server, database, or login system of its own, and anyone can read its source. They run on testnet today, carried by public nodes that anyone can add to.</p>
+    <div class="table-wrap">
+    <table class="apps">
+      <thead><tr><th>App</th><th>What it does</th><th>Testnet chain</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Moniker</td><td>Own your name online: one profile and handle every app reads.</td><td><code>Nexus/testnet/moniker-da6f57</code></td><td class="go"><a href="https://app.moniker.bio/app/">Open</a> · <a href="https://github.com/adalinxx/moniker">Source</a></td></tr>
+        <tr><td>Fanfare</td><td>Show tickets fans own and can resell at any price.</td><td><code>Nexus/testnet/fanfare-a5688b</code></td><td class="go"><a href="https://adalinxx.github.io/fanfare/app/">Open</a> · <a href="https://github.com/adalinxx/fanfare">Source</a></td></tr>
+        <tr><td>Stoa</td><td>Forums where posts belong to their authors and moderators only label.</td><td><code>Nexus/testnet/stoa-41d5ab</code></td><td class="go"><a href="https://adalinxx.github.io/stoa/app/">Open</a> · <a href="https://github.com/adalinxx/stoa">Source</a></td></tr>
+        <tr><td>Rave</td><td>Reviews of places that no company owns. You choose whose ratings count.</td><td><code>Nexus/testnet/rave-186079</code></td><td class="go"><a href="https://adalinxx.github.io/rave/app/">Open</a> · <a href="https://github.com/adalinxx/rave">Source</a></td></tr>
+        <tr><td>Wheatpaste</td><td>One shared billboard. Post over anyone; the price is the only rule.</td><td><code>Nexus/testnet/wheatpaste-acbbcf</code></td><td class="go"><a href="https://adalinxx.github.io/wheatpaste/app/">Open</a> · <a href="https://github.com/adalinxx/wheatpaste">Source</a></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="meta">Reading needs nothing. Writing needs the <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> wallet for Chrome. <a href="./download/">Lattice Desktop</a> runs a full node and wallet on Mac, Linux, or Windows, but does not yet sign for web apps.</p>
+    <p><a href="./apps/">All apps, how each is built, and how to list yours →</a></p>
+  </section>
+
+  <section id="quickstart" aria-labelledby="qs-title">
+    <p class="eyebrow">Command-line setup</p>
+    <h2 id="qs-title">From nothing to a live app.</h2>
+    <p class="intro">The command-line tools build from source with Swift 6.1 or newer, on macOS 15+ or Linux. (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
+    <ol class="steps">
+      <li><div>
+        <h3>Build and start a node</h3>
+        <p>With no <code>peers</code> set, the node joins the public Nexus network. A node hosts a chain only under a parent it hosts, so add the public testnet before you start it.</p>
+<figure class="term"><figcaption>node</figcaption>
 <pre><code>git clone https://github.com/adalinxx/lattice-node
-cd lattice-node
-swift build -c release
-# Write node-data/lattice.json + identity. With no "peers" field the node
-# uses the built-in Nexus bootstrap set.
-.build/release/lattice init --root node-data
-.build/release/lattice up --root node-data
-# Confirm it's up and syncing:
-.build/release/lattice status --root node-data
-curl -s http://127.0.0.1:8080/health</code></pre>
-</figure>
-    <p>To mine, add a <code>mine</code> object to <code>lattice.json</code> and start the mining loop. Blocks carry no reward transaction: each block's header names a <code>rewardRecipient</code>, credited the block reward plus fees. Configure a recipient for every chain you mine; an omitted recipient burns that chain's payout. The bundled <code>lattice-miner</code> is a CPU worker; <a href="https://github.com/adalinxx/lattice-miner-gpu">lattice-miner-gpu</a> is a GPU worker. Any miner that implements the worker protocol plugs in.</p>
-<figure class="term">
-<figcaption>mine</figcaption>
-<pre><code># node-data/lattice.json
-{
-  "listen": 4001,
-  "rpc": 8080,
-  "mine": {
-    "worker": "cpu",
-    "workers": 2,
-    "recipients": { "Nexus": "&lt;nexus-address&gt;" }
-  }
-}
-
-.build/release/lattice mine start --root node-data
-.build/release/lattice mine status --root node-data</code></pre>
-</figure>
-    <p><a href="https://github.com/adalinxx/lattice-node/blob/main/docs/getting-started.md">Getting started</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/operator-cli.md">Operator CLI</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/operations.md">Operations</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/mining-workers.md">Mining workers</a></p>
+cd lattice-node &amp;&amp; swift build -c release
+export PATH="$PWD/.build/release:$PATH"
+lattice init --root node
+<span class="c"># in node/lattice.json add:  "hostedChains": ["Nexus/testnet"]</span>
+lattice up --root node
+lattice status --root node   <span class="c"># wait until Nexus/testnet is in sync</span></code></pre></figure>
+      </div></li>
+      <li><div>
+        <h3>Write your rules</h3>
+        <p>A chain is a JSON spec: block time, rewards, size limits, and the CIDs of its policy modules. Policies are WASM modules; the examples are written in Rust. Start from <a href="https://github.com/adalinxx/moniker/tree/main/policy">Moniker’s <code>policy/</code> crate</a>, or let the <code>lattice-app-builder</code> skill write one with you.</p>
+      </div></li>
+      <li><div>
+        <h3>Launch the chain</h3>
+        <p>Make a key first. The node starts hosting the chain immediately. To fund the key in genesis, set <code>premine</code> in the spec and add <code class="nowrap">--premine-to &lt;address&gt;</code>.</p>
+<figure class="term"><figcaption>launch</figcaption>
+<pre><code>lattice key generate --out ./wallet.json   <span class="c"># prints its address</span>
+lattice child create Nexus/testnet/myapp-7f3c \
+  --root node \
+  --spec chain/spec.json \
+  --policy-module chain/rules.wasm</code></pre></figure>
+      </div></li>
+      <li><div>
+        <h3>Mine it, or let others</h3>
+        <p>A chain advances when someone mines it. Pay the chain’s rewards to your key and start the bundled CPU miner; GPU miners can merge-mine it alongside Nexus. A chain with no recipient burns its rewards.</p>
+<figure class="term"><figcaption>mine</figcaption>
+<pre><code><span class="c"># in node/lattice.json add:
+#   "mine": { "worker": "cpu", "workers": 2,
+#     "recipients": { "Nexus/testnet/myapp-7f3c": "&lt;address&gt;" } }</span>
+lattice mine start --root node
+<span class="c"># once it has coin, the key can pay others:</span>
+lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
+  --key ./wallet.json --to &lt;address&gt; --amount 25 --fee 1</code></pre></figure>
+      </div></li>
+      <li><div>
+        <h3>Ship a page</h3>
+        <p>Read with the <a href="https://github.com/adalinxx/lattice-sdk">TypeScript SDK</a>, which checks every value against the latest block. Write with <code>window.lattice</code> from the user’s wallet. Host the page anywhere static files go.</p>
+      </div></li>
+    </ol>
+    <p><a href="https://github.com/adalinxx/lattice-node/blob/main/docs/operator-cli.md">Operator CLI</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/rpc-api.md">RPC API</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/getting-started.md">Getting started</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/mining-workers.md">Mining workers</a></p>
   </section>
 
-  <section id="build">
-    <h2>Build a chain</h2>
-    <p>Create a child chain under any hosted parent and define its validity with a policy — opt-in, chain-defined rules enforced by every subscriber. Policies are deterministic validity, not permissionless contracts.</p>
-<figure class="term">
-<figcaption>create a chain</figcaption>
-<pre><code># Host a child chain under Nexus (or pass --spec with a full ChainSpec JSON,
-# wasmPolicies included).
-.build/release/lattice child create Nexus/Payments \
-  --root node-data \
-  --reward 1000 \
-  --block-time 10000</code></pre>
-</figure>
-    <p>This writes one immutable spec, adds <code>Nexus/Payments</code> to <code>hostedChains</code>, and restarts a running host. The child runs inside the same node process; its genesis is built from the spec and mined through its parent's child commitment by ordinary merged mining. There is no deploy endpoint or parent authorization transaction. Add a recipient for the child under <code>mine.recipients</code> to be paid on it.</p>
-    <p><a href="https://github.com/adalinxx/lattice-node/blob/main/docs/rpc-api.md">RPC API</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/protocol.md">Protocol</a></p>
-  </section>
-
-  <section id="spec">
-    <h2>Spec &amp; security</h2>
-    <p>Consensus is Hierarchical GHOST — the heaviest descendant subtree, rooted upward toward an absolute proof-of-work root. Security rests on independent per-chain validation and voluntary subscription, not on trusting any one chain or operator.</p>
-    <ul class="links-list">
-      <li><a href="https://github.com/adalinxx/lattice-node/blob/main/docs/protocol.md">Protocol specification</a></li>
-      <li><a href="https://github.com/adalinxx/Lattice">Consensus (Lattice)</a></li>
+  <section id="tradeoffs" aria-labelledby="tradeoffs-title">
+    <p class="eyebrow">Before you build</p>
+    <h2 id="tradeoffs-title">When Lattice is the wrong choice.</h2>
+    <ul class="tradeoffs">
+      <li><b>You need instant confirmation.</b> A write takes effect in the next block: about a minute on the testnet app ledgers today, and an hour on average on Nexus.</li>
+      <li><b>You need a write to be final.</b> Lattice follows the chain with the most proof of work, and a heavier competing history can replace recent writes. Confirm important ones by reading them back.</li>
+      <li><b>You need to charge in dollars.</b> Payments are in the coin of the ledger they happen on. Users get it by mining, from another user, or by trading for it; there is no card on-ramp.</li>
+      <li><b>You need to change your rules later.</b> A launched ledger’s rules are fixed. To change them, launch a new ledger and have your page read both.</li>
+      <li><b>You need private data.</b> Everything on a chain is public. Encrypt it yourself before you write it.</li>
+      <li><b>You need code that runs on its own.</b> Your rules can only accept or reject an action. Feeds, ranking, matching, and anything scheduled run in your page or your own service.</li>
+      <li><b>You need someone else to keep it running.</b> A chain lives while people mine and host it. A small chain is only as secure as the hashpower that chooses to mine it.</li>
+      <li><b>You need stability today.</b> Lattice is pre-1.0. Networks have been reset at protocol upgrades, the SDK is not yet on npm, and the command-line tools build from source.</li>
     </ul>
+    <p><a href="https://github.com/adalinxx/lattice-node/blob/main/docs/protocol.md">Protocol specification</a> · <a href="https://github.com/adalinxx/Lattice">Consensus source</a></p>
   </section>
 
-  <section id="network">
-    <h2>Network</h2>
-    <p>Live height and peers read directly from each node's public read surface, refreshed every 15&nbsp;seconds. Every node serves the bounded read routes itself (<code>publicRead</code> in <code>lattice.json</code>); the operator and write surface never leaves loopback. Browse Nexus blocks and transactions in the <a href="./explorer/">block explorer</a>.</p>
-    <p>Nexus genesis: <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code> (2026-10-04 06:19:59&nbsp;UTC).</p>
+  <section id="network" aria-labelledby="network-title">
+    <p class="eyebrow">Live</p>
+    <h2 id="network-title">The network right now.</h2>
+    <p>Height and peers read directly from each node’s public read surface, refreshed every 15&nbsp;seconds. Browse blocks and transactions in the <a href="./explorer/">explorer</a>. Want to help secure it? <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/operations.md">Run a node</a> or <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/mining-workers.md">mine</a>.</p>
+    <p class="meta">Nexus genesis <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code> · 2026-10-04 06:19:59&nbsp;UTC</p>
+    <div class="table-wrap">
     <table>
-      <thead><tr><th>Chain</th><th>Region</th><th class="num">Height</th><th class="num">Peers</th><th>Status</th></tr></thead>
+      <thead><tr><th>Chain</th><th>Node</th><th class="num">Height</th><th class="num">Peers</th><th>Status</th></tr></thead>
       <tbody id="net-rows"></tbody>
     </table>
+    </div>
+    <noscript><p>Enable JavaScript for live node status, or visit the block explorer.</p></noscript>
+  </section>
+
+  <section class="closing" aria-labelledby="closing-title">
+    <h2 id="closing-title">Ship the app. Skip the backend.</h2>
+    <p>Every line of it is on GitHub, and there is no one to ask for permission.</p>
+    <div class="actions">
+      <a class="btn btn--primary" href="#quickstart">Start the quickstart</a>
+      <a class="btn" href="./download/">Download Lattice Desktop</a>
+      <a class="btn" href="https://github.com/adalinxx/lattice-node/discussions">Ask a question</a>
+    </div>
   </section>
 
 </main>
@@ -237,19 +417,32 @@ curl -s http://127.0.0.1:8080/health</code></pre>
     <span class="wordmark">LATTICE</span>
     <span class="links">
       <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
+      <a href="./apps/">Apps</a>
+      <a href="./download/">Download</a>
+      <a href="./agents.md">agents.md</a>
+      <a href="./explorer/">Explorer</a>
       <a href="./community/">Community</a>
-      <a href="https://github.com/adalinxx">Code</a>
+      <a href="https://x.com/0xLattice">X</a>
+      <a href="https://github.com/adalinxx">GitHub</a>
     </span>
   </footer>
 
 <script>
+  document.getElementById("copy-agent").addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    const text = document.getElementById("agent-line").textContent;
+    try { await navigator.clipboard.writeText(text); button.textContent = "Copied"; }
+    catch { getSelection().selectAllChildren(document.getElementById("agent-line")); button.textContent = "Selected"; }
+    setTimeout(() => { button.textContent = "Copy"; }, 2000);
+  });
+
   // Every node serves its own bounded public read surface (--public-read-port,
   // enforced in code); the table reads each one directly.
   const NODES = [
     ["iad", "https://seed1.lattice.build"],
     ["ams", "https://seed2.lattice.build"],
     ["sjc", "https://seed3.lattice.build"],
-    ["testnet", "https://seed4.lattice.build"],
+    ["seed4", "https://seed4.lattice.build"],
     ["read (iad)", "https://lattice-mainnet-read.fly.dev"]
   ];
 
@@ -268,12 +461,13 @@ curl -s http://127.0.0.1:8080/health</code></pre>
       const tr = document.getElementById(`net-${i}`);
       const cell = (k) => tr.querySelector(`[data-cell="${k}"]`);
       try {
-        const health = await (await fetch(url + "/health", { cache: "no-store" })).json();
-        const peers = await (await fetch(url + "/api/peers", { cache: "no-store" })).json();
+        const get = (path) => fetch(url + path, { cache: "no-store", signal: AbortSignal.timeout(8000) }).then((r) => r.json());
+        const [health, peers] = await Promise.all([get("/health"), get("/api/peers")]);
         tr.classList.remove("down");
         cell("height").textContent = (health.height ?? "—").toLocaleString();
         cell("peers").textContent = peers.count ?? "—";
-        cell("status").innerHTML = `<span class="dot"></span>${health.phase ?? "—"}`;
+        cell("status").innerHTML = `<span class="dot"></span>`;
+        cell("status").append(String(health.phase ?? "—"));
       } catch (e) {
         tr.classList.add("down");
         cell("height").textContent = "—";

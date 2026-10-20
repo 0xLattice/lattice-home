@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apps — Lattice</title>
+<meta name="description" content="Apps built on Lattice: static pages with no server, no database, and no login system. Open the app, read the source, or add yours.">
+<meta property="og:title" content="Apps on Lattice">
+<meta property="og:description" content="Static pages with no server, no database, and no login system.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lattice.build/apps/">
+<link rel="icon" href="../lattice-mark.svg">
+<!-- Chain hosts are declared by anyone; tell none of them which page asked. -->
+<meta name="referrer" content="no-referrer">
+<style>
+/* === design tokens === */
+:root {
+  --paper:    #ffffff;
+  --ink:      #0a0a0a;  /* full ink: headings, wordmark, UI */
+  --ink-soft: #333333;  /* body copy: softer than pure black, less glare */
+  --ink-mute: #6b6b6b;  /* comments, captions */
+  --line:     #e6e6e6;
+  --font: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
+  --fs-20: 1.25rem;  --fs-28: 1.75rem;  --fs-44: 2.75rem;
+  --lh-body: 1.6; --lh-display: 1.1; --track-display: 0.08em;
+  --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px;
+  --s-5: 40px; --s-6: 64px; --s-7: 96px;
+  --rule: 1px solid var(--line);
+  --radius: 0;
+  --measure: 66ch;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --ink-mute: #8a8a8a; --line: #262626; }
+}
+* { box-sizing: border-box; }
+html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body);
+  -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display);
+  line-height: var(--lh-display); font-weight: 600; margin: 0 0 var(--s-3); text-wrap: balance; }
+h1 { font-size: var(--fs-44); }
+h2 { font-size: var(--fs-28); }
+h3 { font-size: var(--fs-20); }
+p, li { max-width: var(--measure); margin: 0 0 var(--s-3); color: var(--ink-soft); }
+small, .meta { font-size: var(--fs-12); }
+a { color: inherit; text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-thickness: 1px; }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--ink); outline-offset: 2px; }
+button, .btn { font: inherit; text-transform: uppercase; letter-spacing: var(--track-display);
+  background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  border-radius: var(--radius); padding: var(--s-2) var(--s-3); cursor: pointer; }
+.btn--primary { background: var(--ink); color: var(--paper); }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn--primary:hover { background: var(--paper); color: var(--ink); }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: var(--s-2) var(--s-3); border-bottom: var(--rule); }
+th { font-weight: 600; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+code, pre { font-family: var(--font); }
+:not(pre) > code { border: var(--rule); padding: 0 var(--s-1); font-size: 0.9em; }
+figure.term { margin: var(--s-4) 0; border: 1px solid var(--ink); min-width: 0; }
+figure.term figcaption {
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--ink);
+  font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); }
+figure.term figcaption::before { content: "$"; }
+figure.term figcaption::after  { content: "\25AE"; margin-left: auto; }
+figure.term.js figcaption::before { content: "//"; }
+figure.term pre {
+  margin: 0; padding: var(--s-3); overflow-x: auto;
+  background: var(--ink); color: var(--paper);
+  font-size: var(--fs-14); line-height: var(--lh-body); }
+figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit; }
+pre .c { opacity: .6; }
+.lattice-bg { background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: var(--s-2) var(--s-2); }
+.wordmark { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+
+/* === page === */
+  body { padding: 0 var(--s-4); }
+  main, nav, footer { max-width: 960px; margin: 0 auto; }
+  nav { display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-4) 0; font-size: var(--fs-14); }
+  nav a { text-decoration: none; }
+  nav a:hover, nav a[aria-current] { text-decoration: underline; }
+  nav .brand { display: inline-flex; align-items: center; gap: var(--s-2); }
+  nav .links { margin-left: auto; display: flex; align-items: center; gap: var(--s-3); }
+  .skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); }
+  .skip:focus { top: var(--s-2); }
+  .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: var(--fs-12); color: var(--ink-mute); margin-bottom: var(--s-2); }
+  .btn { display: inline-block; text-decoration: none; font-size: var(--fs-14); }
+  header.page { padding: var(--s-6) 0 var(--s-5); }
+  header.page h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); }
+  section { padding: var(--s-6) 0; border-top: var(--rule); }
+  h2 { font-size: var(--fs-20); }
+
+  .apps { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ink); }
+  .app { max-width: none; margin: 0; padding: var(--s-4) 0; border-bottom: var(--rule);
+    display: grid; grid-template-columns: 12ch minmax(0, 1fr) auto; gap: var(--s-1) var(--s-4); align-items: baseline; }
+  .app h2 { font-size: var(--fs-16); margin: 0; overflow-wrap: anywhere; }
+  .app .summary { margin: 0; color: var(--ink); }
+  .app .go { display: flex; gap: var(--s-2); white-space: nowrap; }
+  .app .go .btn { font-size: var(--fs-12); padding: var(--s-1) var(--s-2); }
+  .app .more { grid-column: 2 / -1; }
+  .app ul { margin: var(--s-2) 0 0; padding-left: 2ch; }
+  .app li { font-size: var(--fs-14); margin: 0 0 var(--s-1); }
+  .app .live { grid-column: 2 / -1; margin: var(--s-2) 0 0; font-size: var(--fs-12); color: var(--ink-mute); }
+  .app .live a { color: inherit; }
+  .app .tags { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-bottom: var(--s-1); }
+  .app [data-live] { display: block; overflow-wrap: anywhere; }
+  .tag { border: var(--rule); padding: 0 var(--s-1); font-size: var(--fs-12); color: var(--ink-soft); }
+  .dot { display: inline-block; width: 8px; height: 8px; border: 1px solid var(--ink-mute); margin-right: var(--s-1); }
+  .dot.down { background: var(--ink); border-color: var(--ink); }
+
+  .rules li { font-size: var(--fs-14); }
+  .meta { color: var(--ink-mute); }
+  footer { display: flex; align-items: center; gap: var(--s-3);
+    padding: var(--s-5) 0; border-top: var(--rule); font-size: var(--fs-12); }
+  footer .links { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+
+  @media (max-width: 720px) {
+    body { padding: 0 var(--s-3); }
+    nav { align-items: flex-start; }
+    nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
+    .app { grid-template-columns: minmax(0, 1fr); }
+    .app .more, .app .live { grid-column: 1; }
+    footer { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+  <nav>
+    <a class="brand" href="../" aria-label="Lattice home">
+      <img src="../lattice-mark.svg" width="22" height="22" alt="">
+      <span class="wordmark">LATTICE</span>
+    </a>
+    <span class="links">
+      <a href="../download/">Download</a>
+      <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
+      <a href="./" aria-current="page">Apps</a>
+      <a href="../explorer/">Explorer</a>
+      <a href="../community/">Community</a>
+      <a href="https://github.com/adalinxx">GitHub</a>
+    </span>
+  </nav>
+
+<main id="main">
+
+  <header class="page">
+    <p class="eyebrow">Apps on Lattice</p>
+    <h1>Apps with no backend.</h1>
+    <p>Each of these is a set of static files with no server, database, or login system of its own; people sign in with their own keys and pay as they go. Open one, or read how it was built.</p>
+  </header>
+
+  <ol class="apps" id="apps" aria-label="Apps">
+    <li class="app"><p class="summary">Loading apps… If this doesn’t change, the list is in <a href="../apps.json">apps.json</a>.</p></li>
+  </ol>
+  <noscript><p>The list is in <a href="../apps.json">apps.json</a>.</p></noscript>
+  <p class="meta">Reading needs nothing. Writing needs the <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> wallet for Chrome.</p>
+
+  <section id="add" aria-labelledby="add-title">
+    <p class="eyebrow">Add yours</p>
+    <h2 id="add-title">Listing takes a pull request.</h2>
+    <p>Add an entry to <a href="https://github.com/adalinxx/lattice-home/blob/main/apps.json"><code>apps.json</code></a> and open a pull request. It is merged when the app meets these rules, which a reviewer can check in a minute:</p>
+    <ul class="rules">
+      <li>The app opens at a public URL and works with no account on any server.</li>
+      <li>Its chain is live: a public node serves it, and it appears in the <a href="../explorer/">explorer</a>.</li>
+      <li>The summary says what it does in 12 words or fewer, with no superlatives or price talk.</li>
+      <li>It links its source, or carries the <code>closed source</code> tag.</li>
+    </ul>
+    <p>A listing is a convenience, not a gate. Your app works on Lattice whether or not it is here, and its chain shows up in the explorer once a node hosting it declares a public read URL.</p>
+    <p class="meta">A listing is not an audit. Read an app’s source before you trust it with coin.</p>
+  </section>
+
+  <section aria-labelledby="build-title">
+    <p class="eyebrow">Build one</p>
+    <h2 id="build-title">Start from the quickstart.</h2>
+    <p>Write your rules, put them on the network, and ship a page. <a href="../#quickstart">Command-line setup</a> · <a href="../agents.md">agents.md</a> for your coding agent.</p>
+  </section>
+
+</main>
+
+  <footer>
+    <span class="wordmark">LATTICE</span>
+    <span class="links">
+      <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
+      <a href="./">Apps</a>
+      <a href="../download/">Download</a>
+      <a href="../agents.md">agents.md</a>
+      <a href="../explorer/">Explorer</a>
+      <a href="../community/">Community</a>
+      <a href="https://x.com/0xLattice">X</a>
+      <a href="https://github.com/adalinxx">GitHub</a>
+    </span>
+  </footer>
+
+<script type="module">
+  import { ChainNodes } from "../vendor/lattice-sdk.js";
+
+  // Chains are found the way the explorer finds them: start at a public Nexus
+  // read node and follow the hosts each chain declares.
+  const START = "https://lattice-mainnet-read.fly.dev";
+  const nodes = new ChainNodes(START, { fetch: (input, init) => fetch(input, init) });
+
+  const list = document.getElementById("apps");
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  const safe = (u) => /^https:\/\//.test(u) ? u : "#";
+
+  function ago(ms) {
+    const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+    if (s < 90) return `${s}s ago`;
+    if (s < 5400) return `${Math.round(s / 60)} min ago`;
+    if (s < 129600) return `${Math.round(s / 3600)} h ago`;
+    return `${Math.round(s / 86400)} days ago`;
+  }
+
+  async function live(app, el) {
+    const path = app.chain.split("/");
+    const chain = `<a href="../explorer/#/?c=${encodeURIComponent(app.chain)}">${esc(app.chain)}</a>`;
+    try {
+      const block = await nodes.read(path, async (node) => {
+        // Declared hosts are anyone's: bound the wait and say nothing about this page.
+        const r = await fetch(`${node.url}/api/block/latest?chainPath=${encodeURIComponent(app.chain)}`,
+          { cache: "no-store", referrerPolicy: "no-referrer", signal: AbortSignal.timeout(8000) });
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      });
+      el.innerHTML = `<span class="dot"></span>${chain} · block ${Number(block.height).toLocaleString()} · ${ago(Number(block.timestamp))}`;
+    } catch {
+      el.innerHTML = `<span class="dot down"></span>${chain} · no public node answered just now`;
+    }
+  }
+
+  try {
+    const apps = await (await fetch("../apps.json", { cache: "no-store" })).json();
+    list.innerHTML = apps.map((app, i) => `
+      <li class="app" id="app-${app.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}">
+        <h2>${esc(app.name)}</h2>
+        <p class="summary">${esc(app.summary)}</p>
+        <span class="go">
+          <a class="btn btn--primary" href="${esc(safe(app.url))}">Open</a>
+          ${app.source ? `<a class="btn" href="${esc(safe(app.source))}">Source</a>` : ""}
+        </span>
+        <div class="more">
+          <ul>${app.built.map((line) => `<li>${esc(line)}</li>`).join("")}</ul>
+        </div>
+        <p class="live"><span class="tags">${[app.network, app.status, app.source ? "" : "closed source"]
+          .filter(Boolean).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</span><span data-live="${i}">${esc(app.chain)}</span></p>
+      </li>`).join("");
+    apps.forEach((app, i) => live(app, list.querySelector(`[data-live="${i}"]`)));
+  } catch {
+    list.innerHTML = `<li class="app"><p class="summary">The app list didn’t load. It is in <a href="../apps.json">apps.json</a>.</p></li>`;
+  }
+</script>
+
+</body>
+</html>
