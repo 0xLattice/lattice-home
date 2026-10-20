@@ -5,7 +5,7 @@ const pages = ["index.html", "apps/index.html", "community/index.html", "downloa
 const required = {
   "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign", "WebView2", "Authenticode", "glibc 2.35", "WebKitGTK 4.1", "AppImage", "NSIS", "sha256sum Lattice_0.1.1_amd64.deb", "Get-FileHash -LiteralPath", "minisign.exe -Vm"],
   "index.html": ["Download", "Command-line setup", "Docs", "Explorer", "Community", "GitHub"],
-  "apps/index.html": ["Apps with no backend", "apps.json", "Add yours", "does not audit or endorse"],
+  "apps/index.html": ["Apps with no backend", "apps.json", "Add yours", "not an audit"],
   "community/index.html": ["Run a node", "Launch a child chain", "Mine", "Understand the protocol", "Build software", "Help the community"],
 };
 const ownedGitHubLinks = new Set();
@@ -42,20 +42,31 @@ for (const component of ["lattice-node", "nexus-wallet", "lattice-home", "lattic
 const apps = JSON.parse(readFileSync("apps.json", "utf8"));
 assert.ok(Array.isArray(apps) && apps.length > 0, "apps.json lists apps");
 const names = new Set();
+const fields = new Set(["name", "summary", "url", "source", "chain", "network", "status", "built", "added"]);
 for (const app of apps) {
+  for (const field of Object.keys(app)) assert.ok(fields.has(field), `${app.name}: unknown field ${field}`);
   for (const field of ["name", "summary", "url", "chain", "network", "status", "added"])
     assert.ok(typeof app[field] === "string" && app[field], `${app.name}: ${field}`);
-  assert.ok(!names.has(app.name), `${app.name} is listed once`); names.add(app.name);
-  assert.ok(app.summary.split(/\s+/).length <= 12, `${app.name}: summary is 12 words or fewer`);
+  assert.match(app.name, /^[A-Za-z0-9][A-Za-z0-9 .'-]{0,23}$/, `${app.name}: a short plain name`);
+  assert.ok(!names.has(app.name.toLowerCase()), `${app.name} is listed once`); names.add(app.name.toLowerCase());
+  assert.ok(app.summary.split(/\s+/).length <= 12 && app.summary.length <= 100, `${app.name}: summary is 12 words or fewer`);
+  assert.ok(["experimental", "beta", "stable"].includes(app.status), `${app.name}: status`);
   for (const link of [app.url, app.source].filter(Boolean)) assert.match(link, /^https:\/\//, `${app.name}: https link`);
-  assert.match(app.chain, /^Nexus(\/[^/\s]+)+$/, `${app.name}: chain path`);
+  assert.match(app.chain, /^Nexus(\/[A-Za-z0-9._-]+){1,5}$/, `${app.name}: chain path`);
   assert.ok(["testnet", "mainnet"].includes(app.network), `${app.name}: network`);
-  assert.ok(Array.isArray(app.built) && app.built.length >= 1 && app.built.length <= 3, `${app.name}: one to three lines on how it's built`);
+  assert.ok(Array.isArray(app.built) && app.built.length >= 1 && app.built.length <= 3 &&
+    app.built.every((line) => typeof line === "string" && line && line.length <= 160), `${app.name}: one to three lines on how it's built`);
   assert.match(app.added, /^\d{4}-\d{2}-\d{2}$/, `${app.name}: added date`);
+  assert.ok(new Date(`${app.added}T00:00:00Z`).toISOString().startsWith(app.added), `${app.name}: added is a real date`);
 }
 const home = readFileSync("index.html", "utf8");
 const featured = home.slice(home.indexOf('<table class="apps">'), home.indexOf("</table>", home.indexOf('<table class="apps">')));
-for (const [, name] of featured.matchAll(/<tr><td>([^<]+)<\/td>/g)) assert.ok(names.has(name), `home features ${name}, which apps.json lists`);
+for (const [, name, summary, chain, url] of featured.matchAll(/<tr><td>([^<]+)<\/td><td>([^<]+)<\/td><td><code>([^<]+)<\/code><\/td><td class="go"><a href="([^"]+)"/g)) {
+  const app = apps.find((a) => a.name === name);
+  assert.ok(app, `home features ${name}, which apps.json lists`);
+  assert.deepEqual([summary, chain, url], [app.summary, app.chain, app.url], `home row for ${name} matches apps.json`);
+}
+assert.equal([...featured.matchAll(/<tr><td>/g)].length, [...featured.matchAll(/<td class="go">/g)].length, "every featured row is checked");
 
 console.log("site checks passed");
 

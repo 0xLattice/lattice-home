@@ -98,7 +98,7 @@ pre .c { opacity: .6; }
   .apps { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ink); }
   .app { max-width: none; margin: 0; padding: var(--s-4) 0; border-bottom: var(--rule);
     display: grid; grid-template-columns: 12ch minmax(0, 1fr) auto; gap: var(--s-1) var(--s-4); align-items: baseline; }
-  .app h2 { font-size: var(--fs-16); margin: 0; }
+  .app h2 { font-size: var(--fs-16); margin: 0; overflow-wrap: anywhere; }
   .app .summary { margin: 0; color: var(--ink); }
   .app .go { display: flex; gap: var(--s-2); white-space: nowrap; }
   .app .go .btn { font-size: var(--fs-12); padding: var(--s-1) var(--s-2); }
@@ -138,9 +138,9 @@ pre .c { opacity: .6; }
       <span class="wordmark">LATTICE</span>
     </a>
     <span class="links">
+      <a href="../download/">Download</a>
       <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
       <a href="./" aria-current="page">Apps</a>
-      <a href="../download/">Download</a>
       <a href="../explorer/">Explorer</a>
       <a href="../community/">Community</a>
       <a href="https://github.com/adalinxx">GitHub</a>
@@ -152,7 +152,7 @@ pre .c { opacity: .6; }
   <header class="page">
     <p class="eyebrow">Apps on Lattice</p>
     <h1>Apps with no backend.</h1>
-    <p>Each of these is a set of static files. None runs a server, a database, or a login system; people sign in with their own keys and pay as they go. Open one, or read how it was built.</p>
+    <p>Each of these is a set of static files with no server, database, or login system of its own; people sign in with their own keys and pay as they go. Open one, or read how it was built.</p>
   </header>
 
   <ol class="apps" id="apps" aria-label="Apps">
@@ -171,8 +171,8 @@ pre .c { opacity: .6; }
       <li>The summary says what it does in 12 words or fewer, with no superlatives or price talk.</li>
       <li>It links its source, or carries the <code>closed source</code> tag.</li>
     </ul>
-    <p>A listing is a convenience, not a gate. Your app works on Lattice whether or not it is here, and its chain shows up in the explorer as soon as it is mined.</p>
-    <p class="meta">Listed apps are run by their authors. Lattice does not audit or endorse them.</p>
+    <p>A listing is a convenience, not a gate. Your app works on Lattice whether or not it is here, and its chain shows up in the explorer once a node hosting it declares a public read URL.</p>
+    <p class="meta">A listing is not an audit. Read an app’s source before you trust it with coin.</p>
   </section>
 
   <section aria-labelledby="build-title">
@@ -187,9 +187,12 @@ pre .c { opacity: .6; }
     <span class="wordmark">LATTICE</span>
     <span class="links">
       <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
+      <a href="./">Apps</a>
       <a href="../download/">Download</a>
+      <a href="../agents.md">agents.md</a>
       <a href="../explorer/">Explorer</a>
       <a href="../community/">Community</a>
+      <a href="https://x.com/0xLattice">X</a>
       <a href="https://github.com/adalinxx">GitHub</a>
     </span>
   </footer>
@@ -219,7 +222,9 @@ pre .c { opacity: .6; }
     const chain = `<a href="../explorer/#/?c=${encodeURIComponent(app.chain)}">${esc(app.chain)}</a>`;
     try {
       const block = await nodes.read(path, async (node) => {
-        const r = await fetch(`${node.url}/api/block/latest?chainPath=${encodeURIComponent(app.chain)}`, { cache: "no-store" });
+        // Declared hosts are anyone's: bound the wait and say nothing about this page.
+        const r = await fetch(`${node.url}/api/block/latest?chainPath=${encodeURIComponent(app.chain)}`,
+          { cache: "no-store", referrerPolicy: "no-referrer", signal: AbortSignal.timeout(8000) });
         if (!r.ok) throw new Error(String(r.status));
         return r.json();
       });
@@ -232,7 +237,7 @@ pre .c { opacity: .6; }
   try {
     const apps = await (await fetch("../apps.json", { cache: "no-store" })).json();
     list.innerHTML = apps.map((app, i) => `
-      <li class="app" id="${esc(app.name.toLowerCase())}">
+      <li class="app" id="app-${app.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}">
         <h2>${esc(app.name)}</h2>
         <p class="summary">${esc(app.summary)}</p>
         <span class="go">

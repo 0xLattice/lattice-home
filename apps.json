@@ -31,7 +31,7 @@
   },
   {
     "name": "Stoa",
-    "summary": "Forums no one can censor. Posts belong to their authors.",
+    "summary": "Forums where posts belong to their authors and moderators only label.",
     "url": "https://adalinxx.github.io/stoa/app/",
     "source": "https://github.com/adalinxx/stoa",
     "chain": "Nexus/testnet/stoa-41d5ab",
@@ -39,7 +39,7 @@
     "status": "experimental",
     "built": [
       "Every community gets a ledger of its own, and anyone can start one.",
-      "Moderators can only label posts; each reader chooses whose labels to follow.",
+      "Each reader chooses which moderators' labels to follow.",
       "Names and avatars come from Moniker."
     ],
     "added": "2026-10-14"
@@ -70,7 +70,7 @@
     "built": [
       "Space on the board is owned, cut up, and resold like land.",
       "An ad pays each square's owner for every block it runs, up front.",
-      "Covering an ad pays back the poster it covers."
+      "Covering an ad refunds its poster for the time it had left."
     ],
     "added": "2026-10-19"
   }

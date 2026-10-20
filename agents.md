@@ -49,20 +49,29 @@ git clone https://github.com/adalinxx/lattice-node
 cd lattice-node && swift build -c release
 export PATH="$PWD/.build/release:$PATH"
 lattice init --root node
+# A node hosts a chain only under a parent it hosts. Add the public testnet
+# to node/lattice.json:  "hostedChains": ["Nexus/testnet"]
 lattice up --root node
-lattice status --root node
+lattice status --root node   # wait until Nexus/testnet is in sync
 ```
 
-Launch a development chain at a throwaway path. A chain's spec and policy are
-immutable once launched.
+Launch a development chain at a new, throwaway path under it. A chain's spec
+and policy are immutable once launched. Never run `child create` on a path
+someone else already launched; that mines a rival chain with the same name.
 
 ```sh
 lattice child create Nexus/testnet/<app>-<random> \
   --root node --spec chain/spec.json --policy-module chain/rules.wasm
 ```
 
-Then set `mine.recipients` for the chain in `node/lattice.json` (an omitted
-recipient burns that chain's rewards) and run `lattice mine start --root node`.
+To fund an account in genesis, set `premine` in the spec and pass
+`--premine-to <address>`. Then make a key (`lattice key generate --out
+./wallet.json` prints its address), set it as the chain's entry in
+`mine.recipients` in `node/lattice.json` (an omitted recipient burns that
+chain's rewards), and run `lattice mine start --root node`.
+
+Payments on a chain are in that chain's own coin. Fee floors are set by each
+node, not by the chain (`minRelayFee` in `/api/chain/info`).
 
 ## Rules for agents
 
@@ -82,7 +91,8 @@ recipient burns that chain's rewards) and run `lattice mine start --root node`.
 - Protocol: https://github.com/adalinxx/lattice-node/blob/main/docs/protocol.md
 - TypeScript SDK: https://github.com/adalinxx/lattice-sdk
 - Wallet page API (`window.lattice`): https://github.com/adalinxx/lattice-wallet
-- Example apps, each with `chain/`, `policy/` and `client/` folders:
+- Example apps, each with `chain/` and `client/` folders, and `policy/` except
+  Rave, which runs on Stoa's policy:
   https://github.com/adalinxx/moniker, https://github.com/adalinxx/fanfare,
   https://github.com/adalinxx/stoa, https://github.com/adalinxx/rave,
   https://github.com/adalinxx/wheatpaste

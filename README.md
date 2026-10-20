@@ -7,13 +7,13 @@ The Lattice website — a static website. Text-first, zero-accent, built on the 
 A landing page for developers building apps for people and AI agents. It links *out* to `lattice-node/docs` and the repos rather than duplicating them.
 
 - **Hero** — "Ship the app. Skip the backend.", with the client code for a paid write and a line to paste into a coding agent
-- **What you stop building** — abuse protection, data, payments and accounts, each with the mechanism behind it
-- **How it works** — records, rules and a page replace the backend; why (and when not) to run your own chain; the chain tree
-- **Built for agents** — keys without signup, pay per write, verified reads, the lattice-skills plugin
-- **Apps** — the open-source testnet apps, each with its chain path and source
+- **The problem** — what a backend costs today (abuse, data, payments, accounts, agents) and what Lattice replaces it with
+- **What you still write** — your rules and your page; what a ledger of your own buys, and when to use an existing one
+- **Built for agents** — keys without signup, pay per action, verified reads, the lattice-skills plugin
+- **Apps** — featured rows from `apps.json`, linking to `/apps/`
 - **Command-line setup** — node → rules → chain → mining → page
-- **When Lattice is the wrong choice** — latency, no finality, public data, no contracts, pre-1.0
-- **Network** — live height and peers from the public read nodes
+- **When Lattice is the wrong choice** — latency, no finality, coin not dollars, fixed rules, public data, no automation, hosting, pre-1.0
+- **Network** — live height and peers from the public nodes
 
 Claims on the page must hold for the shipped software; state the tradeoff rather than round it up.
 

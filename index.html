@@ -101,6 +101,7 @@ pre .c { opacity: .6; }
   .hero .lede { font-size: var(--fs-16); }
   .hero .actions { margin-top: var(--s-4); }
   .hero figure.term { margin: 0; }
+  .hero figure.term pre { font-size: 0.8rem; }
 
   .ask { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
     border: var(--rule); padding: var(--s-3); margin: 0 0 var(--s-6); font-size: var(--fs-14); }
@@ -190,9 +191,9 @@ pre .c { opacity: .6; }
       <span class="wordmark">LATTICE</span>
     </a>
     <span class="links">
+      <a href="./download/">Download</a>
       <a href="https://github.com/adalinxx/lattice-node/tree/main/docs">Docs</a>
       <a href="./apps/">Apps</a>
-      <a href="./download/">Download</a>
       <a href="./explorer/">Explorer</a>
       <a href="./community/">Community</a>
       <a href="https://github.com/adalinxx">GitHub</a>
@@ -208,7 +209,7 @@ pre .c { opacity: .6; }
     </div>
     <div>
       <p class="lede">Every app drags a backend behind it: servers to defend, a database to run, a payment processor to integrate, and passwords to protect. The bill grows with every user, and every bot.</p>
-      <p class="lede">Lattice is that backend as a network no one has to run. You ship the page; people and AI agents bring their own keys and pay as they go.</p>
+      <p class="lede">Lattice is that backend as an open network: anyone can run a node, and no one has to ask. You ship the page; people and AI agents bring their own keys and pay as they go.</p>
       <div class="actions">
         <a class="btn btn--primary" href="#quickstart">Start building</a>
         <a class="btn" href="#apps">See live apps</a>
@@ -216,12 +217,13 @@ pre .c { opacity: .6; }
     </div>
     <figure class="term js">
       <figcaption>app.js: sell a ticket, no server</figcaption>
-<pre><code>const me = await lattice.connect();
+<pre><code><span class="c">// on a click. lattice is the user's wallet</span>
+const me = await lattice.connect();
 await lattice.writeRecords({
-  chainPath: ["Nexus", "fanfare"],
+  chainPath: ["Nexus", "testnet", "fanfare-a5688b"],
   actions: [{
     key: "own/&lt;artist&gt;/berlin/A12",
-    oldValue: "&lt;holder&gt;@250",
+    oldValue: "&lt;holder&gt;@250", <span class="c">// still 250</span>
     newValue: me,
   }],
   payments: [{ to: "&lt;holder&gt;", amount: "250" }],
@@ -247,7 +249,7 @@ await lattice.writeRecords({
       <thead><tr><th>Overhead</th><th>Today</th><th>With Lattice</th></tr></thead>
       <tbody>
         <tr><td>Abuse</td><td data-label="Today">Every bot hits your servers and your bill. A flood can take you offline.</td><td data-label="With Lattice">There is no server of yours to flood. Any node can answer a reader, and writers compete for room on the ledger, not on your machines.</td></tr>
-        <tr><td>Data</td><td data-label="Today">A database to run, back up, scale, and keep online.</td><td data-label="With Lattice">Your data lives on the network. Anyone can host a copy, and readers can check every copy.</td></tr>
+        <tr><td>Data</td><td data-label="Today">A database to run, back up, scale, and keep online.</td><td data-label="With Lattice">Your data lives on the network. Anyone can host a copy, and readers check each value against its hash, so a stranger’s copy is as good as yours.</td></tr>
         <tr><td>Payments</td><td data-label="Today">A processor, a merchant account, fees per charge, chargebacks.</td><td data-label="With Lattice">Payment is part of the action. A purchase and what it buys land together or not at all.</td></tr>
         <tr><td>Accounts</td><td data-label="Today">A password table, resets, 2FA, breach notices.</td><td data-label="With Lattice">Users hold their own keys. There is no credential database to breach.</td></tr>
         <tr><td>Agents</td><td data-label="Today">Signup forms, API keys, and a credit card no agent can get.</td><td data-label="With Lattice">An agent holds a key and pays as it goes, exactly like a person.</td></tr>
@@ -265,8 +267,9 @@ await lattice.writeRecords({
         <li><b>Your page</b>Static files, hosted anywhere. It reads data it can verify and asks the user’s wallet to sign and pay.</li>
       </ul>
       <div>
-        <p>Your rules get a ledger of their own. Another app’s rush never competes with yours for space, and you set the price of a write, down to free. It is protected by shared proof of work from its first block, with no validators to recruit.</p>
-        <p>Don’t need custom rules? Write to a ledger that already has the right ones. Every app shares one for profiles.</p>
+        <p>Your rules get a ledger of their own: a public record of keys and values that every node checks against those rules. Lattice calls it a chain. Another app’s rush never competes with yours for space.</p>
+        <p>Miners can secure it alongside Nexus, the root ledger, from its first block, with no validators to recruit. Its security is the hashpower that chooses to mine it.</p>
+        <p>Don’t need custom rules? Write to a ledger that already has the right ones. The apps here share Moniker’s for profiles.</p>
       </div>
     </div>
     <figure class="term">
@@ -282,9 +285,9 @@ await lattice.writeRecords({
     <h2 id="agents-title">An agent is just another key.</h2>
     <p class="intro">Today an agent stalls at every signup form, API key, and card field, because each one was built to make sure a human is there. Lattice asks for none of them.</p>
     <div class="facts">
-      <div><h3>Nothing to sign up for</h3><p>An agent makes its own key and starts working. On ledgers with free writes, it needs no money to begin.</p></div>
+      <div><h3>Nothing to sign up for</h3><p>An agent makes its own key and starts working. Where nodes accept zero-fee writes, it needs no money to begin.</p></div>
       <div><h3>Pays as it goes</h3><p>Any action can carry a payment: buy a ticket, tip a post, rent a spot. No invoices, no account to top up.</p></div>
-      <div><h3>Doesn’t have to trust you</h3><p>Everything it reads is checkable, so it can use any node, even one run by a stranger.</p></div>
+      <div><h3>Doesn’t have to trust you</h3><p>Every value it reads is checked against its hash, so a stranger’s node can’t forge data. At worst it serves an old tip, which asking a second node catches.</p></div>
       <div><h3>Your coding agent already knows it</h3><p>Open agent skills teach it to run nodes, design apps, send payments, and fix what breaks.</p></div>
     </div>
     <figure class="term">
@@ -298,16 +301,16 @@ await lattice.writeRecords({
   <section id="apps" aria-labelledby="apps-title">
     <p class="eyebrow">Running today</p>
     <h2 id="apps-title">Apps with no backend.</h2>
-    <p class="intro">Each is a static page on GitHub Pages. None has a server, a database, or a login system, and anyone can read its source. They run on testnet today.</p>
+    <p class="intro">Each is a static page on GitHub Pages with no server, database, or login system of its own, and anyone can read its source. They run on testnet today, carried by public nodes that anyone can add to.</p>
     <div class="table-wrap">
     <table class="apps">
       <thead><tr><th>App</th><th>What it does</th><th>Testnet chain</th><th></th></tr></thead>
       <tbody>
-        <tr><td>Moniker</td><td>One profile and handle per person, shared by every app. Handles can be sold.</td><td><code>Nexus/testnet/moniker-da6f57</code></td><td class="go"><a href="https://app.moniker.bio/app/">Open</a> · <a href="https://github.com/adalinxx/moniker">Source</a></td></tr>
-        <tr><td>Fanfare</td><td>Tickets fans own. Resell at any price, check in at the door with a signed pass.</td><td><code>Nexus/testnet/fanfare-a5688b</code></td><td class="go"><a href="https://adalinxx.github.io/fanfare/app/">Open</a> · <a href="https://github.com/adalinxx/fanfare">Source</a></td></tr>
-        <tr><td>Stoa</td><td>Forums no one can censor. Posts belong to their authors; moderators only label.</td><td><code>Nexus/testnet/stoa-41d5ab</code></td><td class="go"><a href="https://adalinxx.github.io/stoa/app/">Open</a> · <a href="https://github.com/adalinxx/stoa">Source</a></td></tr>
+        <tr><td>Moniker</td><td>Own your name online: one profile and handle every app reads.</td><td><code>Nexus/testnet/moniker-da6f57</code></td><td class="go"><a href="https://app.moniker.bio/app/">Open</a> · <a href="https://github.com/adalinxx/moniker">Source</a></td></tr>
+        <tr><td>Fanfare</td><td>Show tickets fans own and can resell at any price.</td><td><code>Nexus/testnet/fanfare-a5688b</code></td><td class="go"><a href="https://adalinxx.github.io/fanfare/app/">Open</a> · <a href="https://github.com/adalinxx/fanfare">Source</a></td></tr>
+        <tr><td>Stoa</td><td>Forums where posts belong to their authors and moderators only label.</td><td><code>Nexus/testnet/stoa-41d5ab</code></td><td class="go"><a href="https://adalinxx.github.io/stoa/app/">Open</a> · <a href="https://github.com/adalinxx/stoa">Source</a></td></tr>
         <tr><td>Rave</td><td>Reviews of places that no company owns. You choose whose ratings count.</td><td><code>Nexus/testnet/rave-186079</code></td><td class="go"><a href="https://adalinxx.github.io/rave/app/">Open</a> · <a href="https://github.com/adalinxx/rave">Source</a></td></tr>
-        <tr><td>Wheatpaste</td><td>One shared billboard. Post anywhere, over anyone; covering a post pays the poster.</td><td><code>Nexus/testnet/wheatpaste-acbbcf</code></td><td class="go"><a href="https://adalinxx.github.io/wheatpaste/app/">Open</a> · <a href="https://github.com/adalinxx/wheatpaste">Source</a></td></tr>
+        <tr><td>Wheatpaste</td><td>One shared billboard. Post over anyone; the price is the only rule.</td><td><code>Nexus/testnet/wheatpaste-acbbcf</code></td><td class="go"><a href="https://adalinxx.github.io/wheatpaste/app/">Open</a> · <a href="https://github.com/adalinxx/wheatpaste">Source</a></td></tr>
       </tbody>
     </table>
     </div>
@@ -318,26 +321,27 @@ await lattice.writeRecords({
   <section id="quickstart" aria-labelledby="qs-title">
     <p class="eyebrow">Command-line setup</p>
     <h2 id="qs-title">From nothing to a live app.</h2>
-    <p class="intro">The command-line tools build from source with Swift 6.1 or newer. (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
+    <p class="intro">The command-line tools build from source with Swift 6.1 or newer, on macOS 15+ or Linux. (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
     <ol class="steps">
       <li><div>
         <h3>Build and start a node</h3>
-        <p>With no <code>peers</code> set, the node joins the public Nexus network.</p>
+        <p>With no <code>peers</code> set, the node joins the public Nexus network. A node hosts a chain only under a parent it hosts, so add the public testnet before you start it.</p>
 <figure class="term"><figcaption>node</figcaption>
 <pre><code>git clone https://github.com/adalinxx/lattice-node
 cd lattice-node &amp;&amp; swift build -c release
 export PATH="$PWD/.build/release:$PATH"
 lattice init --root node
+<span class="c"># in node/lattice.json add:  "hostedChains": ["Nexus/testnet"]</span>
 lattice up --root node
-lattice status --root node</code></pre></figure>
+lattice status --root node   <span class="c"># wait until Nexus/testnet is in sync</span></code></pre></figure>
       </div></li>
       <li><div>
         <h3>Write your rules</h3>
-        <p>A chain is a JSON spec: block time, rewards, size limits, and the CIDs of its policy modules. Policies are Rust compiled to WASM. Start from <a href="https://github.com/adalinxx/moniker">Moniker’s <code>rules/</code> crate</a>, or let the <code>lattice-app-builder</code> skill write one with you.</p>
+        <p>A chain is a JSON spec: block time, rewards, size limits, and the CIDs of its policy modules. Policies are WASM modules; the examples are written in Rust. Start from <a href="https://github.com/adalinxx/moniker/tree/main/policy">Moniker’s <code>policy/</code> crate</a>, or let the <code>lattice-app-builder</code> skill write one with you.</p>
       </div></li>
       <li><div>
         <h3>Launch the chain</h3>
-        <p>The node starts hosting it immediately. Add <code>--premine-to</code> to fund an account in genesis.</p>
+        <p>The node starts hosting it immediately. To fund an account in genesis, set <code>premine</code> in the spec and name the account with <code>--premine-to &lt;address&gt;</code>.</p>
 <figure class="term"><figcaption>launch</figcaption>
 <pre><code>lattice child create Nexus/testnet/myapp-7f3c \
   --root node \
@@ -346,9 +350,14 @@ lattice status --root node</code></pre></figure>
       </div></li>
       <li><div>
         <h3>Mine it, or let others</h3>
-        <p>A chain advances when someone mines it. Name a reward recipient for it in <code>mine.recipients</code> and start the bundled CPU miner; GPU miners can merge-mine it alongside Nexus.</p>
+        <p>A chain advances when someone mines it. Make a key, pay the chain’s rewards to it, and start the bundled CPU miner; GPU miners can merge-mine it alongside Nexus. A chain with no recipient burns its rewards.</p>
 <figure class="term"><figcaption>mine</figcaption>
-<pre><code>lattice mine start --root node
+<pre><code>lattice key generate --out ./wallet.json   <span class="c"># prints its address</span>
+<span class="c"># in node/lattice.json add:
+#   "mine": { "worker": "cpu", "workers": 2,
+#     "recipients": { "Nexus/testnet/myapp-7f3c": "&lt;address&gt;" } }</span>
+lattice mine start --root node
+<span class="c"># once it has coin, the key can pay others:</span>
 lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
   --key ./wallet.json --to &lt;address&gt; --amount 25 --fee 1</code></pre></figure>
       </div></li>
@@ -364,8 +373,10 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
     <p class="eyebrow">Before you build</p>
     <h2 id="tradeoffs-title">When Lattice is the wrong choice.</h2>
     <ul class="tradeoffs">
-      <li><b>You need instant confirmation.</b> A write takes effect in the next block: seconds to a minute on most app ledgers, an hour on Nexus.</li>
+      <li><b>You need instant confirmation.</b> A write takes effect in the next block: about a minute on the testnet app ledgers today, and an hour on average on Nexus.</li>
       <li><b>You need a write to be final.</b> Lattice follows the chain with the most proof of work, and a heavier competing history can replace recent writes. Confirm important ones by reading them back.</li>
+      <li><b>You need to charge in dollars.</b> Payments are in the coin of the ledger they happen on. Users get it by mining, from another user, or by trading for it; there is no card on-ramp.</li>
+      <li><b>You need to change your rules later.</b> A launched ledger’s rules are fixed. To change them, launch a new ledger and have your page read both.</li>
       <li><b>You need private data.</b> Everything on a chain is public. Encrypt it yourself before you write it.</li>
       <li><b>You need code that runs on its own.</b> Your rules can only accept or reject an action. Feeds, ranking, matching, and anything scheduled run in your page or your own service.</li>
       <li><b>You need someone else to keep it running.</b> A chain lives while people mine and host it. A small chain is only as secure as the hashpower that chooses to mine it.</li>
@@ -426,10 +437,10 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
   // Every node serves its own bounded public read surface (--public-read-port,
   // enforced in code); the table reads each one directly.
   const NODES = [
-    ["iad", "https://lattice-mainnet-iad.fly.dev"],
-    ["ams", "https://lattice-mainnet-ams.fly.dev"],
-    ["sjc", "https://lattice-mainnet-sjc.fly.dev"],
-    ["testnet", "https://lattice-mainnet-testnet.fly.dev"],
+    ["iad", "https://seed1.lattice.build"],
+    ["ams", "https://seed2.lattice.build"],
+    ["sjc", "https://seed3.lattice.build"],
+    ["testnet", "https://seed4.lattice.build"],
     ["read (iad)", "https://lattice-mainnet-read.fly.dev"]
   ];
 
@@ -448,12 +459,13 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
       const tr = document.getElementById(`net-${i}`);
       const cell = (k) => tr.querySelector(`[data-cell="${k}"]`);
       try {
-        const health = await (await fetch(url + "/health", { cache: "no-store" })).json();
-        const peers = await (await fetch(url + "/api/peers", { cache: "no-store" })).json();
+        const get = (path) => fetch(url + path, { cache: "no-store", signal: AbortSignal.timeout(8000) }).then((r) => r.json());
+        const [health, peers] = await Promise.all([get("/health"), get("/api/peers")]);
         tr.classList.remove("down");
         cell("height").textContent = (health.height ?? "—").toLocaleString();
         cell("peers").textContent = peers.count ?? "—";
-        cell("status").innerHTML = `<span class="dot"></span>${health.phase ?? "—"}`;
+        cell("status").innerHTML = `<span class="dot"></span>`;
+        cell("status").append(String(health.phase ?? "—"));
       } catch (e) {
         tr.classList.add("down");
         cell("height").textContent = "—";
