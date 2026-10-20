@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const pages = ["index.html", "community/index.html", "download/index.html"];
+const pages = ["index.html", "apps/index.html", "community/index.html", "download/index.html"];
 const required = {
   "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign", "WebView2", "Authenticode", "glibc 2.35", "WebKitGTK 4.1", "AppImage", "NSIS", "sha256sum Lattice_0.1.1_amd64.deb", "Get-FileHash -LiteralPath", "minisign.exe -Vm"],
   "index.html": ["Download", "Command-line setup", "Docs", "Explorer", "Community", "GitHub"],
+  "apps/index.html": ["Apps with no backend", "apps.json", "Add yours", "does not audit or endorse"],
   "community/index.html": ["Run a node", "Launch a child chain", "Mine", "Understand the protocol", "Build software", "Help the community"],
 };
 const ownedGitHubLinks = new Set();
@@ -36,6 +37,25 @@ for (const policy of ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"]) {
 for (const component of ["lattice-node", "nexus-wallet", "lattice-home", "lattice-sdk", "lattice-miner-gpu", "Lattice"]) {
   assert.ok(ownedGitHubLinks.has(`https://github.com/adalinxx/${component}`), `${component} is in the software directory`);
 }
+
+// apps.json is the one list of apps; the home page may feature some of them.
+const apps = JSON.parse(readFileSync("apps.json", "utf8"));
+assert.ok(Array.isArray(apps) && apps.length > 0, "apps.json lists apps");
+const names = new Set();
+for (const app of apps) {
+  for (const field of ["name", "summary", "url", "chain", "network", "status", "added"])
+    assert.ok(typeof app[field] === "string" && app[field], `${app.name}: ${field}`);
+  assert.ok(!names.has(app.name), `${app.name} is listed once`); names.add(app.name);
+  assert.ok(app.summary.split(/\s+/).length <= 12, `${app.name}: summary is 12 words or fewer`);
+  for (const link of [app.url, app.source].filter(Boolean)) assert.match(link, /^https:\/\//, `${app.name}: https link`);
+  assert.match(app.chain, /^Nexus(\/[^/\s]+)+$/, `${app.name}: chain path`);
+  assert.ok(["testnet", "mainnet"].includes(app.network), `${app.name}: network`);
+  assert.ok(Array.isArray(app.built) && app.built.length >= 1 && app.built.length <= 3, `${app.name}: one to three lines on how it's built`);
+  assert.match(app.added, /^\d{4}-\d{2}-\d{2}$/, `${app.name}: added date`);
+}
+const home = readFileSync("index.html", "utf8");
+const featured = home.slice(home.indexOf('<table class="apps">'), home.indexOf("</table>", home.indexOf('<table class="apps">')));
+for (const [, name] of featured.matchAll(/<tr><td>([^<]+)<\/td>/g)) assert.ok(names.has(name), `home features ${name}, which apps.json lists`);
 
 console.log("site checks passed");
 
