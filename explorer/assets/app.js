@@ -386,7 +386,7 @@ async function chainsSection(host) {
       el("table", {},
         el("thead", {}, el("tr", {},
           el("th", {}, "Chain"), el("th", {}, "Status"),
-          el("th", { class: "num hide-sm" }, "Height"), el("th", { class: "hide-sm" }, "Committed block"))),
+          el("th", { class: "num hide-sm" }, "Height"))),
         tbody))
   );
   // The children are what the current chain's tip commits, directory → child block.
@@ -395,11 +395,11 @@ async function chainsSection(host) {
     const latest = await api("/api/block/latest");
     kids = (await api(`/api/block/${encodeURIComponent(latest.hash)}/children`, { limit: 100 })).children || [];
   } catch (e) {
-    tbody.appendChild(el("tr", {}, el("td", { colspan: 4, class: "empty" }, "Couldn't load child chains.")));
+    tbody.appendChild(el("tr", {}, el("td", { colspan: 3, class: "empty" }, "Couldn't load child chains.")));
     return;
   }
   if (!kids.length) {
-    tbody.appendChild(el("tr", {}, el("td", { colspan: 4, class: "empty" }, "No child chains.")));
+    tbody.appendChild(el("tr", {}, el("td", { colspan: 3, class: "empty" }, "No child chains.")));
     return;
   }
   for (const c of kids) {
@@ -410,8 +410,7 @@ async function chainsSection(host) {
     tbody.appendChild(
       el("tr", {},
         el("td", {}, link(`#/?c=${encodeURIComponent(path)}`, label)),
-        badgeCell, heightCell,
-        el("td", { class: "hide-sm" }, hashEl(c.blockHash, 6)))
+        badgeCell, heightCell)
     );
     probeChain(path).then((p) => {
       badgeCell.innerHTML = ""; badgeCell.appendChild(statusBadge(p.status));
