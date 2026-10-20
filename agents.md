@@ -64,11 +64,11 @@ lattice child create Nexus/testnet/<app>-<random> \
   --root node --spec chain/spec.json --policy-module chain/rules.wasm
 ```
 
-To fund an account in genesis, set `premine` in the spec and pass
-`--premine-to <address>`. Then make a key (`lattice key generate --out
-./wallet.json` prints its address), set it as the chain's entry in
-`mine.recipients` in `node/lattice.json` (an omitted recipient burns that
-chain's rewards), and run `lattice mine start --root node`.
+Make a key before you launch (`lattice key generate --out ./wallet.json`
+prints its address). To fund it in genesis, set `premine` in the spec and pass
+`--premine-to <address>` to `child create`. Set the same address as the
+chain's entry in `mine.recipients` in `node/lattice.json` (an omitted
+recipient burns that chain's rewards), and run `lattice mine start --root node`.
 
 Payments on a chain are in that chain's own coin. Fee floors are set by each
 node, not by the chain (`minRelayFee` in `/api/chain/info`).

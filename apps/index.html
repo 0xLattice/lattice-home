@@ -10,6 +10,8 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://lattice.build/apps/">
 <link rel="icon" href="../lattice-mark.svg">
+<!-- Chain hosts are declared by anyone; tell none of them which page asked. -->
+<meta name="referrer" content="no-referrer">
 <style>
 /* === design tokens === */
 :root {
@@ -159,7 +161,7 @@ pre .c { opacity: .6; }
     <li class="app"><p class="summary">Loading apps… If this doesn’t change, the list is in <a href="../apps.json">apps.json</a>.</p></li>
   </ol>
   <noscript><p>The list is in <a href="../apps.json">apps.json</a>.</p></noscript>
-  <p class="meta">Reading needs nothing. Writing needs a wallet: <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> for Chrome, or <a href="../download/">Lattice Desktop</a>.</p>
+  <p class="meta">Reading needs nothing. Writing needs the <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> wallet for Chrome.</p>
 
   <section id="add" aria-labelledby="add-title">
     <p class="eyebrow">Add yours</p>

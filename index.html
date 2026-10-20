@@ -114,6 +114,7 @@ pre .c { opacity: .6; }
   .intro { margin-bottom: var(--s-4); }
 
   .table-wrap { overflow-x: auto; }
+  .table-wrap + .meta { margin-top: var(--s-3); }
   .swap td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
   .swap td { font-size: var(--fs-14); color: var(--ink-soft); }
   .swap td:last-child { color: var(--ink); }
@@ -274,9 +275,9 @@ await lattice.writeRecords({
     </div>
     <figure class="term">
       <figcaption>put your rules on the network</figcaption>
-<pre><code>lattice child create Nexus/myapp --root node \
+<pre><code>lattice child create Nexus/testnet/myapp-7f3c --root node \
   --spec chain/spec.json --policy-module chain/rules.wasm
-<span class="c"># live from the next mined block. no deploy fee, no approval.</span></code></pre>
+<span class="c"># live once your node mines its first block. no deploy fee, no approval.</span></code></pre>
     </figure>
   </section>
 
@@ -287,7 +288,7 @@ await lattice.writeRecords({
     <div class="facts">
       <div><h3>Nothing to sign up for</h3><p>An agent makes its own key and starts working. Where nodes accept zero-fee writes, it needs no money to begin.</p></div>
       <div><h3>Pays as it goes</h3><p>Any action can carry a payment: buy a ticket, tip a post, rent a spot. No invoices, no account to top up.</p></div>
-      <div><h3>Doesn’t have to trust you</h3><p>Every value it reads is checked against its hash, so a stranger’s node can’t forge data. At worst it serves an old tip, which asking a second node catches.</p></div>
+      <div><h3>Doesn’t have to trust you</h3><p>Every value it reads is checked against its hash, so a stranger’s node can’t forge data. At worst it serves an out-of-date view, which asking a second node catches.</p></div>
       <div><h3>Your coding agent already knows it</h3><p>Open agent skills teach it to run nodes, design apps, send payments, and fix what breaks.</p></div>
     </div>
     <figure class="term">
@@ -314,7 +315,7 @@ await lattice.writeRecords({
       </tbody>
     </table>
     </div>
-    <p class="meta">Reading needs nothing. Writing needs a wallet: <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> for Chrome, or <a href="./download/">Lattice Desktop</a>, which also runs a full node on Mac, Linux, or Windows.</p>
+    <p class="meta">Reading needs nothing. Writing needs the <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> wallet for Chrome. <a href="./download/">Lattice Desktop</a> runs a full node and wallet on Mac, Linux, or Windows, but does not yet sign for web apps.</p>
     <p><a href="./apps/">All apps, how each is built, and how to list yours →</a></p>
   </section>
 
@@ -341,19 +342,19 @@ lattice status --root node   <span class="c"># wait until Nexus/testnet is in sy
       </div></li>
       <li><div>
         <h3>Launch the chain</h3>
-        <p>The node starts hosting it immediately. To fund an account in genesis, set <code>premine</code> in the spec and name the account with <code>--premine-to &lt;address&gt;</code>.</p>
+        <p>Make a key first. The node starts hosting the chain immediately. To fund the key in genesis, set <code>premine</code> in the spec and add <code>--premine-to&nbsp;&lt;address&gt;</code>.</p>
 <figure class="term"><figcaption>launch</figcaption>
-<pre><code>lattice child create Nexus/testnet/myapp-7f3c \
+<pre><code>lattice key generate --out ./wallet.json   <span class="c"># prints its address</span>
+lattice child create Nexus/testnet/myapp-7f3c \
   --root node \
   --spec chain/spec.json \
   --policy-module chain/rules.wasm</code></pre></figure>
       </div></li>
       <li><div>
         <h3>Mine it, or let others</h3>
-        <p>A chain advances when someone mines it. Make a key, pay the chain’s rewards to it, and start the bundled CPU miner; GPU miners can merge-mine it alongside Nexus. A chain with no recipient burns its rewards.</p>
+        <p>A chain advances when someone mines it. Pay the chain’s rewards to your key and start the bundled CPU miner; GPU miners can merge-mine it alongside Nexus. A chain with no recipient burns its rewards.</p>
 <figure class="term"><figcaption>mine</figcaption>
-<pre><code>lattice key generate --out ./wallet.json   <span class="c"># prints its address</span>
-<span class="c"># in node/lattice.json add:
+<pre><code><span class="c"># in node/lattice.json add:
 #   "mine": { "worker": "cpu", "workers": 2,
 #     "recipients": { "Nexus/testnet/myapp-7f3c": "&lt;address&gt;" } }</span>
 lattice mine start --root node
@@ -363,7 +364,7 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
       </div></li>
       <li><div>
         <h3>Ship a page</h3>
-        <p>Read with the <a href="https://github.com/adalinxx/lattice-sdk">TypeScript SDK</a>, which checks every value against the chain tip. Write with <code>window.lattice</code> from the user’s wallet. Host the page anywhere static files go.</p>
+        <p>Read with the <a href="https://github.com/adalinxx/lattice-sdk">TypeScript SDK</a>, which checks every value against the latest block. Write with <code>window.lattice</code> from the user’s wallet. Host the page anywhere static files go.</p>
       </div></li>
     </ol>
     <p><a href="https://github.com/adalinxx/lattice-node/blob/main/docs/operator-cli.md">Operator CLI</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/rpc-api.md">RPC API</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/getting-started.md">Getting started</a> · <a href="https://github.com/adalinxx/lattice-node/blob/main/docs/mining-workers.md">Mining workers</a></p>
@@ -440,7 +441,7 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
     ["iad", "https://seed1.lattice.build"],
     ["ams", "https://seed2.lattice.build"],
     ["sjc", "https://seed3.lattice.build"],
-    ["testnet", "https://seed4.lattice.build"],
+    ["seed4", "https://seed4.lattice.build"],
     ["read (iad)", "https://lattice-mainnet-read.fly.dev"]
   ];
 

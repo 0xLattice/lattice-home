@@ -61,10 +61,10 @@ for (const app of apps) {
 }
 const home = readFileSync("index.html", "utf8");
 const featured = home.slice(home.indexOf('<table class="apps">'), home.indexOf("</table>", home.indexOf('<table class="apps">')));
-for (const [, name, summary, chain, url] of featured.matchAll(/<tr><td>([^<]+)<\/td><td>([^<]+)<\/td><td><code>([^<]+)<\/code><\/td><td class="go"><a href="([^"]+)"/g)) {
+for (const [, name, summary, chain, url, source] of featured.matchAll(/<tr><td>([^<]+)<\/td><td>([^<]+)<\/td><td><code>([^<]+)<\/code><\/td><td class="go"><a href="([^"]+)">Open<\/a>(?: · <a href="([^"]+)">Source<\/a>)?/g)) {
   const app = apps.find((a) => a.name === name);
   assert.ok(app, `home features ${name}, which apps.json lists`);
-  assert.deepEqual([summary, chain, url], [app.summary, app.chain, app.url], `home row for ${name} matches apps.json`);
+  assert.deepEqual([summary, chain, url, source], [app.summary, app.chain, app.url, app.source], `home row for ${name} matches apps.json`);
 }
 assert.equal([...featured.matchAll(/<tr><td>/g)].length, [...featured.matchAll(/<td class="go">/g)].length, "every featured row is checked");
 
