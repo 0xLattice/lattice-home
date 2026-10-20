@@ -115,6 +115,7 @@ pre .c { opacity: .6; }
 
   .table-wrap { overflow-x: auto; }
   .table-wrap + .meta { margin-top: var(--s-3); }
+  code.nowrap { white-space: nowrap; }
   .swap td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
   .swap td { font-size: var(--fs-14); color: var(--ink-soft); }
   .swap td:last-child { color: var(--ink); }
@@ -342,7 +343,7 @@ lattice status --root node   <span class="c"># wait until Nexus/testnet is in sy
       </div></li>
       <li><div>
         <h3>Launch the chain</h3>
-        <p>Make a key first. The node starts hosting the chain immediately. To fund the key in genesis, set <code>premine</code> in the spec and add <code>--premine-to&nbsp;&lt;address&gt;</code>.</p>
+        <p>Make a key first. The node starts hosting the chain immediately. To fund the key in genesis, set <code>premine</code> in the spec and add <code class="nowrap">--premine-to &lt;address&gt;</code>.</p>
 <figure class="term"><figcaption>launch</figcaption>
 <pre><code>lattice key generate --out ./wallet.json   <span class="c"># prints its address</span>
 lattice child create Nexus/testnet/myapp-7f3c \
