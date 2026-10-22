@@ -306,6 +306,19 @@ async function resolveChain(chainPath) {
   return busy ? { ep: undefined, busy: true } : { ep: undefined };
 }
 
+// A block a parent commits for a child chain, read from that child chain's nodes (the
+// parent's node doesn't serve it). Resolves to null when no node serves it.
+async function childBlock(chainPath, hash) {
+  const { ep, read } = await resolveChain(chainPath);
+  if (ep === undefined) return null;
+  try { return await read((at) => getFrom(at, `/api/block/${encodeURIComponent(hash)}`, { chainPath })); }
+  catch { return null; }
+}
+
+// Link to a committed child block, viewed on its own chain.
+const childBlockLink = (chainPath, hash, tail) =>
+  link(`#/block/${encodeURIComponent(hash)}?c=${encodeURIComponent(chainPath)}`, hashEl(hash, tail), "mono");
+
 // Reachability of a chain, from the explorer's vantage. Cached ~30s.
 const _probe = new Map();
 async function probeChain(chainPath) {
@@ -457,7 +470,7 @@ async function chainsSection(host) {
       el("tr", {},
         el("td", {}, link(`#/?c=${encodeURIComponent(path)}`, label)),
         badgeCell, heightCell,
-        el("td", { class: "hide-sm" }, c.blockHash ? hashEl(c.blockHash, 6) : "—"))
+        el("td", { class: "hide-sm" }, c.blockHash ? childBlockLink(path, c.blockHash, 6) : "—"))
     );
     rows.push({ path, badgeCell, heightCell });
   }
@@ -740,16 +753,24 @@ async function loadBlockChildren(hash, holder) {
     const data = await api(`/api/block/${encodeURIComponent(hash)}/children`, { limit: 100 });
     const tbody = el("tbody");
     for (const c of data.children) {
+      const path = `${state.chain || "Nexus"}/${c.directory}`;
+      const heightCell = el("td", { class: "num" }, "…");
+      const txsCell = el("td", { class: "num hide-sm" }, "…");
       tbody.appendChild(
         el(
           "tr",
           {},
-          el("td", {}, link(`#/?c=${encodeURIComponent(`${state.chain || "Nexus"}/${c.directory}`)}`, c.directory)),
-          el("td", { class: "shrink" }, el("span", { class: "mono" }, hashEl(c.blockHash))),
-          el("td", { class: "num" }, num(c.height)),
-          el("td", { class: "num hide-sm" }, num(c.transactionCount))
+          el("td", {}, link(`#/?c=${encodeURIComponent(path)}`, c.directory)),
+          el("td", { class: "shrink" }, childBlockLink(path, c.blockHash)),
+          heightCell,
+          txsCell
         )
       );
+      // The parent lists only directory → block hash; height and txs live on the child chain.
+      childBlock(path, c.blockHash).then((b) => {
+        heightCell.textContent = num(b && b.height);
+        txsCell.textContent = num(b && b.transactionCount);
+      });
     }
     holder.appendChild(
       el(
