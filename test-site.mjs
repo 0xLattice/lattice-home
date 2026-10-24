@@ -9,6 +9,11 @@ const required = {
   "community/index.html": ["Run a node", "Launch a child chain", "Mine", "Understand the protocol", "Build software", "Help the community"],
 };
 const ownedGitHubLinks = new Set();
+// The docs site is built into docs/dist (docs/README.md); its pages are
+// checked when it has been built.
+const docsRoot = `${process.cwd()}/docs/`;
+const docsBuilt = existsSync(`${docsRoot}dist/index.html`);
+const pagesLinkingDocs = new Set();
 
 for (const page of pages) {
   const html = readFileSync(page, "utf8");
@@ -25,11 +30,16 @@ for (const page of pages) {
     const resolved = new URL(target, new URL(`file://${process.cwd()}/${page}`));
     let path = decodeURIComponent(resolved.pathname);
     if (path.endsWith("/")) path += "index.html";
+    if (path.startsWith(docsRoot)) {
+      if (path === `${docsRoot}index.html`) pagesLinkingDocs.add(page);
+      if (!docsBuilt) continue;
+      path = `${docsRoot}dist/${path.slice(docsRoot.length)}`;
+    }
     assert.ok(existsSync(path), `${page} local target exists: ${target}`);
   }
 }
 
-assert.ok(ownedGitHubLinks.has("https://github.com/adalinxx/lattice-node/tree/main/docs"), "Docs has a canonical project destination");
+for (const page of pages) assert.ok(pagesLinkingDocs.has(page), `${page} links Docs to the docs site`);
 assert.ok(ownedGitHubLinks.has("https://github.com/adalinxx/lattice-node/discussions"), "community forum is linked");
 for (const policy of ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"]) {
   assert.ok(ownedGitHubLinks.has(`https://github.com/adalinxx/lattice-node/blob/main/${policy}`), `${policy} has a canonical lattice-node link`);

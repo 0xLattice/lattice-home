@@ -1,0 +1,17 @@
+{
+  "name": "lattice-docs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node sync.mjs",
+    "dev": "node sync.mjs && astro dev",
+    "build": "node sync.mjs && astro build",
+    "test": "node --test test-sync.mjs"
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "0.4.3",
+    "@astrojs/starlight": "0.42.6",
+    "astro": "7.3.8"
+  }
+}

@@ -2,6 +2,10 @@ name: Deploy static site to Pages
 on:
   push:
     branches: [main]
+  # The docs site publishes other repositories' docs at the versions
+  # lattice-node main pins; rebuild daily to follow it.
+  schedule:
+    - cron: "17 6 * * *"
   workflow_dispatch:
 concurrency:
   group: pages
@@ -18,18 +22,27 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: token/package-lock.json
+          cache-dependency-path: |
+            token/package-lock.json
+            docs/package-lock.json
       - name: Test and build token module
         run: |
           npm ci --ignore-scripts --prefix token
           npm test --prefix token
           npm run build --prefix token
+      - name: Test and build docs site
+        run: |
+          npm ci --ignore-scripts --prefix docs
+          npm test --prefix docs
+          npm run build --prefix docs
+          node docs/check-links.mjs
       - name: Assemble static site
         run: |
           mkdir _site
-          rsync -a --exclude '.git/' --exclude '_site/' --exclude 'token/' ./ _site/
-          mkdir _site/token
+          rsync -a --exclude '.git/' --exclude '_site/' --exclude 'token/' --exclude '/docs/' ./ _site/
+          mkdir _site/token _site/docs
           cp -R token/dist/. _site/token/
+          cp -R docs/dist/. _site/docs/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

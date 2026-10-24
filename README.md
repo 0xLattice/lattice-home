@@ -4,7 +4,7 @@ The Lattice website — a static website. Text-first, zero-accent, built on the 
 
 ## What it is
 
-A landing page for developers building apps for people and AI agents. It links *out* to `lattice-node/docs` and the repos rather than duplicating them.
+A landing page for developers building apps for people and AI agents, and the documentation site at `/docs/`, which publishes each repository's docs from that repository rather than duplicating them.
 
 - **Hero** — "Ship the app. Skip the backend.", with the client code for a paid write and a line to paste into a coding agent
 - **The problem** — what a backend costs today (abuse, data, payments, accounts, agents) and what Lattice replaces it with
@@ -23,13 +23,14 @@ Claims on the page must hold for the shipped software; state the tradeoff rather
 - `agents.md` — the guide coding agents are pointed at from the hero: what Lattice is, the skills plugin, setup, and rules for acting on a user's behalf.
 - `index.html` — the landing page. Design tokens (zero-accent; source of truth: `lattice-design`) are inlined so it paints in a single request. A small inline script feeds the live Network table from the public seed nodes.
 - `download/` — beginner desktop setup and a fail-closed release configuration.
+- `docs/` — the documentation site, served at `/docs/`. See [docs/README.md](docs/README.md).
 - `explorer/` — the Lattice block explorer, vendored in (client-side, talks to the nodes directly). Served at `/explorer/`.
 - `vendor/` — the Lattice SDK bundled for the browser; the explorer and token module find child-chain nodes with it.
 - `token/` — the cross-chain Buy/Sell module. It stages wallet requests and is built to `/token/` during deployment.
 - `lattice-mark.svg` — the mark (favicon).
 - `.nojekyll` — so GitHub Pages serves the explorer assets raw.
 
-The home page and explorer remain plain static files. The token module uses Vite and is the only build step:
+The home page and explorer remain plain static files. The token module (Vite) and the docs site (Astro) are the build steps:
 
 ```sh
 npm ci --prefix token
