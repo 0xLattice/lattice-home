@@ -90,7 +90,7 @@ node, not by the chain (`minRelayFee` in `/api/chain/info`).
   (`operator-cli.md`, `rpc-api.md`, `getting-started.md`, `operations.md`)
 - Protocol: https://github.com/adalinxx/lattice-node/blob/main/docs/protocol.md
 - TypeScript SDK: https://github.com/adalinxx/lattice-sdk
-- Wallet page API (`window.lattice`): https://github.com/adalinxx/lattice-wallet
+- Wallet page API (`window.lattice`): https://github.com/adalinxx/selfhold-wallet
 - Example apps, each with `chain/` and `client/` folders, and `policy/` except
   Rave, which runs on Stoa's policy:
   https://github.com/adalinxx/moniker, https://github.com/adalinxx/fanfare,
