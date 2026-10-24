@@ -11,20 +11,24 @@ const sidebar = JSON.parse(readFileSync(new URL("./src/sidebar.json", import.met
 // text, never rendered; links may only use web and mail schemes; images must
 // be remote, so no source file is ever copied into the site.
 const safeLink = (url) => !/^[^/?#]*:/.test(url) || /^(?:https?|mailto):/i.test(url);
-const remote = (url) => /^https?:\/\//i.test(url);
-const guard = (allowed) => (node, ctx) => {
-  if (!allowed(node.url)) ctx.setProperty(node, "url", "#");
-};
+const remote = (url) => /^https?:\/\//i.test(url) && URL.canParse(url);
 const untrustedMarkdown = {
   name: "untrusted-markdown",
   html(node, ctx) {
     ctx.replaceNode(node, { type: "text", value: node.value });
   },
-  link: guard(safeLink),
-  image: guard(remote),
-  // A definition may serve an image, so it gets the image rule plus mail,
-  // in-page anchors, and this site's pages.
-  definition: guard((url) => remote(url) || /^(?:mailto:|#|\/docs\/)/i.test(url)),
+  link(node, ctx) {
+    if (!safeLink(node.url)) ctx.setProperty(node, "url", "#");
+  },
+  // Anything but a remote URL would make Astro look for the image on disk.
+  image(node, ctx) {
+    if (!remote(node.url)) ctx.replaceNode(node, { type: "text", value: node.alt ?? "" });
+  },
+  // A definition may serve an image, so it gets the image rule (plus mail);
+  // references to a removed definition stay as plain text.
+  definition(node, ctx) {
+    if (!remote(node.url) && !/^mailto:/i.test(node.url)) ctx.removeNode(node);
+  },
 };
 
 export default defineConfig({
