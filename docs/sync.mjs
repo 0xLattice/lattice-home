@@ -43,7 +43,7 @@ export function rewriteLinks(markdown, source, index, isDir = () => false) {
     }
     if (/^[a-z][a-z0-9+.-]*:/i.test(path) || path.startsWith("/") || !source) return target;
     const repoPath = posix.normalize(posix.join(posix.dirname(source.path), path)).replace(/\/$/, "");
-    if (repoPath.startsWith("..")) return target;
+    if (repoPath.startsWith("..")) return "#"; // outside the repository: nothing to publish
     const slug = index.get(`${source.repo.toLowerCase()}:${repoPath}`);
     if (slug !== undefined) return siteURL(slug) + hash;
     return githubURL(source.repo, source.ref, repoPath, isDir(repoPath)) + hash;

@@ -1,10 +1,12 @@
 // Fails if any page in dist/ links to a /docs/ path that was not built, to an
-// anchor missing from the target page, or to a script-capable URL scheme.
+// anchor missing from the target page, or to a script-capable URL scheme, or
+// if any SVG it ships can run script when opened directly.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const dist = new URL("./dist/", import.meta.url).pathname;
-const pages = readdirSync(dist, { recursive: true }).filter((f) => f.endsWith(".html"));
+const files = readdirSync(dist, { recursive: true });
+const pages = files.filter((f) => f.endsWith(".html"));
 const ids = new Map();
 const idsOf = (file) => {
   if (!ids.has(file)) ids.set(file, new Set([...readFileSync(file, "utf8").matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])));
@@ -25,6 +27,9 @@ for (const page of pages) {
     if (!existsSync(file)) broken.push(`${page}: ${href} (no page)`);
     else if (hash && !idsOf(file).has(decodeURIComponent(hash))) broken.push(`${page}: ${href} (no anchor)`);
   }
+}
+for (const svg of files.filter((f) => f.endsWith(".svg"))) {
+  if (/<script|\son[a-z]+\s*=|javascript:/i.test(readFileSync(join(dist, svg), "utf8"))) broken.push(`${svg}: script in SVG`);
 }
 if (broken.length) {
   console.error(broken.join("\n"));

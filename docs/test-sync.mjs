@@ -17,6 +17,7 @@ test("relative links to published files become site URLs, keeping anchors", () =
 test("relative links to unpublished files go to GitHub at the fetched version", () => {
   assert.equal(rewriteLinks("[t](testing.md)", source, index), "[t](https://github.com/adalinxx/lattice-node/blob/abc/docs/testing.md)");
   assert.equal(rewriteLinks("[d](../deploy)", source, index, () => true), "[d](https://github.com/adalinxx/lattice-node/tree/abc/deploy)");
+  assert.equal(rewriteLinks("![x](../../../.sources/other/evil.svg)", source, index), "![x](#)");
 });
 
 test("GitHub links to published files at any version become site URLs", () => {

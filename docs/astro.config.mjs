@@ -8,19 +8,23 @@ const sidebar = JSON.parse(readFileSync(new URL("./src/sidebar.json", import.met
 
 // Pages come from other repositories without review here and are served on
 // the lattice.build origin, which wallets trust: raw HTML in them is shown as
-// text, never rendered, and links may only use web and mail schemes.
-const safeURL = (url) => !/^[^/?#]*:/.test(url) || /^(?:https?|mailto):/i.test(url);
-const guardURL = (node, ctx) => {
-  if (!safeURL(node.url)) ctx.setProperty(node, "url", "#");
+// text, never rendered; links may only use web and mail schemes; images must
+// be remote, so no source file is ever copied into the site.
+const safeLink = (url) => !/^[^/?#]*:/.test(url) || /^(?:https?|mailto):/i.test(url);
+const remote = (url) => /^https?:\/\//i.test(url);
+const guard = (allowed) => (node, ctx) => {
+  if (!allowed(node.url)) ctx.setProperty(node, "url", "#");
 };
 const untrustedMarkdown = {
   name: "untrusted-markdown",
   html(node, ctx) {
     ctx.replaceNode(node, { type: "text", value: node.value });
   },
-  link: guardURL,
-  image: guardURL,
-  definition: guardURL,
+  link: guard(safeLink),
+  image: guard(remote),
+  // A definition may serve an image, so it gets the image rule plus mail,
+  // in-page anchors, and this site's pages.
+  definition: guard((url) => remote(url) || /^(?:mailto:|#|\/docs\/)/i.test(url)),
 };
 
 export default defineConfig({
