@@ -8,19 +8,26 @@ const sidebar = JSON.parse(readFileSync(new URL("./src/sidebar.json", import.met
 
 // Pages come from other repositories without review here and are served on
 // the lattice.build origin, which wallets trust: raw HTML in them is shown as
-// text, never rendered.
-const htmlAsText = {
-  name: "html-as-text",
+// text, never rendered, and links may only use web and mail schemes.
+const safeURL = (url) => !/^[^/?#]*:/.test(url) || /^(?:https?|mailto):/i.test(url);
+const guardURL = (node, ctx) => {
+  if (!safeURL(node.url)) ctx.setProperty(node, "url", "#");
+};
+const untrustedMarkdown = {
+  name: "untrusted-markdown",
   html(node, ctx) {
     ctx.replaceNode(node, { type: "text", value: node.value });
   },
+  link: guardURL,
+  image: guardURL,
+  definition: guardURL,
 };
 
 export default defineConfig({
   site: "https://lattice.build",
   base: "/docs",
   trailingSlash: "always",
-  markdown: { processor: satteri({ mdastPlugins: [htmlAsText] }) },
+  markdown: { processor: satteri({ mdastPlugins: [untrustedMarkdown] }) },
   integrations: [
     starlight({
       title: "Lattice",

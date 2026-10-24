@@ -90,9 +90,9 @@ function fetchRepos(cacheDir) {
       const args = ["clone", "--quiet", "--depth", "1"];
       if (ref) args.push("--branch", ref);
       git([...args, `${ORG}/${name}.git`, dir]);
-    } else if (ref && !git(["tag", "--points-at", "HEAD"], dir).split("\n").includes(ref)) {
+    } else if (ref && (!git(["tag", "--points-at", "HEAD"], dir).split("\n").includes(ref) || git(["status", "--porcelain"], dir))) {
       // A reused checkout must be the pinned version, or pages would carry the wrong label.
-      throw new Error(`${dir} is not at ${ref}; delete it to fetch the pinned version`);
+      throw new Error(`${dir} is not a clean checkout of ${ref}; delete it to fetch the pinned version`);
     }
     return { dir, ref: ref ?? git(["rev-parse", "HEAD"], dir) };
   };

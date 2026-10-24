@@ -1,5 +1,5 @@
-// Fails if any page in dist/ links to a /docs/ path that was not built, or to
-// an anchor missing from the target page.
+// Fails if any page in dist/ links to a /docs/ path that was not built, to an
+// anchor missing from the target page, or to a script-capable URL scheme.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -14,6 +14,9 @@ const idsOf = (file) => {
 const broken = [];
 for (const page of pages) {
   const html = readFileSync(join(dist, page), "utf8");
+  for (const [, url] of html.matchAll(/(?:href|src|action|formaction)="\s*((?:javascript|vbscript|data):[^"]*)"/gi)) {
+    broken.push(`${page}: ${url.slice(0, 40)} (script-capable URL)`);
+  }
   for (const [, href] of html.matchAll(/href="(\/docs\/[^"]*)"/g)) {
     const [path, hash] = href.slice("/docs/".length).split("#");
     if (/\.(?:svg|css|js|xml|png|ico)$/.test(path) || path.startsWith("_astro/") || path.startsWith("pagefind/")) continue;
