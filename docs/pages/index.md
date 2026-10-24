@@ -13,6 +13,7 @@ host. Start with the section that matches what you are doing.
 | [Protocol](/docs/protocol/spec/) | Researchers, auditors, contributors | [Specification](/docs/protocol/spec/) |
 | [Network](/docs/network/) | Anyone evaluating the network | [Network facts](/docs/network/) |
 
-Each page is published from the repository whose code it describes, at the
-version the current `lattice-node` release uses. The footer of every page
+Each page is published from the repository whose code it describes: from
+`lattice-node` main and the dependency versions it pins, and from the default
+branch of the SDK, wallet, and skills repositories. The footer of every page
 names its source file; edit it there.

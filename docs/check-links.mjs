@@ -1,6 +1,6 @@
 // Fails if any page in dist/ links to a /docs/ path that was not built, or to
 // an anchor missing from the target page.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const dist = new URL("./dist/", import.meta.url).pathname;
@@ -17,7 +17,8 @@ for (const page of pages) {
   for (const [, href] of html.matchAll(/href="(\/docs\/[^"]*)"/g)) {
     const [path, hash] = href.slice("/docs/".length).split("#");
     if (/\.(?:svg|css|js|xml|png|ico)$/.test(path) || path.startsWith("_astro/") || path.startsWith("pagefind/")) continue;
-    const file = join(dist, path, path === "" || path.endsWith("/") ? "index.html" : "");
+    let file = join(dist, path);
+    if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");
     if (!existsSync(file)) broken.push(`${page}: ${href} (no page)`);
     else if (hash && !idsOf(file).has(decodeURIComponent(hash))) broken.push(`${page}: ${href} (no anchor)`);
   }

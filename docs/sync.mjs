@@ -1,7 +1,8 @@
 // Builds src/content/docs from sources.mjs: fetches each repository at the
 // version lattice-node main pins, rewrites links between published files to
 // site URLs (anything else to GitHub at the fetched version), and writes the
-// sidebar. Set DOCS_SOURCES=<dir> to reuse checkouts already in <dir>/<repo>.
+// sidebar. Set DOCS_SOURCES=<dir> to reuse checkouts already in <dir>/<repo>;
+// pinned ones must be at the pinned tag, unpinned ones are used as they are.
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, posix } from "node:path";
@@ -89,6 +90,9 @@ function fetchRepos(cacheDir) {
       const args = ["clone", "--quiet", "--depth", "1"];
       if (ref) args.push("--branch", ref);
       git([...args, `${ORG}/${name}.git`, dir]);
+    } else if (ref && !git(["tag", "--points-at", "HEAD"], dir).split("\n").includes(ref)) {
+      // A reused checkout must be the pinned version, or pages would carry the wrong label.
+      throw new Error(`${dir} is not at ${ref}; delete it to fetch the pinned version`);
     }
     return { dir, ref: ref ?? git(["rev-parse", "HEAD"], dir) };
   };
