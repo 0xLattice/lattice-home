@@ -86,9 +86,9 @@ node, not by the chain (`minRelayFee` in `/api/chain/info`).
 
 ## Sources of truth
 
-- Node docs: https://github.com/adalinxx/lattice-node/tree/main/docs
-  (`operator-cli.md`, `rpc-api.md`, `getting-started.md`, `operations.md`)
-- Protocol: https://github.com/adalinxx/lattice-node/blob/main/docs/protocol.md
+- Docs: https://lattice.build/docs/ (operators: https://lattice.build/docs/run/getting-started/,
+  HTTP API: https://lattice.build/docs/build/http-api/)
+- Protocol: https://lattice.build/docs/protocol/spec/
 - TypeScript SDK: https://github.com/adalinxx/lattice-sdk
 - Wallet page API (`window.lattice`): https://github.com/adalinxx/selfhold-wallet
 - Example apps, each with `chain/` and `client/` folders, and `policy/` except

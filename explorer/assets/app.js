@@ -487,7 +487,7 @@ function renderOfflineChain(chainPath) {
   root.appendChild(el("h3", {}, "Read it sovereignly"));
   root.appendChild(el("p", {}, "Any node can host this chain permissionlessly: list it (and its ancestors) in hostedChains. To list it here, also set publicReadURL to the node's public read URL."));
   root.appendChild(el("p", {},
-    link("https://github.com/adalinxx/lattice-node/blob/main/docs/operations.md#listing-a-chain-on-an-explorer", "Listing a chain on an explorer"),
+    link("/docs/run/operations/#listing-a-chain-on-an-explorer", "Listing a chain on an explorer"),
     " · your own node is the trustless way to read any chain."));
   root.appendChild(el("h3", {}, "Or connect a node you trust"));
   root.appendChild(el("p", {}, "If you know a node serving this chain's public reads, connect it. The choice is stored only in this browser, and the node must serve this chain before it is used."));
