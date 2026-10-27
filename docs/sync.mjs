@@ -9,12 +9,14 @@ import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ALIASES, PINNED, SECTIONS, UNPINNED } from "./sources.mjs";
 
-const ORG = "https://github.com/0xLattice";
+// Repositories that did not move to the 0xLattice org.
+const OWNERS = { "selfhold-wallet": "adalinxx" };
+const repoURL = (repo) => `https://github.com/${OWNERS[repo] ?? "0xLattice"}/${repo}`;
 const BASE = "/docs";
 
 export const siteURL = (slug) => (slug ? `${BASE}/${slug}/` : `${BASE}/`);
 
-const githubURL = (repo, ref, path, isDir) => `${ORG}/${repo}/${isDir ? "tree" : "blob"}/${ref}/${path}`;
+const githubURL = (repo, ref, path, isDir) => `${repoURL(repo)}/${isDir ? "tree" : "blob"}/${ref}/${path}`;
 
 // Every (repo, path) the site publishes, keyed case-insensitively by repo.
 export function publishedIndex(sections, aliases) {
@@ -89,7 +91,7 @@ function fetchRepos(cacheDir) {
     if (!existsSync(dir)) {
       const args = ["clone", "--quiet", "--depth", "1"];
       if (ref) args.push("--branch", ref);
-      git([...args, `${ORG}/${name}.git`, dir]);
+      git([...args, `${repoURL(name)}.git`, dir]);
     } else if (ref && (!git(["tag", "--points-at", "HEAD"], dir).split("\n").includes(ref) || git(["status", "--porcelain"], dir))) {
       // A reused checkout must be the pinned version, or pages would carry the wrong label.
       throw new Error(`${dir} is not a clean checkout of ${ref}; delete it to fetch the pinned version`);
@@ -140,11 +142,11 @@ function main() {
       const repo = repos[page.repo];
       source = { repo: page.repo, ref: repo.ref, path: page.path };
       markdown = readFileSync(join(repo.dir, page.path), "utf8");
-      editUrl = `${ORG}/${page.repo}/edit/main/${page.path}`;
+      editUrl = `${repoURL(page.repo)}/edit/main/${page.path}`;
       footer = `Source: [${page.repo}/${page.path}](${githubURL(page.repo, repo.ref, page.path)}) at \`${repo.ref.slice(0, 12)}\``;
     } else {
       markdown = readFileSync(join(root, "..", page.file), "utf8");
-      editUrl = `${ORG}/lattice-home/edit/main/${page.file}`;
+      editUrl = `${repoURL("lattice-home")}/edit/main/${page.file}`;
     }
     const isDir = (p) => source && existsSync(join(repos[source.repo].dir, p)) && statSync(join(repos[source.repo].dir, p)).isDirectory();
     const body = rewriteLinks(markdown, source, index, isDir);
