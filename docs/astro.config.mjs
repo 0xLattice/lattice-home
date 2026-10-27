@@ -41,7 +41,7 @@ export default defineConfig({
       title: "Lattice",
       logo: { src: "./public/lattice-mark.svg" },
       favicon: "/lattice-mark.svg",
-      social: [{ icon: "github", label: "GitHub", href: "https://github.com/adalinxx" }],
+      social: [{ icon: "github", label: "GitHub", href: "https://github.com/0xLattice" }],
       customCss: ["./src/styles/lattice.css"],
       sidebar,
     }),

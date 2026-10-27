@@ -1,6 +1,6 @@
 # lattice-home
 
-The Lattice website — a static website. Text-first, zero-accent, built on the [Lattice design system](https://github.com/adalinxx/lattice-design).
+The Lattice website — a static website. Text-first, zero-accent, built on the [Lattice design system](https://github.com/0xLattice/lattice-design).
 
 ## What it is
 

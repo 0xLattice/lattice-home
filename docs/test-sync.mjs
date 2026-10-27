@@ -15,16 +15,16 @@ test("relative links to published files become site URLs, keeping anchors", () =
 });
 
 test("relative links to unpublished files go to GitHub at the fetched version", () => {
-  assert.equal(rewriteLinks("[t](testing.md)", source, index), "[t](https://github.com/adalinxx/lattice-node/blob/abc/docs/testing.md)");
-  assert.equal(rewriteLinks("[d](../deploy)", source, index, () => true), "[d](https://github.com/adalinxx/lattice-node/tree/abc/deploy)");
+  assert.equal(rewriteLinks("[t](testing.md)", source, index), "[t](https://github.com/0xLattice/lattice-node/blob/abc/docs/testing.md)");
+  assert.equal(rewriteLinks("[d](../deploy)", source, index, () => true), "[d](https://github.com/0xLattice/lattice-node/tree/abc/deploy)");
   assert.equal(rewriteLinks("![x](../../../.sources/other/evil.svg)", source, index), "![x](#)");
 });
 
 test("GitHub links to published files at any version become site URLs", () => {
-  assert.equal(rewriteLinks("[s](https://github.com/adalinxx/lattice/blob/43.1.0/docs/spec.md#10-economic-model)", source, index),
+  assert.equal(rewriteLinks("[s](https://github.com/0xLattice/lattice/blob/43.1.0/docs/spec.md#10-economic-model)", source, index),
     "[s](/docs/protocol/spec/#10-economic-model)");
-  assert.equal(rewriteLinks('<a href="https://github.com/adalinxx/Lattice/blob/1.0.0/README.md">r</a>', source, index),
-    '<a href="https://github.com/adalinxx/Lattice/blob/1.0.0/README.md">r</a>');
+  assert.equal(rewriteLinks('<a href="https://github.com/0xLattice/Lattice/blob/1.0.0/README.md">r</a>', source, index),
+    '<a href="https://github.com/0xLattice/Lattice/blob/1.0.0/README.md">r</a>');
 });
 
 test("fenced code, anchors, and other sites are untouched", () => {

@@ -9,7 +9,7 @@ import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ALIASES, PINNED, SECTIONS, UNPINNED } from "./sources.mjs";
 
-const ORG = "https://github.com/adalinxx";
+const ORG = "https://github.com/0xLattice";
 const BASE = "/docs";
 
 export const siteURL = (slug) => (slug ? `${BASE}/${slug}/` : `${BASE}/`);
@@ -36,7 +36,7 @@ export function rewriteLinks(markdown, source, index, isDir = () => false) {
   const resolve = (target) => {
     if (target.startsWith("#") || /^(?:mailto|data):/.test(target)) return target;
     const [path, hash] = splitHash(target);
-    const gh = path.match(/^https:\/\/github\.com\/adalinxx\/([^/]+)\/(?:blob|tree)\/[^/]+\/(.+)$/);
+    const gh = path.match(/^https:\/\/github\.com\/(?:0xLattice|adalinxx)\/([^/]+)\/(?:blob|tree)\/[^/]+\/(.+)$/);
     if (gh) {
       const slug = index.get(`${gh[1].toLowerCase()}:${gh[2]}`);
       return slug === undefined ? target : siteURL(slug) + hash;

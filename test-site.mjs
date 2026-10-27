@@ -25,7 +25,7 @@ for (const page of pages) {
 
   for (const match of html.matchAll(/(?:href|src)="([^"#]+)"/g)) {
     const target = match[1];
-    if (target.startsWith("https://github.com/adalinxx/")) { ownedGitHubLinks.add(target); continue; }
+    if (/^https:\/\/github\.com\/(?:0xLattice|adalinxx)\//.test(target)) { ownedGitHubLinks.add(target); continue; }
     if (/^(?:https?:|mailto:|data:)/.test(target) || target.includes("${")) continue;
     const resolved = new URL(target, new URL(`file://${process.cwd()}/${page}`));
     let path = decodeURIComponent(resolved.pathname);
@@ -40,12 +40,12 @@ for (const page of pages) {
 }
 
 for (const page of pages) assert.ok(pagesLinkingDocs.has(page), `${page} links Docs to the docs site`);
-assert.ok(ownedGitHubLinks.has("https://github.com/adalinxx/lattice-node/discussions"), "community forum is linked");
+assert.ok(ownedGitHubLinks.has("https://github.com/0xLattice/lattice-node/discussions"), "community forum is linked");
 for (const policy of ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"]) {
-  assert.ok(ownedGitHubLinks.has(`https://github.com/adalinxx/lattice-node/blob/main/${policy}`), `${policy} has a canonical lattice-node link`);
+  assert.ok(ownedGitHubLinks.has(`https://github.com/0xLattice/lattice-node/blob/main/${policy}`), `${policy} has a canonical lattice-node link`);
 }
-for (const component of ["lattice-node", "nexus-wallet", "lattice-home", "lattice-sdk", "lattice-miner-gpu", "Lattice"]) {
-  assert.ok(ownedGitHubLinks.has(`https://github.com/adalinxx/${component}`), `${component} is in the software directory`);
+for (const component of ["0xLattice/lattice-node", "adalinxx/nexus-wallet", "0xLattice/lattice-home", "0xLattice/lattice-sdk", "0xLattice/lattice-miner-gpu", "0xLattice/Lattice"]) {
+  assert.ok(ownedGitHubLinks.has(`https://github.com/${component}`), `${component} is in the software directory`);
 }
 
 // apps.json is the one list of apps; the home page may feature some of them.
@@ -99,7 +99,7 @@ for (const [platform, repository, format] of [
   ["windows", "lattice-desktop-windows", "exe"],
 ]) {
   const prefix = platform === "mac" ? "" : `${platform}-`;
-  const base = `https://github.com/adalinxx/${repository}/releases/download/test/`;
+  const base = `https://github.com/0xLattice/${repository}/releases/download/test/`;
   const ready = { platform, architecture: "test architecture", requirements: "test OS", format,
     version: "0.1.0", source: "a".repeat(40), sha256: "b".repeat(64), published: true,
     filename: `Lattice.${format}`, artifact: base + `Lattice.${format}`, checksums: base + "SHA256SUMS",
@@ -109,7 +109,7 @@ for (const [platform, repository, format] of [
   assert.equal(isAvailable(unavailable), false, `${platform}/${format} unpublished fixture`);
   const invalid = [unavailable, null, { ...ready, platform: "other" }, { ...ready, format: "html" },
     { ...ready, signature: base.replace("/test/", "/other/") + "SHA256SUMS.minisig" },
-    { ...ready, artifact: "https://github.com/adalinxx/lattice-desktop/releases" }];
+    { ...ready, artifact: "https://github.com/0xLattice/lattice-desktop/releases" }];
   for (const field of ["artifact", "checksums", "signature", "publicKey"]) {
     for (const value of [undefined, null, "", "javascript:alert(1)", "https://example.com/file", "http://github.com/file"])
       invalid.push({ ...ready, [field]: value });
@@ -156,7 +156,7 @@ for (const data of Object.values(releases)) {
   assert.equal(isAvailable({ ...data, published: true }), true, "candidate URL structure is valid");
   assert.ok(Number.isSafeInteger(data.bytes) && data.bytes > 0);
   assert.ok(download.includes(data.filename) || data.platform === "mac");
-  assert.equal(data.publicKey, "https://github.com/adalinxx/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub");
+  assert.equal(data.publicKey, "https://github.com/0xLattice/lattice-desktop/releases/download/v0.1.0/lattice-releases.pub");
 }
 assert.match(readFileSync("index.html", "utf8"), /href="\.\/download\/">Download Lattice Desktop/);
 const elements = Object.assign({}, ...Object.keys(releases).map(key => page(key === "mac" ? "" : `${key}-`).elements));
@@ -187,7 +187,7 @@ for (const key of Object.keys(releases)) {
 const unavailableCatalog = Object.fromEntries(Object.entries(releases).map(([key, data]) =>
   [key, key === "mac" ? data : { ...data, published: false }]));
 const appImage = releases["linux-appimage"];
-const appImageBase = "https://github.com/adalinxx/lattice-desktop-linux/releases/download/test/";
+const appImageBase = "https://github.com/0xLattice/lattice-desktop-linux/releases/download/test/";
 const appImageReady = { ...appImage, published: true, artifact: appImageBase + appImage.filename,
   checksums: appImageBase + "SHA256SUMS", signature: appImageBase + "SHA256SUMS.minisig", publicKey: appImageBase + "lattice-releases.pub" };
 renderCatalog({ ...unavailableCatalog, "linux-appimage": appImageReady }, catalogPage);
