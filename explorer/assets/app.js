@@ -163,6 +163,8 @@ const ago = (ms) => {
 const link = (href, text, cls) => el("a", { href, class: cls }, text);
 // Preserve the current chain (?c=) across in-chain navigation.
 const chainQ = () => (state.chain ? `?c=${encodeURIComponent(state.chain)}` : "");
+// The node sends chain paths as segments (["Nexus", "moniker"]); older nodes may send a string.
+const pathStr = (p) => (Array.isArray(p) ? p.join("/") : p);
 const blockLink = (id, text) => link(`#/block/${encodeURIComponent(id)}${chainQ()}`, text || id, "mono");
 const txLink = (cid, text) => link(`#/tx/${encodeURIComponent(cid)}${chainQ()}`, text || hashEl(cid), "mono");
 const addrLink = (a, text) => link(`#/address/${encodeURIComponent(a)}${chainQ()}`, text || hashEl(a), "mono");
@@ -353,17 +355,18 @@ function statusBadge(status) {
   );
 }
 
-// Breadcrumb for a chain path: Nexus / Mid / Stable (each segment linkable).
-function chainCrumbs(chainPath) {
+// Breadcrumb for a chain path: Nexus / Mid / Stable. Every ancestor links to its chain; the
+// chain itself links too when a page inside it (block, tx, address) names itself as `here`.
+const chainHref = (p) => (p === "Nexus" ? "#/" : `#/?c=${encodeURIComponent(p)}`);
+function chainCrumbs(chainPath, here) {
   const parts = chainPath.split("/");
-  const crumbs = el("div", { class: "crumbs" }, parts.length === 1 ? el("span", {}, parts[0]) : link("#/", parts[0]));
-  const acc = [parts[0]];
-  for (let i = 1; i < parts.length; i++) {
-    acc.push(parts[i]);
-    const p = acc.join("/");
-    crumbs.appendChild(document.createTextNode(" / "));
-    crumbs.appendChild(i === parts.length - 1 ? el("span", {}, parts[i]) : link(`#/?c=${encodeURIComponent(p)}`, parts[i]));
+  const crumbs = el("div", { class: "crumbs" });
+  for (let i = 0; i < parts.length; i++) {
+    if (i) crumbs.appendChild(document.createTextNode(" / "));
+    const last = i === parts.length - 1;
+    crumbs.appendChild(last && !here ? el("span", {}, parts[i]) : link(chainHref(parts.slice(0, i + 1).join("/")), parts[i]));
   }
+  if (here) crumbs.appendChild(document.createTextNode(` / ${here}`));
   return crumbs;
 }
 
@@ -439,7 +442,7 @@ async function probeRows(rows, retried = false) {
 }
 
 async function chainsSection(host) {
-  host.appendChild(el("h2", {}, state.chain ? "Sub-chains" : "Child chains"));
+  host.appendChild(el("h2", {}, "Child chains"));
   const tbody = el("tbody");
   host.appendChild(
     el("div", { class: "table-wrap" },
@@ -536,11 +539,12 @@ async function viewHome() {
   const tipHeight = Number(latest.height ?? 0);
 
   const root = el("div");
-  // Location cue: the chain path on every chain (just "Nexus" at the root), plus a dashboard
-  // title at the root.
-  root.appendChild(chainCrumbs(state.chain || "Nexus"));
+  // Every chain, Nexus included, reads the same: its path, its name, its cards. Only a chain
+  // with a parent has a market, since its token trades against the parent's.
+  const chainPath = state.chain || "Nexus";
+  root.appendChild(chainCrumbs(chainPath));
+  root.appendChild(el("h1", {}, chainPath.split("/").pop()));
   if (state.chain) appendMarketActions(root, state.chain);
-  else root.appendChild(el("h1", {}, "Network overview"));
 
   const cards = el("div", { class: "cards" });
   root.appendChild(cards);
@@ -553,8 +557,8 @@ async function viewHome() {
   ]);
   cards.appendChild(card("Tip height", num(tipHeight)));
   if (mp) cards.appendChild(card("Mempool txs", num(mp.count)));
-  // Peers is a node-level metric — only meaningful on the root view, not per child chain.
-  if (!state.chain && peers) cards.appendChild(card("Peers", num(peers.count)));
+  // The serving node's peers on this chain.
+  if (peers) cards.appendChild(card("Peers", num(peers.count)));
   if (spec) {
     cards.appendChild(card("Block time", `${(Number(spec.targetBlockTime) / 1000).toFixed(0)}s`));
     cards.appendChild(card("Block reward", num(spec.initialReward)));
@@ -663,7 +667,7 @@ async function viewBlock(id) {
     return showError(e);
   }
   const root = el("div");
-  root.appendChild(el("div", { class: "crumbs" }, link("#/", "Home"), " / Block"));
+  root.appendChild(chainCrumbs(state.chain || "Nexus", "Block"));
   root.appendChild(el("h1", {}, "Block #" + num(b.height)));
   root.appendChild(el("p", { class: "sub mono" }, b.hash));
 
@@ -685,8 +689,7 @@ async function viewBlock(id) {
       ["Next target", targetEl(b.nextTarget)],
       ["Transactions CID", el("code", { class: "cid" }, b.transactionsCID)],
       ["Post-state CID", el("code", { class: "cid" }, b.postStateCID)],
-      // The node sends the chain as path segments; a bare array would render run together.
-      ["Chain", Array.isArray(b.chain) ? b.chain.join("/") : b.chain],
+      ["Chain", pathStr(b.chain)],
     ])
   );
 
@@ -799,7 +802,7 @@ async function viewTx(cid) {
     return showError(e);
   }
   const root = el("div");
-  root.appendChild(el("div", { class: "crumbs" }, link("#/", "Home"), " / Transaction"));
+  root.appendChild(chainCrumbs(state.chain || "Nexus", "Transaction"));
   root.appendChild(el("h1", {}, "Transaction"));
   root.appendChild(el("p", { class: "sub mono" }, t.txCID));
 
@@ -816,7 +819,7 @@ async function viewTx(cid) {
       ["Fee", num(t.fee)],
       ["Nonce", num(t.nonce)],
       ["Signers", el("div", {}, ...(t.signers || []).map((s) => el("div", {}, addrLink(s, s))))],
-      ["Chain path", (t.chainPath || []).join("/") || (Array.isArray(t.chain) ? t.chain.join("/") : t.chain)],
+      ["Chain path", pathStr(t.chainPath) || pathStr(t.chain)],
     ])
   );
 
@@ -862,7 +865,7 @@ async function viewAddress(addr) {
     return showError(e);
   }
   const root = el("div");
-  root.appendChild(el("div", { class: "crumbs" }, link("#/", "Home"), " / Account"));
+  root.appendChild(chainCrumbs(state.chain || "Nexus", "Account"));
   root.appendChild(el("h1", {}, "Account"));
   root.appendChild(el("p", { class: "sub mono" }, a.address ?? a.owner ?? addr));
 

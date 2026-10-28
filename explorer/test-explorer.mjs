@@ -33,10 +33,16 @@ function explorer(routes, { nodeUrls = [NEXUS], stored = {} } = {}) {
     const body = typeof answer === "object" ? JSON.stringify(answer) : "{}";
     return new Response(body, { status });
   };
-  const element = () => ({ appendChild() {}, setAttribute() {}, addEventListener() {}, style: {}, isConnected: true });
+  // Elements keep their children, attributes and text, so a rendered fragment can be read back.
+  const element = (tag) => ({
+    tag, children: [], attrs: {}, style: {}, isConnected: true,
+    appendChild(c) { this.children.push(c); return c; },
+    setAttribute(k, v) { this.attrs[k] = String(v); },
+    addEventListener() {},
+  });
   const context = {
     window: { LATTICE_CONFIG: { nodeUrls }, LatticeSDK, location: { href: "https://lattice.build/explorer/" }, addEventListener() {} },
-    document: { createElement: element, createTextNode: () => ({}), querySelector: () => null, body: { contains: () => true } },
+    document: { createElement: element, createTextNode: (text) => ({ text }), querySelector: () => null, body: { contains: () => true } },
     localStorage: { getItem: (key) => stored[key] ?? null, setItem() {}, removeItem() {} },
     fetch: async (url) => respond(url),
     AbortController, URL, URLSearchParams, setTimeout, clearTimeout, console, Node: class {},
@@ -176,4 +182,25 @@ test("a node without the list falls back to its tip's children, and only on 404 
   const limited = explorer({ [`${NEXUS}/api/chain/children`]: 429 });
   await assert.rejects(limited.run(`chainChildren()`));
   assert.ok(!limited.requests.some((r) => r.includes("/api/block/")), "a 429 does not fall back");
+});
+
+// A rendered fragment as text, with each link written [text](href).
+const rendered = (n) => n.text ?? (n.tag === "a" ? `[${n.children.map(rendered).join("")}](${n.attrs.href})` : n.children.map(rendered).join(""));
+
+test("a chain path from the node reads as slash-joined segments", () => {
+  const net = explorer({});
+  assert.equal(net.run(`pathStr(["Nexus", "moniker"])`), "Nexus/moniker");
+  assert.equal(net.run(`pathStr("Nexus/moniker")`), "Nexus/moniker");
+  assert.equal(net.run(`pathStr(null)`), null);
+  assert.equal(net.run(`pathStr(undefined)`), undefined);
+});
+
+test("every chain's breadcrumb has the same shape, Nexus included", () => {
+  const net = explorer({});
+  assert.equal(rendered(net.run(`chainCrumbs("Nexus")`)), "Nexus");
+  assert.equal(rendered(net.run(`chainCrumbs("Nexus/moniker")`)), "[Nexus](#/) / moniker");
+  // A page inside a chain links back to that chain, never past it to Nexus.
+  assert.equal(rendered(net.run(`chainCrumbs("Nexus", "Block")`)), "[Nexus](#/) / Block");
+  assert.equal(rendered(net.run(`chainCrumbs("Nexus/moniker", "Block")`)),
+    "[Nexus](#/) / [moniker](#/?c=Nexus%2Fmoniker) / Block");
 });
