@@ -31,10 +31,10 @@ traffic, and its own fees and limits. If an existing chain's rules already fit
 The Lattice agent skills cover concepts, node operation, child chains,
 transactions, mining, troubleshooting and app design.
 
-- Claude Code: `/plugin marketplace add adalinxx/lattice-skills` then
+- Claude Code: `/plugin marketplace add 0xLattice/lattice-skills` then
   `/plugin install lattice@lattice-skills`
 - Other agents: copy the folders under `skills/` from
-  https://github.com/adalinxx/lattice-skills into your skills directory.
+  https://github.com/0xLattice/lattice-skills into your skills directory.
 
 For app work, load `lattice-app-builder`.
 
@@ -45,7 +45,7 @@ The command-line tools build from source (Swift 6.1+). Lattice Desktop
 but for development use the CLI:
 
 ```sh
-git clone https://github.com/adalinxx/lattice-node
+git clone https://github.com/0xLattice/lattice-node
 cd lattice-node && swift build -c release
 export PATH="$PWD/.build/release:$PATH"
 lattice init --root node
@@ -89,7 +89,7 @@ node, not by the chain (`minRelayFee` in `/api/chain/info`).
 - Docs: https://lattice.build/docs/ (operators: https://lattice.build/docs/run/getting-started/,
   HTTP API: https://lattice.build/docs/build/http-api/)
 - Protocol: https://lattice.build/docs/protocol/spec/
-- TypeScript SDK: https://github.com/adalinxx/lattice-sdk
+- TypeScript SDK: https://github.com/0xLattice/lattice-sdk
 - Wallet page API (`window.lattice`): https://github.com/adalinxx/selfhold-wallet
 - Example apps, each with `chain/` and `client/` folders, and `policy/` except
   Rave, which runs on Stoa's policy:
