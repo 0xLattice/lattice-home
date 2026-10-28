@@ -685,7 +685,8 @@ async function viewBlock(id) {
       ["Next target", targetEl(b.nextTarget)],
       ["Transactions CID", el("code", { class: "cid" }, b.transactionsCID)],
       ["Post-state CID", el("code", { class: "cid" }, b.postStateCID)],
-      ["Chain", b.chain],
+      // The node sends the chain as path segments; a bare array would render run together.
+      ["Chain", Array.isArray(b.chain) ? b.chain.join("/") : b.chain],
     ])
   );
 
@@ -815,7 +816,7 @@ async function viewTx(cid) {
       ["Fee", num(t.fee)],
       ["Nonce", num(t.nonce)],
       ["Signers", el("div", {}, ...(t.signers || []).map((s) => el("div", {}, addrLink(s, s))))],
-      ["Chain path", (t.chainPath || []).join("/") || t.chain],
+      ["Chain path", (t.chainPath || []).join("/") || (Array.isArray(t.chain) ? t.chain.join("/") : t.chain)],
     ])
   );
 
