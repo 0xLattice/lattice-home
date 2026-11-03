@@ -151,6 +151,18 @@ const targetEl = (t) => {
   );
 };
 const num = (n) => (n == null ? "—" : typeof n === "bigint" ? n.toLocaleString() : Number(n).toLocaleString());
+
+// A transaction's fee is its balance surplus, which the block's rewardRecipient
+// collects: debits + withdrawn - credits - deposited (no tx declares a fee).
+// Returns null when the transaction's actions aren't available.
+function txFee(t) {
+  if (!t || !t.accountActions) return null;
+  let fee = 0n;
+  for (const a of t.accountActions) fee -= BigInt(a.delta);
+  for (const w of t.withdrawalActions || []) fee += BigInt(w.amountWithdrawn);
+  for (const d of t.depositActions || []) fee -= BigInt(d.amountDeposited);
+  return fee;
+}
 const fmtTime = (ms) => (ms == null ? "—" : new Date(Number(ms)).toLocaleString());
 const ago = (ms) => {
   if (ms == null) return "";
@@ -731,13 +743,18 @@ async function loadBlockTxs(hash, holder, offset) {
     }
     for (const t of data.transactions) {
       const actions = (t.accountActionCount || 0) + (t.depositActionCount || 0) + (t.receiptActionCount || 0) + (t.withdrawalActionCount || 0);
+      // The block listing carries only action counts; the fee comes from the full transaction.
+      const feeCell = el("td", { class: "num" }, "…");
+      api(`/api/transaction/${encodeURIComponent(t.txCID)}`)
+        .then((full) => { feeCell.textContent = num(txFee(full)); })
+        .catch(() => { feeCell.textContent = "—"; });
       tbody.appendChild(
         el(
           "tr",
           {},
           el("td", { class: "shrink" }, txLink(t.txCID)),
           el("td", { class: "shrink" }, t.signers && t.signers.length ? addrLink(t.signers[0]) : el("span", { class: "pill dim" }, "—")),
-          el("td", { class: "num" }, num(t.fee)),
+          feeCell,
           el("td", { class: "num hide-sm" }, num(actions))
         )
       );
@@ -816,7 +833,7 @@ async function viewTx(cid) {
       ["Block", t.blockHeight != null ? blockLink(t.blockHeight, "#" + num(t.blockHeight)) : undefined],
       ["Block hash", t.blockHash != null ? blockLink(t.blockHash, t.blockHash) : undefined],
       ["Timestamp", t.timestamp != null ? `${fmtTime(t.timestamp)} (${ago(t.timestamp)})` : undefined],
-      ["Fee", num(t.fee)],
+      ["Fee", num(txFee(t))],
       ["Nonce", num(t.nonce)],
       ["Signers", el("div", {}, ...(t.signers || []).map((s) => el("div", {}, addrLink(s, s))))],
       ["Chain path", pathStr(t.chainPath) || pathStr(t.chain)],
