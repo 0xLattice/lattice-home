@@ -40,14 +40,15 @@ For app work, load `lattice-app-builder`.
 
 ## Set up
 
-The command-line tools build from source (Swift 6.1+). Lattice Desktop
+Install the command-line tools (Apple-silicon macOS or x86-64 Linux; the script
+verifies the release checksum; elsewhere build from source with Swift 6.1+ per
+https://github.com/0xLattice/lattice-node). Lattice Desktop
 (https://lattice.build/download/) bundles a node and wallet for Mac, Linux and Windows,
 but for development use the CLI:
 
 ```sh
-git clone https://github.com/0xLattice/lattice-node
-cd lattice-node && swift build -c release
-export PATH="$PWD/.build/release:$PATH"
+curl -fsSL https://lattice.build/install.sh | sh
+export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
 # A node hosts a chain only under a parent it hosts. Add the public testnet
 # to node/lattice.json:  "hostedChains": ["Nexus/testnet"]

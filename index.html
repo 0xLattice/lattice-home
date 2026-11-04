@@ -323,15 +323,14 @@ await lattice.writeRecords({
   <section id="quickstart" aria-labelledby="qs-title">
     <p class="eyebrow">Command-line setup</p>
     <h2 id="qs-title">From nothing to a live app.</h2>
-    <p class="intro">The command-line tools build from source with Swift 6.1 or newer, on macOS 15+ or Linux. (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
+    <p class="intro">One command installs the command-line tools on Apple-silicon Macs and x86-64 Linux (elsewhere, <a href="https://github.com/0xLattice/lattice-node">build from source</a> with Swift 6.1+). (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
     <ol class="steps">
       <li><div>
-        <h3>Build and start a node</h3>
+        <h3>Install and start a node</h3>
         <p>With no <code>peers</code> set, the node joins the public Nexus network. A node hosts a chain only under a parent it hosts, so add the public testnet before you start it.</p>
 <figure class="term"><figcaption>node</figcaption>
-<pre><code>git clone https://github.com/0xLattice/lattice-node
-cd lattice-node &amp;&amp; swift build -c release
-export PATH="$PWD/.build/release:$PATH"
+<pre><code>curl -fsSL https://lattice.build/install.sh | sh
+export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
 <span class="c"># in node/lattice.json add:  "hostedChains": ["Nexus/testnet"]</span>
 lattice up --root node
