@@ -39,6 +39,11 @@ for (const page of pages) {
   }
 }
 
+// The install command shown on the home page and in agents.md is served from this repo.
+assert.ok(existsSync("install.sh"), "install.sh is published at the site root");
+for (const page of ["index.html", "agents.md"])
+  assert.ok(readFileSync(page, "utf8").includes("curl -fsSL https://lattice.build/install.sh | sh"), `${page} shows the install command`);
+
 for (const page of pages) assert.ok(pagesLinkingDocs.has(page), `${page} links Docs to the docs site`);
 assert.ok(ownedGitHubLinks.has("https://github.com/0xLattice/lattice-node/discussions"), "community forum is linked");
 for (const policy of ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"]) {
