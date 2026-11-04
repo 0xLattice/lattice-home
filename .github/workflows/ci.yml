@@ -18,6 +18,10 @@ jobs:
           node-version: 22
       - run: node test-site.mjs
       - run: node --test explorer/test-explorer.mjs
+      - name: install.sh installs a working CLI
+        run: |
+          sh install.sh
+          ~/.lattice/bin/lattice --help
       - name: Test and build token module
         run: |
           npm ci --ignore-scripts --prefix token
