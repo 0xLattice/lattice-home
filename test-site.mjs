@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 
-const pages = ["index.html", "apps/index.html", "community/index.html", "download/index.html"];
+const pages = ["index.html", "apps/index.html", "community/index.html", "download/index.html", "mine/index.html"];
 const required = {
   "download/index.html": ["Download", "macOS 15", "Apple silicon", "Open Anyway", "Mining", "SHA256", "minisign", "WebView2", "Authenticode", "glibc 2.35", "WebKitGTK 4.1", "AppImage", "NSIS", "sha256sum Lattice_0.1.1_amd64.deb", "Get-FileHash -LiteralPath", "minisign.exe -Vm"],
-  "index.html": ["Download", "Command-line setup", "Docs", "Explorer", "Community", "GitHub"],
+  "index.html": ["Download", "Command-line setup", "Docs", "Explorer", "Mine", "Community", "GitHub"],
   "apps/index.html": ["Apps with no backend", "apps.json", "Add yours", "not an audit"],
+  "mine/index.html": ["SHA256(prefix || nonce_be64)", "ASERT", "Solo mining only", "lattice key generate", "lattice mine start", "batchSize", "glibc 2.35", "gh attestation verify", "/health"],
   "community/index.html": ["Run a node", "Launch a child chain", "Mine", "Understand the protocol", "Build software", "Help the community"],
 };
 const ownedGitHubLinks = new Set();

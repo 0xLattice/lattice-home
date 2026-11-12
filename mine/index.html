@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mine Nexus — Lattice</title>
+<meta name="description" content="Nexus proof-of-work parameters, live network numbers, and the steps to solo-mine with a GPU.">
+<link rel="icon" href="../lattice-mark.svg">
+<style>
+:root {
+  --paper: #fff; --ink: #0a0a0a; --ink-soft: #333; --ink-mute: #6b6b6b; --line: #e6e6e6;
+  --font: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --fs-12: .75rem; --fs-14: .875rem; --fs-16: 1rem; --fs-20: 1.25rem; --fs-28: 1.75rem;
+  --lh-body: 1.6; --track-display: .08em;
+  --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px; --s-5: 40px; --s-6: 64px;
+  --rule: 1px solid var(--line); --measure: 66ch;
+}
+@media (prefers-color-scheme: dark) { :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --ink-mute: #8a8a8a; --line: #1c1c1c; } }
+* { box-sizing: border-box; }
+html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body); -webkit-text-size-adjust: 100%; }
+body { margin: 0; padding: 0 var(--s-4); background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+nav, main, footer { max-width: 880px; margin: 0 auto; }
+nav { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) 0; font-size: var(--fs-14); }
+nav a { text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: var(--s-2); }
+.links { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-2) var(--s-3); }
+.wordmark, h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+h1 { margin: 0 0 var(--s-3); font-size: var(--fs-28); }
+h2 { margin: 0 0 var(--s-3); font-size: var(--fs-20); }
+h3 { margin: var(--s-4) 0 var(--s-2); font-size: var(--fs-14); }
+p, li { max-width: var(--measure); margin: 0 0 var(--s-3); color: var(--ink-soft); }
+a { color: inherit; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+code, pre { font-family: var(--font); }
+:not(pre) > code { border: var(--rule); padding: 0 var(--s-1); font-size: .9em; overflow-wrap: anywhere; }
+pre { margin: 0 0 var(--s-3); padding: var(--s-3); overflow-x: auto; background: var(--ink); color: var(--paper); font-size: var(--fs-14); line-height: var(--lh-body); }
+.skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); }
+.skip:focus { top: var(--s-2); }
+.intro { padding: var(--s-6) 0; border-top: var(--rule); }
+.intro p { font-size: var(--fs-20); }
+section { padding: var(--s-5) 0; border-top: var(--rule); }
+table { border-collapse: collapse; width: 100%; margin: 0 0 var(--s-3); font-size: var(--fs-14); }
+th, td { text-align: left; vertical-align: top; padding: var(--s-2) var(--s-3) var(--s-2) 0; border-bottom: var(--rule); }
+th { font-weight: 600; color: var(--ink); white-space: nowrap; width: 14ch; }
+td { color: var(--ink-soft); overflow-wrap: anywhere; }
+.num { font-variant-numeric: tabular-nums; }
+.meta { font-size: var(--fs-12); color: var(--ink-mute); }
+ol.steps { padding-left: 3ch; }
+ol.steps > li { max-width: none; }
+footer { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-6) 0; border-top: var(--rule); font-size: var(--fs-12); }
+footer .links { margin-left: auto; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  body { padding: 0 var(--s-3); }
+  nav { align-items: flex-start; }
+  nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
+  th { width: auto; white-space: normal; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<nav>
+  <a class="brand" href="../" aria-label="Lattice home"><img src="../lattice-mark.svg" width="22" height="22" alt=""><span class="wordmark">LATTICE</span></a>
+  <span class="links">
+    <a href="../download/">Download</a>
+    <a href="../docs/">Docs</a>
+    <a href="../apps/">Apps</a>
+    <a href="../explorer/">Explorer</a>
+    <a href="./" aria-current="page">Mine</a>
+    <a href="../community/">Community</a>
+    <a href="https://github.com/0xLattice">GitHub</a>
+  </span>
+</nav>
+
+<main id="main">
+  <header class="intro">
+    <h1>Mine Nexus</h1>
+    <p>Nexus is the root chain of Lattice. Blocks are found by proof of work, and the block's miner names the address its reward pays.</p>
+  </header>
+
+  <section aria-labelledby="specs">
+    <h2 id="specs">Specification</h2>
+    <table>
+      <tr><th>Proof of work</th><td><code>SHA256(prefix || nonce_be64) ≤ target</code>: one SHA-256 over a block prefix of a few hundred bytes followed by the nonce as 8 big-endian bytes. Bitcoin's SHA-256d ASICs cannot mine it.</td></tr>
+      <tr><th>Block time</th><td>1 hour target.</td></tr>
+      <tr><th>Difficulty</th><td>ASERT with a 120-block half-life (about 5 days). No averaging window, no clamp.</td></tr>
+      <tr><th>Reward</th><td>1,048,576 NEX per block initially, plus the block's transaction fees.</td></tr>
+      <tr><th>Premine</th><td>183,836,344,320 NEX (175,320 blocks' worth, about 10% of the maximum supply), credited in genesis to <code>bafyreiflupnvbnmqaf4v6n4kqrukyxiepynlzy3rd2itjn42jgbkhuqiwa</code>.</td></tr>
+      <tr><th>Halving</th><td>The premine takes the first 175,320 slots of the schedule, so the first halving is at height 701,280, then every 876,600 blocks.</td></tr>
+      <tr><th>Max supply</th><td>1,838,361,518,024 NEX. NEX has no decimal places: 1 NEX is the smallest unit.</td></tr>
+      <tr><th>Launch</th><td>2026-10-04 06:19:59 UTC. Genesis <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code>, committed in the OP_RETURN of Bitcoin transaction <a href="https://mempool.space/tx/7501f77602b581f605e6bc61c310b540e17324d3cc292c18985d8a3464d23236"><code>7501f77602b581f605e6bc61c310b540e17324d3cc292c18985d8a3464d23236</code></a> (block 970,053).</td></tr>
+    </table>
+    <p>The <a href="../docs/protocol/spec/">protocol specification</a> defines these rules.</p>
+  </section>
+
+  <section aria-labelledby="live">
+    <h2 id="live">Network now</h2>
+    <table>
+      <tr><th>Height</th><td class="num" id="live-height" aria-live="polite">…</td></tr>
+      <tr><th>Difficulty</th><td class="num" id="live-difficulty" aria-live="polite">…</td></tr>
+      <tr><th>Block time</th><td class="num" id="live-interval" aria-live="polite">…</td></tr>
+    </table>
+    <p class="meta">Read from <a href="https://lattice-mainnet-read.fly.dev/api/block/latest">lattice-mainnet-read.fly.dev</a>. Difficulty is the next block's target, as in the <a href="../explorer/">explorer</a>; block time is the average over the last 25 blocks. ASERT sets each block's target from how far the chain is ahead of or behind the 1-hour schedule.</p>
+    <noscript><p>Enable JavaScript for live numbers, or open the <a href="../explorer/">explorer</a>.</p></noscript>
+  </section>
+
+  <section aria-labelledby="solo">
+    <h2 id="solo">Solo mining only</h2>
+    <p>There is no pool or stratum support: each miner runs a full node, which builds the block templates its worker searches. There is no exchange listing.</p>
+  </section>
+
+  <section aria-labelledby="how">
+    <h2 id="how">How to mine</h2>
+    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later) and the libcurl and libsqlite3 system libraries. There is no Windows command-line build: on Windows, follow these steps inside WSL2 (NVIDIA GPUs via CUDA), or use the <a href="../download/">desktop app</a>, which runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
+    <ol class="steps">
+      <li>
+        <p>Install the command-line tools.</p>
+<pre><code>curl -fsSL https://lattice.build/install.sh | sh
+export PATH="$HOME/.lattice/bin:$PATH"</code></pre>
+        <p>Add the <code>export</code> line to your shell profile (for example <code>~/.zshrc</code> or <code>~/.bashrc</code>) so later terminals find <code>lattice</code>.</p>
+      </li>
+      <li>
+        <p>Create a node directory and start the node. Run every later <code>lattice</code> command from this directory.</p>
+<pre><code>mkdir -p ~/lattice &amp;&amp; cd ~/lattice
+lattice init
+lattice up</code></pre>
+      </li>
+      <li>
+        <p>Wait for the node to catch up. Its height should match the explorer's before mining.</p>
+<pre><code>lattice status</code></pre>
+      </li>
+      <li>
+        <p>Create the key that receives rewards. Back up the file: its <code>address</code> is the reward recipient, and its private key is the only way to spend what it receives.</p>
+<pre><code>lattice key generate --out ~/lattice/reward-key.json</code></pre>
+      </li>
+      <li>
+        <p>Download the GPU worker from the <a href="https://github.com/0xLattice/lattice-miner-gpu/releases">lattice-miner-gpu releases</a> and check its checksum. Set <code>P</code> to <code>linux-amd64</code> (CUDA and OpenCL, glibc 2.31 or newer) or <code>macos-arm64</code> (Metal).</p>
+<pre><code>cd ~/lattice
+V=0.1.0; P=linux-amd64
+curl -fsSLO https://github.com/0xLattice/lattice-miner-gpu/releases/download/$V/lattice-miner-gpu-$V-$P.tar.gz
+curl -fsSLO https://github.com/0xLattice/lattice-miner-gpu/releases/download/$V/lattice-miner-gpu-$V-$P.tar.gz.sha256
+shasum -a 256 -c lattice-miner-gpu-$V-$P.tar.gz.sha256
+tar -xzf lattice-miner-gpu-$V-$P.tar.gz
+ls "$PWD/lattice-miner-gpu-$V-$P/bin/lattice-miner-gpu"</code></pre>
+        <p>The last line prints the worker's absolute path, used in step 6. Where <code>shasum</code> is missing, use <code>sha256sum -c</code>.</p>
+        <ul>
+          <li>NVIDIA (CUDA): install NVRTC from CUDA 12 (it is not bundled), and make sure an unversioned <code>libcuda.so</code> exists; if only <code>libcuda.so.1</code> is present, symlink <code>libcuda.so</code> to it. The worker picks OpenCL by default on Linux, so start mining with <code>LATTICE_MINER_BACKEND=cuda</code> (step 7).</li>
+          <li>AMD, Intel, or NVIDIA via OpenCL: install the GPU driver's OpenCL runtime.</li>
+          <li>macOS: the binary is unsigned. If macOS blocks it (for example after a browser download), clear the quarantine flag: <code>xattr -d com.apple.quarantine &lt;path&gt;</code>.</li>
+          <li>Windows: the release's Windows archive is a standalone worker only, with no node or coordinator. Run these Linux steps inside WSL2 with the Linux archive; WSL2 passes NVIDIA GPUs through for CUDA, but AMD and Intel OpenCL is generally not available there.</li>
+        </ul>
+        <p>One worker process drives one GPU (CUDA device 0, the first OpenCL GPU, or the default Metal device); more <code>workers</code> share that same device, so one node mines with one GPU. The OpenCL kernel is checked against a CPU reference on a CPU OpenCL device and the CUDA kernel is compile-checked only; neither has been validated on physical GPUs by the release checks.</p>
+        <p>To build from source instead (Rust), the binary is <code>target/release/lattice-miner-gpu</code>. On macOS (Metal):</p>
+<pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
+cd lattice-miner-gpu
+cargo build --release</code></pre>
+        <p>On Linux (CUDA and OpenCL):</p>
+<pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
+cd lattice-miner-gpu
+cargo build --release --features cuda,opencl</code></pre>
+      </li>
+      <li>
+        <p>Add a <code>mine</code> section to <code>~/lattice/lattice.json</code>, with the worker's absolute path and the address from step 4:</p>
+<pre><code>{
+  "listen": 4001,
+  "rpc": 8080,
+  "mine": {
+    "worker": "/abs/path/to/lattice-miner-gpu",
+    "workers": 1,
+    "batchSize": 10000000000,
+    "recipients": { "Nexus": "&lt;address&gt;" }
+  }
+}</code></pre>
+        <p><code>batchSize</code> is the nonce span of one round, and a worker process starts every round, so set it to about 10 seconds of your GPU's hash rate: hashes per second × 10 (the example's 10,000,000,000 suits about 1 GH/s; the default, 2,000,000,000, is sized for a CPU worker). Keep a round well under 30 seconds: released nodes (4.0.0) discard a template 30 seconds after issuing it, and nonces left in the batch after that are not searched. A round also ends early when the tip changes.</p>
+      </li>
+      <li>
+        <p>Start mining and check it.</p>
+        <p>Metal (macOS) or OpenCL:</p>
+<pre><code>cd ~/lattice
+lattice mine start
+lattice mine status</code></pre>
+        <p>NVIDIA via CUDA (set the variable every time mining is started):</p>
+<pre><code>cd ~/lattice
+LATTICE_MINER_BACKEND=cuda lattice mine start
+lattice mine status</code></pre>
+        <p>The mining log is <code>~/lattice/log/mine.log</code>. <code>lattice mine stop</code> stops it.</p>
+      </li>
+    </ol>
+
+    <h3>Docker (Linux, NVIDIA)</h3>
+    <p>One image runs the node, the coordinator and the CUDA worker. It waits until the node reaches the public nodes' height, then mines. Requires the NVIDIA container runtime.</p>
+<pre><code>docker run --gpus all -v lattice-data:/data \
+  -e RECIPIENTS=Nexus=&lt;address&gt; -e HOSTED_CHAINS= -e BATCH_SIZE=10000000000 \
+  ghcr.io/0xlattice/lattice-miner-gpu:main</code></pre>
+    <p><code>HOSTED_CHAINS=</code> (empty) mines Nexus only. Other settings are in the image's <a href="https://github.com/0xLattice/lattice-miner-gpu/blob/main/deploy/gpu-entrypoint.sh">entrypoint</a>.</p>
+  </section>
+
+  <section aria-labelledby="verify">
+    <h2 id="verify">Verify, don't trust</h2>
+    <p>Each node release tarball ships with a <code>.sha256</code> file and an SPDX SBOM, and has a GitHub build-provenance attestation:</p>
+<pre><code>gh attestation verify lattice-node-&lt;version&gt;-linux-amd64.tar.gz -R 0xLattice/lattice-node</code></pre>
+    <p>Linux release binaries are expected to be byte-reproducible from the tagged source; the release workflow rebuilds them twice in clean containers and requires the two rebuilds to match. See <a href="../docs/run/release-verification/">Release verification</a> and <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
+    <p>Compare your node's tip with public nodes. Each <code>/health</code> reports <code>height</code>, <code>tipCID</code> and <code>nexusGenesisCID</code>:</p>
+    <p><a href="https://lattice-mainnet-iad.fly.dev/health">lattice-mainnet-iad</a> · <a href="https://lattice-mainnet-ams.fly.dev/health">lattice-mainnet-ams</a> · <a href="https://lattice-mainnet-sjc.fly.dev/health">lattice-mainnet-sjc</a> · <a href="https://lattice-mainnet-read.fly.dev/health">lattice-mainnet-read</a></p>
+    <p>More: <a href="../docs/run/mining-workers/">Mining workers</a> · <a href="../docs/run/getting-started/">Getting started</a> · <a href="https://github.com/0xLattice/lattice-node/discussions">Questions on GitHub Discussions</a></p>
+  </section>
+</main>
+
+<footer>
+  <span class="wordmark">LATTICE</span>
+  <span class="links"><a href="../">Home</a><a href="../docs/">Docs</a><a href="../explorer/">Explorer</a><a href="../community/">Community</a><a href="https://x.com/0xLattice">X</a><a href="https://github.com/0xLattice/lattice-node/discussions">Discussions</a></span>
+</footer>
+<script>
+  const API = "https://lattice-mainnet-read.fly.dev";
+  const WINDOW = 25;
+  const timeout = (ms) => { const c = new AbortController(); setTimeout(() => c.abort(), ms); return c.signal; };
+  const get = (path) => fetch(API + path, { cache: "no-store", signal: timeout(8000) })
+    .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
+  // Same measure as the explorer: leading zero bits of the 256-bit target.
+  const difficultyBits = (t) => {
+    if (!t) return null;
+    try {
+      const v = BigInt(t);
+      return v > 0n ? 256 - v.toString(2).length : null;
+    } catch (e) { return null; }
+  };
+  const set = (id, text) => { const node = document.getElementById(id); if (node.textContent !== text) node.textContent = text; };
+
+  let loaded = false;
+  async function refresh() {
+    try {
+      const latest = await get("/api/block/latest");
+      const height = Number(latest.height);
+      const [tip, past] = await Promise.all([
+        get(`/api/block/${height}`),
+        height >= WINDOW ? get(`/api/block/${height - WINDOW}`) : null,
+      ]);
+      set("live-height", height.toLocaleString());
+      const bits = difficultyBits(tip.nextTarget || tip.target);
+      set("live-difficulty", bits == null ? "—" : `~2^${bits}`);
+      if (past) {
+        const seconds = (Number(tip.timestamp) - Number(past.timestamp)) / 1000 / WINDOW;
+        const minutes = Math.round(seconds / 60), h = Math.floor(minutes / 60), m = minutes % 60;
+        set("live-interval", `${h}h ${m}m average over the last ${WINDOW} blocks`);
+      } else set("live-interval", "—");
+      loaded = true;
+    } catch (e) {
+      if (!loaded) for (const id of ["live-height", "live-difficulty", "live-interval"]) set(id, "unavailable");
+    }
+  }
+  refresh();
+  setInterval(refresh, 60000);
+</script>
+</body>
+</html>
