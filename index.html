@@ -137,6 +137,8 @@ pre .c { opacity: .6; }
   .apps td:first-child { font-weight: 600; white-space: nowrap; }
   .apps td code { font-size: var(--fs-12); white-space: nowrap; }
   .apps td.go { white-space: nowrap; }
+  .inline-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
+  .inline-links li { margin: 0; }
 
   ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; }
   ol.steps > li { counter-increment: step; max-width: none; display: grid;
@@ -244,7 +246,6 @@ await lattice.writeRecords({
   </div>
 
   <section id="why" aria-labelledby="why-title">
-    <p class="eyebrow">The problem</p>
     <h2 id="why-title">Most of a backend is overhead.</h2>
     <p class="intro">Little of a typical backend is your product. The rest keeps attackers out, keeps data alive, moves money, and guards logins. You pay for it whether your app takes off or not, and you answer for it when it breaks.</p>
     <div class="table-wrap">
@@ -262,7 +263,6 @@ await lattice.writeRecords({
   </section>
 
   <section id="how" aria-labelledby="how-title">
-    <p class="eyebrow">What you still write</p>
     <h2 id="how-title">Only the part that is your product.</h2>
     <div class="two">
       <ul class="parts">
@@ -284,7 +284,6 @@ await lattice.writeRecords({
   </section>
 
   <section id="agents" aria-labelledby="agents-title">
-    <p class="eyebrow">Built for agents</p>
     <h2 id="agents-title">An agent is just another key.</h2>
     <p class="intro">Today an agent stalls at every signup form, API key, and card field, because each one was built to make sure a human is there. Lattice asks for none of them.</p>
     <div class="facts">
@@ -302,7 +301,6 @@ await lattice.writeRecords({
   </section>
 
   <section id="apps" aria-labelledby="apps-title">
-    <p class="eyebrow">Running today</p>
     <h2 id="apps-title">Apps with no backend.</h2>
     <p class="intro">Each is a static page on GitHub Pages with no server, database, or login system of its own, and anyone can read its source. They run on testnet today, carried by public nodes that anyone can add to.</p>
     <div class="table-wrap">
@@ -318,13 +316,12 @@ await lattice.writeRecords({
     </table>
     </div>
     <p class="meta">Reading needs nothing. Writing needs the <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> wallet for Chrome. <a href="./download/">Lattice Desktop</a> runs a full node and wallet on Mac, Linux, or Windows, but does not yet sign for web apps.</p>
-    <p><a href="./apps/">All apps, how each is built, and how to list yours →</a></p>
+    <p><a href="./apps/">All apps, how each is built, and how to list yours</a></p>
   </section>
 
   <section id="quickstart" aria-labelledby="qs-title">
-    <p class="eyebrow">Command-line setup</p>
     <h2 id="qs-title">From nothing to a live app.</h2>
-    <p class="intro">One command installs the command-line tools on Apple-silicon Macs and x86-64 Linux (elsewhere, <a href="https://github.com/0xLattice/lattice-node">build from source</a> with Swift 6.1+). (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
+    <p class="intro">Command-line setup is one command on Apple-silicon Macs and x86-64 Linux (elsewhere, <a href="https://github.com/0xLattice/lattice-node">build from source</a> with Swift 6.1+). (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
     <ol class="steps">
       <li><div>
         <h3>Install and start a node</h3>
@@ -368,11 +365,15 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
         <p>Read with the <a href="https://github.com/0xLattice/lattice-sdk">TypeScript SDK</a>, which checks every value against the latest block. Write with <code>window.lattice</code> from the user’s wallet. Host the page anywhere static files go.</p>
       </div></li>
     </ol>
-    <p><a href="docs/run/operator-cli/">Operator CLI</a> · <a href="docs/build/http-api/">RPC API</a> · <a href="docs/run/getting-started/">Getting started</a> · <a href="docs/run/mining-workers/">Mining workers</a></p>
+    <ul class="inline-links">
+      <li><a href="docs/run/operator-cli/">Operator CLI</a></li>
+      <li><a href="docs/build/http-api/">RPC API</a></li>
+      <li><a href="docs/run/getting-started/">Getting started</a></li>
+      <li><a href="docs/run/mining-workers/">Mining workers</a></li>
+    </ul>
   </section>
 
   <section id="tradeoffs" aria-labelledby="tradeoffs-title">
-    <p class="eyebrow">Before you build</p>
     <h2 id="tradeoffs-title">When Lattice is the wrong choice.</h2>
     <ul class="tradeoffs">
       <li><b>You need instant confirmation.</b> A write takes effect in the next block: about a minute on the testnet app ledgers today, and an hour on average on Nexus.</li>
@@ -384,14 +385,16 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
       <li><b>You need someone else to keep it running.</b> A chain lives while people mine and host it. A small chain is only as secure as the hashpower that chooses to mine it.</li>
       <li><b>You need stability today.</b> Lattice is pre-1.0. Networks have been reset at protocol upgrades, the SDK is not yet on npm, and the command-line tools build from source.</li>
     </ul>
-    <p><a href="docs/protocol/spec/">Protocol specification</a> · <a href="https://github.com/0xLattice/Lattice">Consensus source</a></p>
+    <ul class="inline-links">
+      <li><a href="docs/protocol/spec/">Protocol specification</a></li>
+      <li><a href="https://github.com/0xLattice/Lattice">Consensus source</a></li>
+    </ul>
   </section>
 
   <section id="network" aria-labelledby="network-title">
-    <p class="eyebrow">Live</p>
     <h2 id="network-title">The network right now.</h2>
     <p>Height and peers read directly from each node’s public read surface, refreshed every 15&nbsp;seconds. Browse blocks and transactions in the <a href="./explorer/">explorer</a>. Want to help secure it? <a href="docs/run/operations/">Run a node</a> or <a href="./mine/">mine</a>.</p>
-    <p class="meta">Nexus genesis <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code> · 2026-10-04 06:19:59&nbsp;UTC</p>
+    <p class="meta">Nexus genesis <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code>, dated 2026-10-04 06:19:59&nbsp;UTC</p>
     <div class="table-wrap">
     <table>
       <thead><tr><th>Chain</th><th>Node</th><th class="num">Height</th><th class="num">Peers</th><th>Status</th></tr></thead>
@@ -466,7 +469,8 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
         const get = (path) => fetch(url + path, { cache: "no-store", signal: AbortSignal.timeout(8000) }).then((r) => r.json());
         const [health, peers] = await Promise.all([get("/health"), get("/api/peers")]);
         tr.classList.remove("down");
-        cell("height").textContent = (health.height ?? "—").toLocaleString();
+        // /health reports height as a decimal string ("6244"); format it as a number.
+        cell("height").textContent = health.height == null ? "—" : Number(health.height).toLocaleString();
         cell("peers").textContent = peers.count ?? "—";
         cell("status").innerHTML = `<span class="dot"></span>`;
         cell("status").append(String(health.phase ?? "—"));
