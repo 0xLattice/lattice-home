@@ -23,7 +23,7 @@ nav, main, footer { max-width: 880px; margin: 0 auto; }
 nav { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) 0; font-size: var(--fs-14); }
 nav a { text-decoration: none; }
 .brand { display: inline-flex; align-items: center; gap: var(--s-2); }
-.links { margin-left: auto; display: flex; gap: var(--s-3); }
+.links { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-2) var(--s-3); }
 .wordmark, h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
 h1 { margin: 0 0 var(--s-3); font-size: var(--fs-28); }
 h2 { margin: 0 0 var(--s-3); font-size: var(--fs-20); }
@@ -112,7 +112,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
 
   <section aria-labelledby="how">
     <h2 id="how">How to mine</h2>
-    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later). There is no Windows command-line build; on Windows, the <a href="../download/">desktop app</a> runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
+    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later) and the libatomic, libcurl, libsqlite3 and libxml2 system libraries. There is no Windows command-line build; on Windows, the <a href="../download/">desktop app</a> runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
     <ol class="steps">
       <li>
         <p>Install the command-line tools.</p>
@@ -121,7 +121,7 @@ export PATH="$HOME/.lattice/bin:$PATH"</code></pre>
       </li>
       <li>
         <p>Create a node directory and start the node. Run every later <code>lattice</code> command from this directory.</p>
-<pre><code>mkdir ~/lattice &amp;&amp; cd ~/lattice
+<pre><code>mkdir -p ~/lattice &amp;&amp; cd ~/lattice
 lattice init
 lattice up</code></pre>
       </li>
@@ -178,7 +178,7 @@ lattice mine status</code></pre>
     <h2 id="verify">Verify, don't trust</h2>
     <p>Each node release tarball ships with a <code>.sha256</code> file and an SPDX SBOM, and has a GitHub build-provenance attestation:</p>
 <pre><code>gh attestation verify lattice-node-&lt;version&gt;-linux-amd64.tar.gz -R 0xLattice/lattice-node</code></pre>
-    <p>Linux release binaries are expected to be byte-reproducible from the tagged source; the release workflow builds them twice in clean containers and requires identical hashes before publishing. See <a href="../docs/run/release-verification/">Release verification</a> and <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
+    <p>Linux release binaries are expected to be byte-reproducible from the tagged source; the release workflow rebuilds them twice in clean containers and requires the two rebuilds to match. See <a href="../docs/run/release-verification/">Release verification</a> and <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
     <p>Compare your node's tip with public nodes. Each <code>/health</code> reports <code>height</code>, <code>tipCID</code> and <code>nexusGenesisCID</code>:</p>
     <p><a href="https://lattice-mainnet-iad.fly.dev/health">lattice-mainnet-iad</a> · <a href="https://lattice-mainnet-ams.fly.dev/health">lattice-mainnet-ams</a> · <a href="https://lattice-mainnet-sjc.fly.dev/health">lattice-mainnet-sjc</a> · <a href="https://lattice-mainnet-read.fly.dev/health">lattice-mainnet-read</a></p>
     <p>More: <a href="../docs/run/mining-workers/">Mining workers</a> · <a href="../docs/run/getting-started/">Getting started</a> · <a href="https://github.com/0xLattice/lattice-node/discussions">Questions on GitHub Discussions</a></p>
@@ -204,6 +204,7 @@ lattice mine status</code></pre>
   };
   const set = (id, text) => { const node = document.getElementById(id); if (node.textContent !== text) node.textContent = text; };
 
+  let loaded = false;
   async function refresh() {
     try {
       const latest = await get("/api/block/latest");
@@ -220,8 +221,9 @@ lattice mine status</code></pre>
         const minutes = Math.round(seconds / 60), h = Math.floor(minutes / 60), m = minutes % 60;
         set("live-interval", `${h}h ${m}m average over the last ${WINDOW} blocks`);
       } else set("live-interval", "—");
+      loaded = true;
     } catch (e) {
-      for (const id of ["live-height", "live-difficulty", "live-interval"]) set(id, "unavailable");
+      if (!loaded) for (const id of ["live-height", "live-difficulty", "live-interval"]) set(id, "unavailable");
     }
   }
   refresh();
