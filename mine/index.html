@@ -118,6 +118,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
         <p>Install the command-line tools.</p>
 <pre><code>curl -fsSL https://lattice.build/install.sh | sh
 export PATH="$HOME/.lattice/bin:$PATH"</code></pre>
+        <p>Add the <code>export</code> line to your shell profile (for example <code>~/.zshrc</code> or <code>~/.bashrc</code>) so later terminals find <code>lattice</code>.</p>
       </li>
       <li>
         <p>Create a node directory and start the node. Run every later <code>lattice</code> command from this directory.</p>
@@ -164,11 +165,11 @@ cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel 
   "mine": {
     "worker": "/abs/path/to/lattice-miner-gpu",
     "workers": 1,
-    "batchSize": 20000000000,
+    "batchSize": 10000000000,
     "recipients": { "Nexus": "&lt;address&gt;" }
   }
 }</code></pre>
-        <p><code>batchSize</code> is the nonce span of one round, and a worker process starts every round, so size it to several seconds of your GPU's hash rate (the default, 2,000,000,000, is sized for a CPU worker). Keep a round well under a minute: <code>lattice mine stop</code> waits 60 seconds for the round to finish. A round ends early when the tip changes.</p>
+        <p><code>batchSize</code> is the nonce span of one round, and a worker process starts every round, so size it to several seconds of your GPU's hash rate (the default, 2,000,000,000, is sized for a CPU worker). Keep a round well under 30 seconds: released nodes (4.0.0) discard a template 30 seconds after issuing it, and nonces left in the batch after that are not searched. A round also ends early when the tip changes.</p>
       </li>
       <li>
         <p>Start mining and check it.</p>
@@ -184,7 +185,7 @@ lattice mine status</code></pre>
     <h3>Docker (Linux, NVIDIA)</h3>
     <p>One image runs the node, the coordinator and the CUDA worker. It waits until the node reaches the public nodes' height, then mines. Requires the NVIDIA container runtime.</p>
 <pre><code>docker run --gpus all -v lattice-data:/data \
-  -e RECIPIENTS=Nexus=&lt;address&gt; -e HOSTED_CHAINS= -e BATCH_SIZE=20000000000 \
+  -e RECIPIENTS=Nexus=&lt;address&gt; -e HOSTED_CHAINS= -e BATCH_SIZE=10000000000 \
   ghcr.io/0xlattice/lattice-miner-gpu:main</code></pre>
     <p><code>HOSTED_CHAINS=</code> (empty) mines Nexus only. Other settings are in the image's <a href="https://github.com/0xLattice/lattice-miner-gpu/blob/main/deploy/gpu-entrypoint.sh">entrypoint</a>.</p>
   </section>
