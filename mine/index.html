@@ -34,7 +34,6 @@ a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 code, pre { font-family: var(--font); }
 :not(pre) > code { border: var(--rule); padding: 0 var(--s-1); font-size: .9em; overflow-wrap: anywhere; }
 pre { margin: 0 0 var(--s-3); padding: var(--s-3); overflow-x: auto; background: var(--ink); color: var(--paper); font-size: var(--fs-14); line-height: var(--lh-body); }
-pre .c { opacity: .6; }
 .skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); }
 .skip:focus { top: var(--s-2); }
 .intro { padding: var(--s-6) 0; border-top: var(--rule); }
@@ -112,7 +111,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
 
   <section aria-labelledby="how">
     <h2 id="how">How to mine</h2>
-    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later) and the libatomic, libcurl, libsqlite3 and libxml2 system libraries. There is no Windows command-line build: on Windows, follow these steps inside WSL2, or use the <a href="../download/">desktop app</a>, which runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
+    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later) and the libcurl and libsqlite3 system libraries. There is no Windows command-line build: on Windows, follow these steps inside WSL2 (NVIDIA GPUs via CUDA), or use the <a href="../download/">desktop app</a>, which runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
     <ol class="steps">
       <li>
         <p>Install the command-line tools.</p>
@@ -140,21 +139,25 @@ lattice up</code></pre>
 V=0.1.0; P=linux-amd64
 curl -fsSLO https://github.com/0xLattice/lattice-miner-gpu/releases/download/$V/lattice-miner-gpu-$V-$P.tar.gz
 curl -fsSLO https://github.com/0xLattice/lattice-miner-gpu/releases/download/$V/lattice-miner-gpu-$V-$P.tar.gz.sha256
-shasum -a 256 -c lattice-miner-gpu-$V-$P.tar.gz.sha256   <span class="c"># or sha256sum -c</span>
+shasum -a 256 -c lattice-miner-gpu-$V-$P.tar.gz.sha256
 tar -xzf lattice-miner-gpu-$V-$P.tar.gz
-ls "$PWD/lattice-miner-gpu-$V-$P/bin/lattice-miner-gpu"   <span class="c"># the worker's absolute path</span></code></pre>
+ls "$PWD/lattice-miner-gpu-$V-$P/bin/lattice-miner-gpu"</code></pre>
+        <p>The last line prints the worker's absolute path, used in step 6. Where <code>shasum</code> is missing, use <code>sha256sum -c</code>.</p>
         <ul>
           <li>NVIDIA (CUDA): install NVRTC from CUDA 12 (it is not bundled), and make sure an unversioned <code>libcuda.so</code> exists; if only <code>libcuda.so.1</code> is present, symlink <code>libcuda.so</code> to it. The worker picks OpenCL by default on Linux, so start mining with <code>LATTICE_MINER_BACKEND=cuda</code> (step 7).</li>
           <li>AMD, Intel, or NVIDIA via OpenCL: install the GPU driver's OpenCL runtime.</li>
           <li>macOS: the binary is unsigned. If macOS blocks it (for example after a browser download), clear the quarantine flag: <code>xattr -d com.apple.quarantine &lt;path&gt;</code>.</li>
-          <li>Windows: the release's Windows archive is a standalone worker only, with no node or coordinator. Run these Linux steps inside WSL2 with the Linux archive.</li>
+          <li>Windows: the release's Windows archive is a standalone worker only, with no node or coordinator. Run these Linux steps inside WSL2 with the Linux archive; WSL2 passes NVIDIA GPUs through for CUDA, but AMD and Intel OpenCL is generally not available there.</li>
         </ul>
         <p>One worker process drives one GPU (CUDA device 0, the first OpenCL GPU, or the default Metal device); more <code>workers</code> share that same device, so one node mines with one GPU. The OpenCL kernel is checked against a CPU reference on a CPU OpenCL device and the CUDA kernel is compile-checked only; neither has been validated on physical GPUs by the release checks.</p>
-        <p>To build from source instead (Rust), run the line for your platform; the binary is <code>target/release/lattice-miner-gpu</code>:</p>
+        <p>To build from source instead (Rust), the binary is <code>target/release/lattice-miner-gpu</code>. On macOS (Metal):</p>
 <pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
 cd lattice-miner-gpu
-cargo build --release                          <span class="c"># macOS: Metal</span>
-cargo build --release --features cuda,opencl   <span class="c"># Linux: CUDA and OpenCL</span></code></pre>
+cargo build --release</code></pre>
+        <p>On Linux (CUDA and OpenCL):</p>
+<pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
+cd lattice-miner-gpu
+cargo build --release --features cuda,opencl</code></pre>
       </li>
       <li>
         <p>Add a <code>mine</code> section to <code>~/lattice/lattice.json</code>, with the worker's absolute path and the address from step 4:</p>
@@ -210,7 +213,8 @@ lattice mine status</code></pre>
 <script>
   const API = "https://lattice-mainnet-read.fly.dev";
   const WINDOW = 25;
-  const get = (path) => fetch(API + path, { cache: "no-store", signal: AbortSignal.timeout(8000) })
+  const timeout = (ms) => { const c = new AbortController(); setTimeout(() => c.abort(), ms); return c.signal; };
+  const get = (path) => fetch(API + path, { cache: "no-store", signal: timeout(8000) })
     .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
   // Same measure as the explorer: leading zero bits of the 256-bit target.
   const difficultyBits = (t) => {
