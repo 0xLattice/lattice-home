@@ -35,6 +35,8 @@ code, pre { font-family: var(--font); }
 :not(pre) > code { border: var(--rule); padding: 0 var(--s-1); font-size: .9em; overflow-wrap: anywhere; }
 pre { margin: 0 0 var(--s-3); padding: var(--s-3); overflow-x: auto; background: var(--ink); color: var(--paper); font-size: var(--fs-14); line-height: var(--lh-body); }
 pre .c { opacity: .6; }
+.skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); }
+.skip:focus { top: var(--s-2); }
 .intro { padding: var(--s-6) 0; border-top: var(--rule); }
 .intro p { font-size: var(--fs-20); }
 section { padding: var(--s-5) 0; border-top: var(--rule); }
@@ -57,6 +59,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <nav>
   <a class="brand" href="../" aria-label="Lattice home"><img src="../lattice-mark.svg" width="22" height="22" alt=""><span class="wordmark">LATTICE</span></a>
   <span class="links">
@@ -70,7 +73,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
   </span>
 </nav>
 
-<main>
+<main id="main">
   <header class="intro">
     <h1>Mine Nexus</h1>
     <p>Nexus is the root chain of Lattice. Blocks are found by proof of work, and the block's miner names the address its reward pays.</p>
@@ -94,12 +97,12 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
   <section aria-labelledby="live">
     <h2 id="live">Network now</h2>
     <table>
-      <tr><th>Height</th><td class="num" id="live-height">…</td></tr>
-      <tr><th>Difficulty</th><td class="num" id="live-difficulty">…</td></tr>
-      <tr><th>Block time</th><td class="num" id="live-interval">…</td></tr>
+      <tr><th>Height</th><td class="num" id="live-height" aria-live="polite">…</td></tr>
+      <tr><th>Difficulty</th><td class="num" id="live-difficulty" aria-live="polite">…</td></tr>
+      <tr><th>Block time</th><td class="num" id="live-interval" aria-live="polite">…</td></tr>
     </table>
-    <p class="meta" id="live-source">Read from <a href="https://lattice-mainnet-read.fly.dev/api/block/latest">lattice-mainnet-read.fly.dev</a>. Difficulty is the next block's target, as in the <a href="../explorer/">explorer</a>; block time is the average over the last 25 blocks.</p>
-    <noscript><p>Enable JavaScript for live numbers, or open the explorer.</p></noscript>
+    <p class="meta">Read from <a href="https://lattice-mainnet-read.fly.dev/api/block/latest">lattice-mainnet-read.fly.dev</a>. Difficulty is the next block's target, as in the <a href="../explorer/">explorer</a>; block time is the average over the last 25 blocks. ASERT sets each block's target from how far the chain is ahead of or behind the 1-hour schedule.</p>
+    <noscript><p>Enable JavaScript for live numbers, or open the <a href="../explorer/">explorer</a>.</p></noscript>
   </section>
 
   <section aria-labelledby="solo">
@@ -109,7 +112,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
 
   <section aria-labelledby="how">
     <h2 id="how">How to mine</h2>
-    <p>The node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later). There is no Windows node build.</p>
+    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later). There is no Windows command-line build; on Windows, the <a href="../download/">desktop app</a> runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
     <ol class="steps">
       <li>
         <p>Install the command-line tools.</p>
@@ -131,13 +134,14 @@ lattice up</code></pre>
 <pre><code>lattice key generate --out ~/lattice/reward-key.json</code></pre>
       </li>
       <li>
-        <p>Get the GPU worker from the <a href="https://github.com/0xLattice/lattice-miner-gpu/releases">lattice-miner-gpu releases</a>, or build it with Rust:</p>
+        <p>Get the GPU worker. Prebuilt archives are published on the <a href="https://github.com/0xLattice/lattice-miner-gpu/releases">lattice-miner-gpu releases</a> page; if none is listed yet, build it with Rust, running the one <code>cargo build</code> line for your GPU:</p>
 <pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
 cd lattice-miner-gpu
+<span class="c"># run ONE of these:</span>
 cargo build --release                    <span class="c"># macOS: Metal</span>
 cargo build --release --features cuda    <span class="c"># NVIDIA; NVRTC from the CUDA toolkit is needed at run time</span>
 cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel via the OpenCL driver</span></code></pre>
-        <p>The binary is <code>target/release/lattice-miner-gpu</code>. One worker process drives one GPU (device 0). A build with more than one backend picks Metal, then OpenCL, then CUDA; set <code>LATTICE_MINER_BACKEND=cuda</code> (or <code>opencl</code>, <code>metal</code>) in the environment of <code>lattice mine start</code> to choose.</p>
+        <p>The binary is <code>target/release/lattice-miner-gpu</code>. One worker process drives one GPU (device 0); more <code>workers</code> share that same device, so one node mines with one GPU. A build with more than one backend picks Metal, then OpenCL, then CUDA; set <code>LATTICE_MINER_BACKEND=cuda</code> (or <code>opencl</code>, <code>metal</code>) in the environment of <code>lattice mine start</code> to choose. The CUDA and OpenCL kernels are checked against a CPU reference, but physical-GPU behavior has not been validated by the release checks.</p>
       </li>
       <li>
         <p>Add a <code>mine</code> section to <code>~/lattice/lattice.json</code>, with the worker's absolute path and the address from step 4:</p>
@@ -147,11 +151,11 @@ cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel 
   "mine": {
     "worker": "/abs/path/to/lattice-miner-gpu",
     "workers": 1,
-    "batchSize": 50000000000,
+    "batchSize": 20000000000,
     "recipients": { "Nexus": "&lt;address&gt;" }
   }
 }</code></pre>
-        <p><code>batchSize</code> is the nonce span of one round, and a worker process starts every round. The default, 2,000,000,000, ends a GPU round in well under a second, so a GPU needs a larger span. A round ends early when the tip changes.</p>
+        <p><code>batchSize</code> is the nonce span of one round, and a worker process starts every round, so size it to several seconds of your GPU's hash rate (the default, 2,000,000,000, is sized for a CPU worker). Keep a round well under a minute: <code>lattice mine stop</code> waits 60 seconds for the round to finish. A round ends early when the tip changes.</p>
       </li>
       <li>
         <p>Start mining and check it.</p>
@@ -164,7 +168,7 @@ lattice mine status</code></pre>
     <h3>Docker (Linux, NVIDIA)</h3>
     <p>One image runs the node, the coordinator and the CUDA worker. It waits until the node reaches the public nodes' height, then mines. Requires the NVIDIA container runtime.</p>
 <pre><code>docker run --gpus all -v lattice-data:/data \
-  -e RECIPIENTS=Nexus=&lt;address&gt; -e HOSTED_CHAINS= \
+  -e RECIPIENTS=Nexus=&lt;address&gt; -e HOSTED_CHAINS= -e BATCH_SIZE=20000000000 \
   ghcr.io/0xlattice/lattice-miner-gpu:main</code></pre>
     <p><code>HOSTED_CHAINS=</code> (empty) mines Nexus only. Other settings are in the image's <a href="https://github.com/0xLattice/lattice-miner-gpu/blob/main/deploy/gpu-entrypoint.sh">entrypoint</a>.</p>
   </section>
@@ -173,7 +177,7 @@ lattice mine status</code></pre>
     <h2 id="verify">Verify, don't trust</h2>
     <p>Each node release tarball ships with a <code>.sha256</code> file and an SPDX SBOM, and has a GitHub build-provenance attestation:</p>
 <pre><code>gh attestation verify lattice-node-&lt;version&gt;-linux-amd64.tar.gz -R 0xLattice/lattice-node</code></pre>
-    <p>Linux release binaries are reproducible from the tagged source: see <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
+    <p>Linux release binaries are expected to be byte-reproducible from the tagged source; CI checks this on every change. See <a href="../docs/run/release-verification/">Release verification</a> and <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
     <p>Compare your node's tip with public nodes. Each <code>/health</code> reports <code>height</code>, <code>tipCID</code> and <code>nexusGenesisCID</code>:</p>
     <p><a href="https://lattice-mainnet-iad.fly.dev/health">lattice-mainnet-iad</a> · <a href="https://lattice-mainnet-ams.fly.dev/health">lattice-mainnet-ams</a> · <a href="https://lattice-mainnet-sjc.fly.dev/health">lattice-mainnet-sjc</a> · <a href="https://lattice-mainnet-read.fly.dev/health">lattice-mainnet-read</a></p>
     <p>More: <a href="../docs/run/mining-workers/">Mining workers</a> · <a href="../docs/run/getting-started/">Getting started</a> · <a href="https://github.com/0xLattice/lattice-node/discussions">Questions on GitHub Discussions</a></p>
@@ -182,7 +186,7 @@ lattice mine status</code></pre>
 
 <footer>
   <span class="wordmark">LATTICE</span>
-  <span class="links"><a href="../">Home</a><a href="../docs/">Docs</a><a href="../explorer/">Explorer</a><a href="../community/">Community</a><a href="https://x.com/0xLattice">X</a></span>
+  <span class="links"><a href="../">Home</a><a href="../docs/">Docs</a><a href="../explorer/">Explorer</a><a href="../community/">Community</a><a href="https://x.com/0xLattice">X</a><a href="https://github.com/0xLattice/lattice-node/discussions">Discussions</a></span>
 </footer>
 <script>
   const API = "https://lattice-mainnet-read.fly.dev";
