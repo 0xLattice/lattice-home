@@ -133,10 +133,6 @@ pre .c { opacity: .6; }
   .facts h3 { font-size: var(--fs-16); text-transform: none; letter-spacing: 0; margin-bottom: var(--s-2); }
   .facts p { font-size: var(--fs-14); margin: 0; }
 
-  .apps td { font-size: var(--fs-14); }
-  .apps td:first-child { font-weight: 600; white-space: nowrap; }
-  .apps td code { font-size: var(--fs-12); white-space: nowrap; }
-  .apps td.go { white-space: nowrap; }
   .inline-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
   .inline-links li { margin: 0; }
 
@@ -176,9 +172,9 @@ pre .c { opacity: .6; }
     nav { align-items: flex-start; }
     nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
     .facts { grid-template-columns: minmax(0, 1fr); }
-    .swap thead, .apps thead { display: none; }
-    .swap tr, .apps tr { display: block; padding: var(--s-3) 0; border-bottom: var(--rule); }
-    .swap td, .apps td { display: block; border: 0; padding: var(--s-1) 0; }
+    .swap thead { display: none; }
+    .swap tr { display: block; padding: var(--s-3) 0; border-bottom: var(--rule); }
+    .swap td { display: block; border: 0; padding: var(--s-1) 0; }
     .swap td[data-label]::before { content: attr(data-label); display: block; font-size: var(--fs-12);
       text-transform: uppercase; letter-spacing: var(--track-display); color: var(--ink-mute); }
     .swap td + td { margin-top: var(--s-2); }
@@ -217,7 +213,7 @@ pre .c { opacity: .6; }
       <p class="lede">Lattice is that backend as an open network: anyone can run a node, and no one has to ask. You ship the page; people and AI agents bring their own keys and pay as they go.</p>
       <div class="actions">
         <a class="btn btn--primary" href="#quickstart">Start building</a>
-        <a class="btn" href="#apps">See live apps</a>
+        <a class="btn" href="./apps/">See live apps</a>
       </div>
     </div>
     <figure class="term js">
@@ -272,7 +268,7 @@ await lattice.writeRecords({
       <div>
         <p>Your rules get a ledger of their own: a public record of keys and values that every node checks against those rules. Lattice calls it a chain. Another app’s rush never competes with yours for space.</p>
         <p>Miners can secure it alongside Nexus, the root ledger, from its first block, with no validators to recruit. Its security is the hashpower that chooses to mine it.</p>
-        <p>Don’t need custom rules? Write to a ledger that already has the right ones. The apps here share Moniker’s for profiles.</p>
+        <p>Don’t need custom rules? Write to a ledger that already has the right ones. The <a href="./apps/">live apps</a> share Moniker’s for profiles.</p>
       </div>
     </div>
     <figure class="term">
@@ -300,24 +296,6 @@ await lattice.writeRecords({
     <p class="meta">Other agents: copy the <code>skills/</code> folders from <a href="https://github.com/0xLattice/lattice-skills">lattice-skills</a>, or point them at <a href="./agents.md">agents.md</a>.</p>
   </section>
 
-  <section id="apps" aria-labelledby="apps-title">
-    <h2 id="apps-title">Apps with no backend.</h2>
-    <p class="intro">Each is a static page on GitHub Pages with no server, database, or login system of its own, and anyone can read its source. They run on testnet today, carried by public nodes that anyone can add to.</p>
-    <div class="table-wrap">
-    <table class="apps">
-      <thead><tr><th>App</th><th>What it does</th><th>Testnet chain</th><th></th></tr></thead>
-      <tbody>
-        <tr><td>Moniker</td><td>Own your name online: one profile and handle every app reads.</td><td><code>Nexus/testnet/moniker-da6f57</code></td><td class="go"><a href="https://app.moniker.bio/app/">Open</a> · <a href="https://github.com/adalinxx/moniker">Source</a></td></tr>
-        <tr><td>Fanfare</td><td>Show tickets fans own and can resell at any price.</td><td><code>Nexus/testnet/fanfare-a5688b</code></td><td class="go"><a href="https://adalinxx.github.io/fanfare/app/">Open</a> · <a href="https://github.com/adalinxx/fanfare">Source</a></td></tr>
-        <tr><td>Stoa</td><td>Forums where posts belong to their authors and moderators only label.</td><td><code>Nexus/testnet/stoa-41d5ab</code></td><td class="go"><a href="https://adalinxx.github.io/stoa/app/">Open</a> · <a href="https://github.com/adalinxx/stoa">Source</a></td></tr>
-        <tr><td>Rave</td><td>Reviews of places that no company owns. You choose whose ratings count.</td><td><code>Nexus/testnet/rave-186079</code></td><td class="go"><a href="https://adalinxx.github.io/rave/app/">Open</a> · <a href="https://github.com/adalinxx/rave">Source</a></td></tr>
-        <tr><td>Wheatpaste</td><td>One shared billboard. Post over anyone; the price is the only rule.</td><td><code>Nexus/testnet/wheatpaste-acbbcf</code></td><td class="go"><a href="https://adalinxx.github.io/wheatpaste/app/">Open</a> · <a href="https://github.com/adalinxx/wheatpaste">Source</a></td></tr>
-      </tbody>
-    </table>
-    </div>
-    <p class="meta">Reading needs nothing. Writing needs the <a href="https://chromewebstore.google.com/detail/amcobhbipbblfjonmoiicihhfglkhpce">Selfhold</a> wallet for Chrome. <a href="./download/">Lattice Desktop</a> runs a full node and wallet on Mac, Linux, or Windows, but does not yet sign for web apps.</p>
-    <p><a href="./apps/">All apps, how each is built, and how to list yours</a></p>
-  </section>
 
   <section id="quickstart" aria-labelledby="qs-title">
     <h2 id="qs-title">From nothing to a live app.</h2>
