@@ -82,7 +82,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
   <section aria-labelledby="specs">
     <h2 id="specs">Specification</h2>
     <table>
-      <tr><th>Proof of work</th><td><code>SHA256(prefix || nonce_be64) ≤ target</code>: one SHA-256 over a block prefix of about 500 bytes followed by the nonce as 8 big-endian bytes. Bitcoin's SHA-256d ASICs cannot mine it.</td></tr>
+      <tr><th>Proof of work</th><td><code>SHA256(prefix || nonce_be64) ≤ target</code>: one SHA-256 over a block prefix of a few hundred bytes followed by the nonce as 8 big-endian bytes. Bitcoin's SHA-256d ASICs cannot mine it.</td></tr>
       <tr><th>Block time</th><td>1 hour target.</td></tr>
       <tr><th>Difficulty</th><td>ASERT with a 120-block half-life (about 5 days). No averaging window, no clamp.</td></tr>
       <tr><th>Reward</th><td>1,048,576 NEX per block initially, plus the block's transaction fees.</td></tr>
@@ -159,7 +159,8 @@ cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel 
       </li>
       <li>
         <p>Start mining and check it.</p>
-<pre><code>lattice mine start
+<pre><code>cd ~/lattice
+lattice mine start
 lattice mine status</code></pre>
         <p>The mining log is <code>~/lattice/log/mine.log</code>. <code>lattice mine stop</code> stops it.</p>
       </li>
@@ -177,7 +178,7 @@ lattice mine status</code></pre>
     <h2 id="verify">Verify, don't trust</h2>
     <p>Each node release tarball ships with a <code>.sha256</code> file and an SPDX SBOM, and has a GitHub build-provenance attestation:</p>
 <pre><code>gh attestation verify lattice-node-&lt;version&gt;-linux-amd64.tar.gz -R 0xLattice/lattice-node</code></pre>
-    <p>Linux release binaries are expected to be byte-reproducible from the tagged source; CI checks this on every change. See <a href="../docs/run/release-verification/">Release verification</a> and <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
+    <p>Linux release binaries are expected to be byte-reproducible from the tagged source; the release workflow builds them twice in clean containers and requires identical hashes before publishing. See <a href="../docs/run/release-verification/">Release verification</a> and <a href="../docs/run/reproducible-builds/">Reproducible builds</a>.</p>
     <p>Compare your node's tip with public nodes. Each <code>/health</code> reports <code>height</code>, <code>tipCID</code> and <code>nexusGenesisCID</code>:</p>
     <p><a href="https://lattice-mainnet-iad.fly.dev/health">lattice-mainnet-iad</a> · <a href="https://lattice-mainnet-ams.fly.dev/health">lattice-mainnet-ams</a> · <a href="https://lattice-mainnet-sjc.fly.dev/health">lattice-mainnet-sjc</a> · <a href="https://lattice-mainnet-read.fly.dev/health">lattice-mainnet-read</a></p>
     <p>More: <a href="../docs/run/mining-workers/">Mining workers</a> · <a href="../docs/run/getting-started/">Getting started</a> · <a href="https://github.com/0xLattice/lattice-node/discussions">Questions on GitHub Discussions</a></p>
@@ -201,7 +202,7 @@ lattice mine status</code></pre>
       return v > 0n ? 256 - v.toString(2).length : null;
     } catch (e) { return null; }
   };
-  const set = (id, text) => { document.getElementById(id).textContent = text; };
+  const set = (id, text) => { const node = document.getElementById(id); if (node.textContent !== text) node.textContent = text; };
 
   async function refresh() {
     try {
