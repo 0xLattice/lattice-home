@@ -112,7 +112,7 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
 
   <section aria-labelledby="how">
     <h2 id="how">How to mine</h2>
-    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later) and the libatomic, libcurl, libsqlite3 and libxml2 system libraries. There is no Windows command-line build; on Windows, the <a href="../download/">desktop app</a> runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
+    <p>The command-line node's prebuilt binaries are for macOS on Apple silicon and Linux x86_64. Linux builds need glibc 2.35 or newer (Ubuntu 22.04 or later) and the libatomic, libcurl, libsqlite3 and libxml2 system libraries. There is no Windows command-line build: on Windows, follow these steps inside WSL2, or use the <a href="../download/">desktop app</a>, which runs its node in WSL and offers OpenCL GPU mining under Node → Mining.</p>
     <ol class="steps">
       <li>
         <p>Install the command-line tools.</p>
@@ -134,14 +134,27 @@ lattice up</code></pre>
 <pre><code>lattice key generate --out ~/lattice/reward-key.json</code></pre>
       </li>
       <li>
-        <p>Get the GPU worker. Prebuilt archives are published on the <a href="https://github.com/0xLattice/lattice-miner-gpu/releases">lattice-miner-gpu releases</a> page; if none is listed yet, build it with Rust, running the one <code>cargo build</code> line for your GPU:</p>
+        <p>Download the GPU worker from the <a href="https://github.com/0xLattice/lattice-miner-gpu/releases">lattice-miner-gpu releases</a> and check its checksum. Set <code>P</code> to <code>linux-amd64</code> (CUDA and OpenCL, glibc 2.31 or newer) or <code>macos-arm64</code> (Metal).</p>
+<pre><code>cd ~/lattice
+V=0.1.0; P=linux-amd64
+curl -fsSLO https://github.com/0xLattice/lattice-miner-gpu/releases/download/$V/lattice-miner-gpu-$V-$P.tar.gz
+curl -fsSLO https://github.com/0xLattice/lattice-miner-gpu/releases/download/$V/lattice-miner-gpu-$V-$P.tar.gz.sha256
+shasum -a 256 -c lattice-miner-gpu-$V-$P.tar.gz.sha256   <span class="c"># or sha256sum -c</span>
+tar -xzf lattice-miner-gpu-$V-$P.tar.gz
+ls "$PWD/lattice-miner-gpu-$V-$P/bin/lattice-miner-gpu"   <span class="c"># the worker's absolute path</span></code></pre>
+        <ul>
+          <li>NVIDIA (CUDA): install NVRTC from CUDA 12 (it is not bundled), and make sure an unversioned <code>libcuda.so</code> exists; if only <code>libcuda.so.1</code> is present, symlink <code>libcuda.so</code> to it. The worker picks OpenCL by default on Linux, so start mining with <code>LATTICE_MINER_BACKEND=cuda</code> (step 7).</li>
+          <li>AMD, Intel, or NVIDIA via OpenCL: install the GPU driver's OpenCL runtime.</li>
+          <li>macOS: the binary is unsigned. If macOS blocks it (for example after a browser download), clear the quarantine flag: <code>xattr -d com.apple.quarantine &lt;path&gt;</code>.</li>
+          <li>Windows: the release's Windows archive is a standalone worker only, with no node or coordinator. Run these Linux steps inside WSL2 with the Linux archive.</li>
+        </ul>
+        <p>One worker process drives one GPU (device 0); more <code>workers</code> share that same device, so one node mines with one GPU. The CUDA and OpenCL kernels are checked against a CPU reference, but physical-GPU behavior has not been validated by the release checks.</p>
+        <p>To build from source instead (Rust), run the one <code>cargo build</code> line for your GPU; the binary is <code>target/release/lattice-miner-gpu</code>:</p>
 <pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
 cd lattice-miner-gpu
-<span class="c"># run ONE of these:</span>
 cargo build --release                    <span class="c"># macOS: Metal</span>
-cargo build --release --features cuda    <span class="c"># NVIDIA; NVRTC from the CUDA toolkit is needed at run time</span>
-cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel via the OpenCL driver</span></code></pre>
-        <p>The binary is <code>target/release/lattice-miner-gpu</code>. One worker process drives one GPU (device 0); more <code>workers</code> share that same device, so one node mines with one GPU. A build with more than one backend picks Metal, then OpenCL, then CUDA; set <code>LATTICE_MINER_BACKEND=cuda</code> (or <code>opencl</code>, <code>metal</code>) in the environment of <code>lattice mine start</code> to choose. The CUDA and OpenCL kernels are checked against a CPU reference, but physical-GPU behavior has not been validated by the release checks.</p>
+cargo build --release --features cuda    <span class="c"># NVIDIA; needs NVRTC at run time</span>
+cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel via OpenCL</span></code></pre>
       </li>
       <li>
         <p>Add a <code>mine</code> section to <code>~/lattice/lattice.json</code>, with the worker's absolute path and the address from step 4:</p>
@@ -160,7 +173,9 @@ cargo build --release --features opencl  <span class="c"># AMD, NVIDIA or Intel 
       <li>
         <p>Start mining and check it.</p>
 <pre><code>cd ~/lattice
-lattice mine start
+<span class="c"># run one of these two:</span>
+lattice mine start                              <span class="c"># Metal or OpenCL</span>
+LATTICE_MINER_BACKEND=cuda lattice mine start   <span class="c"># NVIDIA via CUDA</span>
 lattice mine status</code></pre>
         <p>The mining log is <code>~/lattice/log/mine.log</code>. <code>lattice mine stop</code> stops it.</p>
       </li>
