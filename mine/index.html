@@ -85,10 +85,10 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
       <tr><th>Proof of work</th><td><code>SHA256(prefix || nonce_be64) ≤ target</code>: one SHA-256 over a block prefix of about 500 bytes followed by the nonce as 8 big-endian bytes. Bitcoin's SHA-256d ASICs cannot mine it.</td></tr>
       <tr><th>Block time</th><td>1 hour target.</td></tr>
       <tr><th>Difficulty</th><td>ASERT with a 120-block half-life (about 5 days). No averaging window, no clamp.</td></tr>
-      <tr><th>Reward</th><td>1,048,576 base units per block initially, plus the block's transaction fees.</td></tr>
-      <tr><th>Premine</th><td>183,836,344,320 base units (175,320 blocks' worth, about 10% of the maximum supply), credited in genesis to <code>bafyreiflupnvbnmqaf4v6n4kqrukyxiepynlzy3rd2itjn42jgbkhuqiwa</code>.</td></tr>
+      <tr><th>Reward</th><td>1,048,576 NEX per block initially, plus the block's transaction fees.</td></tr>
+      <tr><th>Premine</th><td>183,836,344,320 NEX (175,320 blocks' worth, about 10% of the maximum supply), credited in genesis to <code>bafyreiflupnvbnmqaf4v6n4kqrukyxiepynlzy3rd2itjn42jgbkhuqiwa</code>.</td></tr>
       <tr><th>Halving</th><td>The premine takes the first 175,320 slots of the schedule, so the first halving is at height 701,280, then every 876,600 blocks.</td></tr>
-      <tr><th>Max supply</th><td>1,838,361,518,024 base units. Amounts are integers in base units.</td></tr>
+      <tr><th>Max supply</th><td>1,838,361,518,024 NEX. NEX has no decimal places: 1 NEX is the smallest unit.</td></tr>
       <tr><th>Launch</th><td>2026-10-04 06:19:59 UTC. Genesis <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code>, committed in the OP_RETURN of Bitcoin transaction <a href="https://mempool.space/tx/7501f77602b581f605e6bc61c310b540e17324d3cc292c18985d8a3464d23236"><code>7501f77602b581f605e6bc61c310b540e17324d3cc292c18985d8a3464d23236</code></a> (block 970,053).</td></tr>
     </table>
     <p>The <a href="../docs/protocol/spec/">protocol specification</a> defines these rules.</p>
