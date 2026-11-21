@@ -11,7 +11,7 @@
   <style>
     .lead { margin-top: var(--s-5); }
     .controls { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; margin: var(--s-4) 0; }
-    select, button { font: inherit; font-size: var(--fs-14); color: var(--ink); background: var(--paper);
+    input, button { font: inherit; font-size: var(--fs-14); color: var(--ink); background: var(--paper);
       border: var(--rule); border-color: var(--ink); padding: var(--s-1) var(--s-3); border-radius: 0; }
     .status { font-size: var(--fs-14); color: var(--ink-soft); }
     .status b { color: var(--ink); font-weight: 600; }
@@ -37,6 +37,7 @@
   <main class="wrap">
     <h1 class="lead">A peer in this tab</h1>
     <p>This page runs Ivy, the network's peer-to-peer layer, in your browser, and connects to a node as a peer.
+      Name any chain and it finds a node that hosts it, the way any peer does.
       Nothing here asks a server what the chain is. Each block arrives as bytes with the proof of work that
       secures it, and this tab checks both before it shows the block: the bytes hash to the block's ID, and the
       mined proof reaches the block and meets its target.</p>
@@ -44,10 +45,11 @@
 
     <div class="controls">
       <label for="chain">Chain</label>
-      <select id="chain">
-        <option value="Nexus/moniker">Nexus/moniker (names)</option>
-        <option value="Nexus">Nexus (root)</option>
-      </select>
+      <input id="chain" list="chains" value="Nexus/moniker" size="28" spellcheck="false" autocomplete="off" />
+      <datalist id="chains">
+        <option value="Nexus"></option>
+        <option value="Nexus/moniker"></option>
+      </datalist>
       <button id="go" type="button">Connect</button>
     </div>
     <p class="status" id="status">Not connected.</p>
@@ -69,64 +71,130 @@
   </footer>
 
   <script type="module">
-    import { Ivy, IvyModule, connectWebSocket, ChainFollower } from "./peer.js?v=3";
+    import { Ivy, IvyModule, connectWebSocket, ChainFollower, connectToChainHost } from "./peer.js?v=4";
 
-    // The node this page dials, and the network it is on. ?node= and ?key=
-    // point it at another.
+    // The node this page dials first, and the network it is on. ?node= and
+    // ?key= point it at another.
     const query = new URLSearchParams(location.search);
     const NODE = query.get("node") ?? "wss://lattice-testnet-apps-iad.fly.dev:4002/ivy";
     const KEY = query.get("key") ?? "4a2b8803f8fedddb7dfd275505bf084f9ff396bd1f5c58e0be0744c7dc6e3bff";
     const NEXUS_GENESIS = "bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa";
+    // The overlay topics this page routes by hand (the follower's Topic).
+    const HELLO = "lattice.overlay.hello.v1";
+    const STREAM_REQUEST = "lattice.overlay.stream.request.v1";
 
     const status = document.getElementById("status");
     const rows = document.getElementById("rows");
     const say = (html) => { status.innerHTML = html; };
-    const text = (value) => String(value).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+    const text = (value) => String(value).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+    const hex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
     const work = (value) => {
       const digits = value.toString();
       return digits.length > 6 ? `${digits[0]}.${digits.slice(1, 3)}e${digits.length - 1}` : digits;
     };
+    // `Nexus`, then segments of visible ASCII without "/".
+    const validPath = (path) => /^Nexus(\/[!-.0-~]+)*$/.test(path);
 
-    let module, ivy;
+    let module, ivy, run = 0;
     async function connect() {
-      const path = document.getElementById("chain").value;
+      const path = document.getElementById("chain").value.trim();
+      const live = ++run;
       rows.replaceChildren();
-      if (ivy) { await ivy.destroy(); ivy = undefined; }
+      if (ivy) { const old = ivy; ivy = undefined; await old.destroy(); }
+      if (!validPath(path)) {
+        say("A chain path is <b>Nexus</b>, then names joined by “/”, like <b>Nexus/moniker</b>.");
+        return;
+      }
       say("Loading the peer (about 3 MB)…");
-      module ??= await IvyModule.load(await (await fetch("./ivy.wasm?v=1")).arrayBuffer());
-      let session, follower, checked = 0, rejected = 0;
-      ivy = new Ivy(module, { signingKey: crypto.getRandomValues(new Uint8Array(32)), listenPort: 0 }, {
+      module ??= await IvyModule.load(await (await fetch("./ivy.wasm?v=2")).arrayBuffer());
+      if (live !== run) return;
+
+      // Each session, by its key in hex: the followers on it, and the hello
+      // its node sent. Every chain is followed over the one Nexus hello, so a
+      // follower added to a session that has said hello is handed that hello.
+      const sessions = new Map();
+      const routes = new Map();
+      const entryHost = new URL(NODE).host;
+      let host, source, checked = 0, rejected = 0;
+      const shown = () => `${checked} blocks checked, ${rejected} refused`;
+      const report = (html) => { if (live === run) say(html); };
+
+      const self = new Ivy(module, { signingKey: crypto.getRandomValues(new Uint8Array(32)), listenPort: 0 }, {
         delegate: {
-          peerConnected(peer) { session = peer; follower.open(); },
-          deliver(message) {
-            try { follower.deliver(message.topic, message.payload); }
-            catch (error) { say(`Stopped: ${text(error.message)}`); ivy.destroy(); }
+          peerConnected(peer) { routes.set(hex(peer.key), peer.route); },
+          deliver(message, from) {
+            const session = sessions.get(hex(from.key));
+            if (!session) return;
+            if (message.topic === HELLO) session.hello = message.payload;
+            // The node asks for this page's log once per session; one answer.
+            const targets = message.topic === STREAM_REQUEST ? session.followers.slice(0, 1) : session.followers;
+            try { for (const follower of targets) follower.deliver(message.topic, message.payload); }
+            catch (error) { report(`Stopped: ${text(error.message)}`); self.destroy(); }
           },
-          peerDisconnected() { say(`Disconnected. ${checked} blocks checked, ${rejected} refused.`); },
+          peerDisconnected(peer) {
+            if (peer === host || peer === KEY) report(`Disconnected. ${shown()}.`);
+          },
         },
       });
-      follower = new ChainFollower({
-        chainPath: path.split("/"),
-        nexusGenesisCID: NEXUS_GENESIS,
-        send: (topic, payload) => ivy.sendMessage(session, topic, payload),
-        onTip(tip) {
-          checked += 1;
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${tip.block.height}</td><td class="cid">${text(tip.cid)}</td>` +
-            `<td class="hide-narrow">${work(tip.work)}</td><td>${new Date().toLocaleTimeString()}</td>`;
-          rows.prepend(row);
-          while (rows.children.length > 50) rows.lastChild.remove();
-          say(`Following <b>${text(path)}</b> from ${text(new URL(NODE).host)}. ` +
-            `Tip <b>${tip.block.height}</b>; ${checked} blocks checked, ${rejected} refused.`);
-        },
-        onRejected(cid, reason) { rejected += 1; console.warn("refused", cid, reason); },
-      });
-      await ivy.start();
-      say(`Connecting to ${text(new URL(NODE).host)}…`);
+      ivy = self;
+      const follow = (key, chainPath, onTip) => {
+        const follower = new ChainFollower({
+          chainPath,
+          nexusGenesisCID: NEXUS_GENESIS,
+          send: (topic, payload) => self.sendMessage(key, topic, payload),
+          onTip,
+          onRejected(cid, reason) {
+            if (onTip) rejected += 1;
+            console.warn("refused", chainPath.join("/"), cid, reason);
+          },
+        });
+        const session = sessions.get(key) ?? { followers: [] };
+        sessions.set(key, session);
+        session.followers.push(follower);
+        if (session.followers.length === 1) follower.open();
+        else if (session.hello) follower.deliver(HELLO, session.hello);
+      };
+      const onTip = (tip) => {
+        checked += 1;
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${text(tip.block.height)}</td><td class="cid">${text(tip.cid)}</td>` +
+          `<td class="hide-narrow">${text(work(tip.work))}</td><td>${text(new Date().toLocaleTimeString())}</td>`;
+        rows.prepend(row);
+        while (rows.children.length > 50) rows.lastChild.remove();
+        report(`Following <b>${text(path)}</b> from ${source}. Tip <b>${text(tip.block.height)}</b>; ${shown()}.`);
+      };
+
+      await self.start();
+      report(`Connecting to ${text(entryHost)}…`);
       const url = new URL(NODE);
       const transport = await connectWebSocket(url);
-      await ivy.connect({ publicKey: KEY, host: transport.observedHost, port: Number(url.port) || 443 }, transport);
-      say(`Connected; the node proved its key. Waiting for <b>${text(path)}</b>'s newest block…`);
+      await self.connect({ publicKey: KEY, host: transport.observedHost, port: Number(url.port) || 443 }, transport);
+      if (live !== run) return;
+      const chainPath = path.split("/");
+      if (chainPath.length === 1) {
+        host = KEY;
+        source = `${text(entryHost)}, the node this tab dialed`;
+        follow(KEY, chainPath, onTip);
+        report(`Connected; the node proved its key. Waiting for <b>Nexus</b>'s newest block…`);
+        return;
+      }
+      // Every node hosts Nexus: following it keeps the entry session open
+      // while this tab looks for a host of the chain.
+      follow(KEY, ["Nexus"]);
+      report(`Connected to ${text(entryHost)}. Looking for a node that hosts <b>${text(path)}</b>…`);
+      host = await connectToChainHost({ ivy: self, connectWebSocket, nexusGenesisCID: NEXUS_GENESIS, chainPath });
+      if (live !== run) return;
+      if (host === undefined) {
+        report(`No host of <b>${text(path)}</b> is reachable from this tab right now.`);
+        return;
+      }
+      const route = routes.get(host);
+      source = host === KEY ? `${text(entryHost)}, the node this tab dialed`
+        : route?.kind === "relayed" ? `node ${text(host.slice(0, 12))}…, relayed through ${
+          hex(route.carrier) === KEY ? text(entryHost) : `node ${text(hex(route.carrier).slice(0, 12))}…`}`
+        : `node ${text(host.slice(0, 12))}…, directly`;
+      follow(host, chainPath, onTip);
+      report(`Found a host: ${source}; it proved its key. Waiting for <b>${text(path)}</b>'s newest block…`);
     }
     document.getElementById("go").addEventListener("click", () =>
       connect().catch((error) => say(`Could not connect: ${text(error.message ?? error)}`)));
