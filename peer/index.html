@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lattice — Browser peer</title>
+  <meta name="description" content="This page joins the Lattice network as a peer and checks every block's proof of work itself." />
+  <link rel="icon" href="../explorer/assets/lattice-mark.svg" />
+  <link rel="stylesheet" href="../explorer/assets/tokens.css?v=3" />
+  <link rel="stylesheet" href="../explorer/assets/style.css?v=8" />
+  <style>
+    .lead { margin-top: var(--s-5); }
+    .controls { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; margin: var(--s-4) 0; }
+    input, button { font: inherit; font-size: var(--fs-14); color: var(--ink); background: var(--paper);
+      border: var(--rule); border-color: var(--ink); padding: var(--s-1) var(--s-3); border-radius: 0; }
+    .status { font-size: var(--fs-14); color: var(--ink-soft); }
+    .status b { color: var(--ink); font-weight: 600; }
+    .log { width: 100%; border-collapse: collapse; font-size: var(--fs-14); margin-bottom: var(--s-6); }
+    .log th, .log td { text-align: left; padding: var(--s-2) var(--s-2) var(--s-2) 0; border-bottom: var(--rule); }
+    .log th { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+    .log td.cid { word-break: break-all; }
+    .table { overflow-x: auto; }
+    @media (max-width: 640px) { .log .hide-narrow { display: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="../">
+        <img src="../explorer/assets/lattice-mark.svg" width="22" height="22" alt="" />
+        <span class="wordmark">LATTICE</span>
+        <span class="brand-sub">BROWSER PEER</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h1 class="lead">A peer in this tab</h1>
+    <p>This page runs Ivy, the network's peer-to-peer layer, in your browser, and connects to a node as a peer.
+      Name any chain and it finds a node that hosts it, the way any peer does.
+      Nothing here asks a server what the chain is. Each block arrives as bytes with the proof of work that
+      secures it, and this tab checks both before it shows the block: the bytes hash to the block's ID, and the
+      mined proof reaches the block and meets its target.</p>
+    <p class="status">It checks work, not validity: it does not run transactions.</p>
+
+    <div class="controls">
+      <label for="chain">Chain</label>
+      <input id="chain" list="chains" value="Nexus/moniker" size="28" spellcheck="false" autocomplete="off" />
+      <datalist id="chains">
+        <option value="Nexus"></option>
+        <option value="Nexus/moniker"></option>
+      </datalist>
+      <button id="go" type="button">Connect</button>
+    </div>
+    <p class="status" id="status">Not connected.</p>
+
+    <div class="table">
+      <table class="log">
+        <thead><tr><th>Height</th><th>Block</th><th class="hide-narrow">Work</th><th>Checked</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="footer wrap">
+    <nav class="meta">
+      <a href="../">lattice</a>
+      <a href="../explorer/">explorer</a>
+      <a href="https://github.com/0xLattice/lattice-sdk/tree/main/packages/peer" target="_blank" rel="noopener">source</a>
+    </nav>
+  </footer>
+
+  <script type="module">
+    import { Ivy, IvyModule, connectWebSocket, ChainFollower, connectToChainHost } from "./peer.js?v=4";
+
+    // The node this page dials first, and the network it is on. ?node= and
+    // ?key= point it at another.
+    const query = new URLSearchParams(location.search);
+    const NODE = query.get("node") ?? "wss://lattice-testnet-apps-iad.fly.dev:4002/ivy";
+    const KEY = query.get("key") ?? "4a2b8803f8fedddb7dfd275505bf084f9ff396bd1f5c58e0be0744c7dc6e3bff";
+    const NEXUS_GENESIS = "bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa";
+    // The overlay topics this page routes by hand (the follower's Topic).
+    const HELLO = "lattice.overlay.hello.v1";
+    const STREAM_REQUEST = "lattice.overlay.stream.request.v1";
+
+    const status = document.getElementById("status");
+    const rows = document.getElementById("rows");
+    const say = (html) => { status.innerHTML = html; };
+    const text = (value) => String(value).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+    const hex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    const work = (value) => {
+      const digits = value.toString();
+      return digits.length > 6 ? `${digits[0]}.${digits.slice(1, 3)}e${digits.length - 1}` : digits;
+    };
+    // `Nexus`, then segments of visible ASCII without "/".
+    const validPath = (path) => /^Nexus(\/[!-.0-~]+)*$/.test(path);
+
+    let module, ivy, run = 0;
+    async function connect() {
+      const path = document.getElementById("chain").value.trim();
+      const live = ++run;
+      rows.replaceChildren();
+      if (ivy) { const old = ivy; ivy = undefined; await old.destroy(); }
+      if (!validPath(path)) {
+        say("A chain path is <b>Nexus</b>, then names joined by “/”, like <b>Nexus/moniker</b>.");
+        return;
+      }
+      say("Loading the peer (about 3 MB)…");
+      module ??= await IvyModule.load(await (await fetch("./ivy.wasm?v=2")).arrayBuffer());
+      if (live !== run) return;
+
+      // Each session, by its key in hex: the followers on it, and the hello
+      // its node sent. Every chain is followed over the one Nexus hello, so a
+      // follower added to a session that has said hello is handed that hello.
+      const sessions = new Map();
+      const routes = new Map();
+      const entryHost = new URL(NODE).host;
+      let host, source, checked = 0, rejected = 0;
+      const shown = () => `${checked} blocks checked, ${rejected} refused`;
+      const report = (html) => { if (live === run) say(html); };
+
+      const self = new Ivy(module, { signingKey: crypto.getRandomValues(new Uint8Array(32)), listenPort: 0 }, {
+        delegate: {
+          peerConnected(peer) { routes.set(hex(peer.key), peer.route); },
+          deliver(message, from) {
+            const session = sessions.get(hex(from.key));
+            if (!session) return;
+            if (message.topic === HELLO) session.hello = message.payload;
+            // The node asks for this page's log once per session; one answer.
+            const targets = message.topic === STREAM_REQUEST ? session.followers.slice(0, 1) : session.followers;
+            try { for (const follower of targets) follower.deliver(message.topic, message.payload); }
+            catch (error) { report(`Stopped: ${text(error.message)}`); self.destroy(); }
+          },
+          peerDisconnected(peer) {
+            if (peer === host || peer === KEY) report(`Disconnected. ${shown()}.`);
+          },
+        },
+      });
+      ivy = self;
+      const follow = (key, chainPath, onTip) => {
+        const follower = new ChainFollower({
+          chainPath,
+          nexusGenesisCID: NEXUS_GENESIS,
+          send: (topic, payload) => self.sendMessage(key, topic, payload),
+          onTip,
+          onRejected(cid, reason) {
+            if (onTip) rejected += 1;
+            console.warn("refused", chainPath.join("/"), cid, reason);
+          },
+        });
+        const session = sessions.get(key) ?? { followers: [] };
+        sessions.set(key, session);
+        session.followers.push(follower);
+        if (session.followers.length === 1) follower.open();
+        else if (session.hello) follower.deliver(HELLO, session.hello);
+      };
+      const onTip = (tip) => {
+        checked += 1;
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${text(tip.block.height)}</td><td class="cid">${text(tip.cid)}</td>` +
+          `<td class="hide-narrow">${text(work(tip.work))}</td><td>${text(new Date().toLocaleTimeString())}</td>`;
+        rows.prepend(row);
+        while (rows.children.length > 50) rows.lastChild.remove();
+        report(`Following <b>${text(path)}</b> from ${source}. Tip <b>${text(tip.block.height)}</b>; ${shown()}.`);
+      };
+
+      await self.start();
+      report(`Connecting to ${text(entryHost)}…`);
+      const url = new URL(NODE);
+      const transport = await connectWebSocket(url);
+      await self.connect({ publicKey: KEY, host: transport.observedHost, port: Number(url.port) || 443 }, transport);
+      if (live !== run) return;
+      const chainPath = path.split("/");
+      if (chainPath.length === 1) {
+        host = KEY;
+        source = `${text(entryHost)}, the node this tab dialed`;
+        follow(KEY, chainPath, onTip);
+        report(`Connected; the node proved its key. Waiting for <b>Nexus</b>'s newest block…`);
+        return;
+      }
+      // Every node hosts Nexus: following it keeps the entry session open
+      // while this tab looks for a host of the chain.
+      follow(KEY, ["Nexus"]);
+      report(`Connected to ${text(entryHost)}. Looking for a node that hosts <b>${text(path)}</b>…`);
+      host = await connectToChainHost({ ivy: self, connectWebSocket, nexusGenesisCID: NEXUS_GENESIS, chainPath });
+      if (live !== run) return;
+      if (host === undefined) {
+        report(`No host of <b>${text(path)}</b> is reachable from this tab right now.`);
+        return;
+      }
+      const route = routes.get(host);
+      source = host === KEY ? `${text(entryHost)}, the node this tab dialed`
+        : route?.kind === "relayed" ? `node ${text(host.slice(0, 12))}…, relayed through ${
+          hex(route.carrier) === KEY ? text(entryHost) : `node ${text(hex(route.carrier).slice(0, 12))}…`}`
+        : `node ${text(host.slice(0, 12))}…, directly`;
+      follow(host, chainPath, onTip);
+      report(`Found a host: ${source}; it proved its key. Waiting for <b>${text(path)}</b>'s newest block…`);
+    }
+    document.getElementById("go").addEventListener("click", () =>
+      connect().catch((error) => say(`Could not connect: ${text(error.message ?? error)}`)));
+  </script>
+</body>
+</html>
