@@ -42,6 +42,12 @@ for (const page of pages) {
 
 // The install command shown on the home page and in agents.md is served from this repo.
 assert.ok(existsSync("install.sh"), "install.sh is published at the site root");
+// Where each tool's release tarball is, for programs that fetch a pinned
+// version and check it against their own SHA-256.
+const releaseURLs = JSON.parse(readFileSync("releases.json", "utf8"));
+for (const tool of ["lattice-node", "lattice-sponsor"]) {
+  assert.match(releaseURLs[tool], /^https:\/\/github\.com\/0xLattice\/[^/]+\/releases\/download\/\{version\}\/[^/]*\{version\}-\{platform\}\.tar\.gz$/, `releases.json gives ${tool}'s tarball`);
+}
 for (const page of ["index.html", "agents.md"])
   assert.ok(readFileSync(page, "utf8").includes("curl -fsSL https://lattice.build/install.sh | sh"), `${page} shows the install command`);
 
