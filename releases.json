@@ -1,0 +1,4 @@
+{
+  "lattice-node": "https://github.com/0xLattice/lattice-node/releases/download/{version}/lattice-node-{version}-{platform}.tar.gz",
+  "lattice-sponsor": "https://github.com/0xLattice/lattice-sponsor/releases/download/{version}/lattice-sponsor-{version}-{platform}.tar.gz"
+}
