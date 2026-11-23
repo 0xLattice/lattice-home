@@ -1,86 +1,78 @@
 # lattice-home
 
-The Lattice website — a static website. Text-first, zero-accent, built on the [Lattice design system](https://github.com/0xLattice/lattice-design).
+The website at [lattice.build](https://lattice.build): the home page, docs,
+block explorer, and the pages around them. Almost all of it is static files;
+the docs and the token page have a build step.
 
-## What it is
+## What's here
 
-A landing page for developers building apps for people and AI agents, and the documentation site at `/docs/`, which publishes each repository's docs from that repository rather than duplicating them.
+| Path | What it is | Served at |
+|---|---|---|
+| `index.html` | Home page | `/` |
+| `agents.md` | Guide for coding agents | `/agents.md` |
+| `install.sh` | Command-line installer | `/install.sh` |
+| `apps/`, `apps.json` | Apps directory. List an app by pull request to `apps.json` | `/apps/` |
+| `download/` | Lattice Desktop downloads ([publishing a release](download/README.md)) | `/download/` |
+| `mine/` | Mining Nexus | `/mine/` |
+| `community/` | Where to ask, contribute, and find each repository | `/community/` |
+| `explorer/` | Block explorer; runs in the browser and reads nodes directly | `/explorer/` |
+| `peer/` | A Lattice peer in a browser tab ([README](peer/README.md)) | `/peer/` |
+| `token/` | Cross-chain buy and sell (Vite) | `/token/` |
+| `docs/` | Docs site (Starlight), published from each repository's own docs ([README](docs/README.md)) | `/docs/` |
+| `vendor/` | The Lattice SDK, bundled for the browser | |
+| `lattice-mark.svg` | The mark and favicon | |
 
-- **Hero** — "Ship the app. Skip the backend.", with the client code for a paid write and a line to paste into a coding agent
-- **The problem** — what a backend costs today (abuse, data, payments, accounts, agents) and what Lattice replaces it with
-- **What you still write** — your rules and your page; what a ledger of your own buys, and when to use an existing one
-- **Built for agents** — keys without signup, pay per action, verified reads, the lattice-skills plugin
-- **Apps** — featured rows from `apps.json`, linking to `/apps/`
-- **Command-line setup** — node → rules → chain → mining → page
-- **When Lattice is the wrong choice** — latency, no finality, coin not dollars, fixed rules, public data, no automation, hosting, pre-1.0
-- **Network** — live height and peers from the public nodes
-
-Claims on the page must hold for the shipped software; state the tradeoff rather than round it up.
-
-## Files
-
-- `apps.json` — the one list of apps on Lattice. `apps/` renders it, with a live status line per app read from the app's chain; the home page features some of them, and `test-site.mjs` checks every entry and that the home page features only listed apps. Third parties list an app by pull request to this file.
-- `agents.md` — the guide coding agents are pointed at from the hero: what Lattice is, the skills plugin, setup, and rules for acting on a user's behalf.
-- `index.html` — the landing page. Design tokens (zero-accent; source of truth: `lattice-design`) are inlined so it paints in a single request. A small inline script feeds the live Network table from the public seed nodes.
-- `download/` — beginner desktop setup and a fail-closed release configuration.
-- `docs/` — the documentation site, served at `/docs/`. See [docs/README.md](docs/README.md).
-- `explorer/` — the Lattice block explorer, vendored in (client-side, talks to the nodes directly). Served at `/explorer/`.
-- `vendor/` — the Lattice SDK bundled for the browser; the explorer and token module find child-chain nodes with it.
-- `token/` — the cross-chain Buy/Sell module. It stages wallet requests and is built to `/token/` during deployment.
-- `lattice-mark.svg` — the mark (favicon).
-- `.nojekyll` — so GitHub Pages serves the explorer assets raw.
-
-The home page and explorer remain plain static files. The token module (Vite) and the docs site (Astro) are the build steps:
+## Run it locally
 
 ```sh
-npm ci --prefix token
-npm test --prefix token
-npm run build --prefix token
+python3 -m http.server 8000        # then open http://localhost:8000
+npm ci --prefix docs && npm run build --prefix docs    # docs into docs/dist
+npm ci --prefix token && npm run dev --prefix token     # token page
 ```
 
-Pull requests run the same test and build. The Pages workflow builds in a job that can only read the repository, then publishes the static root and explorer alongside `token/dist` at `/token/` from a separate job that runs no repository code. Everything remains client-side with no website signing bridge or backend.
+## Checks
 
-## Deliberately omitted
+CI runs these on every pull request:
 
-No token/price/roadmap-hype, team grid, partner logos, illustrations, or animation — each fights the design system.
+```sh
+node test-site.mjs                     # pages, links, apps.json, download records
+node --test explorer/test-explorer.mjs
+npm test --prefix token && npm run build --prefix token
+npm test --prefix docs && npm run build --prefix docs && node docs/check-links.mjs
+```
 
-## Desktop download publication
+## Design
 
-`download/release.mjs` holds verified public version 0.1.1 packages for Mac,
-Linux (.deb and AppImage), and Windows. Version 0.1.0 releases remain available
-in each platform repository's release history.
-No download URL is emitted unless `published` is true, release metadata is
-complete, and all four URL fields pass validation. Missing JavaScript leaves the links hidden with an explanation.
+One palette, bismuth, everywhere:
 
-For a new release, download the exact public package, SHA256SUMS,
-SHA256SUMS.minisig, and project public key. Verify the package digest and manifest
-signature against the trusted key, and confirm the version, source revision,
-requirements, and setup instructions before setting `published: true`.
-Run `node test-site.mjs` and the token checks above, then test the direct download
-in a browser. This change does not create releases or modify release keys.
+| Role | Light | Dark |
+|---|---|---|
+| Paper | `#f4f2f7` | `#1a1026` |
+| Ink | `#2b1b3d` | `#efeaf5` |
+| Nav band | `#2b1b3d` | `#120a1c` |
+| Captions | `#685c78` | `#a194b3` |
+| Lines | `#ddd7e5` | `#3a2b4f` |
+| Code panels | `#1f1330` | `#0d0715` |
+| Accent | `#2ec4b6` | `#2ec4b6` |
 
-Published filenames, versions, build-source revisions, sizes, digests and
-release URLs are recorded. The `source` field identifies the tested build revision.
-All packages include node revision `fd3684842e8091856b372d2fd56806a3551ba6a4`
-and wallet revision `d1d6b9531994884a98a1abc0557945009c87915e`.
-The existing project public key remains unchanged. All four public packages were
-downloaded without authentication and checked against the approved sizes and
-SHA256 digests. The three checksum manifests and signatures match the frozen
-release files and verify against the trusted project key.
+- The teal accent is a fill only: the mark's center node, primary buttons,
+  focus rings, and live status. It is too pale for text on paper.
+- Headings and code are monospace, in sentence case. Body text is the system
+  sans-serif.
+- The palette lives in four places; change them together:
+  - `index.html` and the other static pages (inlined, so each page paints in
+    one request)
+  - `explorer/assets/tokens.css` (explorer and peer)
+  - `token/src/style.css`
+  - `docs/src/styles/lattice.css`
 
-Keep future records unpublished until their exact public assets, metadata,
-requirements and signatures are verified. Update platform help alongside each
-release. Do not infer support from the browser or reuse the Mac release metadata
-for another platform.
+## Writing
 
-`node test-site.mjs` validates real records against their declared publication
-state and uses independent published/unpublished fixtures for every supported
-format. Invalid metadata must hide and clear both new and previously rendered
-links. Mac publication is independent of other platforms.
+Keep words few and plain. Name things by what they do. Every claim must hold
+for the shipped software; state a limitation rather than round it up.
 
-Release validation: the installed Linux .deb and extracted AppImage UI
-were tested; normal AppImage FUSE mounting was not. The Windows shipped executable
-passed startup and mining checks on Windows Server 2025; full UI tests used an
-instrumented build. Installing WebView2 on a machine missing that runtime was not
-tested. The Windows test environment used Ubuntu 24.04 in WSL. The WSL setup minimum is not a desktop Windows app support
-matrix. Physical GPU and live-network behavior are not established by these tests.
+## Deploying
+
+Pushing to `main` publishes to GitHub Pages, and the docs rebuild daily to
+follow `lattice-node` main. The build job can only read the repository; the
+publish job runs no repository code.
