@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#2b1b3d">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mine Nexus — Lattice</title>
 <meta name="description" content="Nexus proof-of-work parameters, live network numbers, and the steps to solo-mine with a GPU.">
@@ -55,12 +56,52 @@ footer .links { margin-left: auto; flex-wrap: wrap; }
   nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
   th { width: auto; white-space: normal; }
 }
+
+/* === bismuth: the palette and type of the home page (index.html) ===
+   Violet ink on lilac paper; oxide teal is the one accent, used only as a
+   fill (the mark's center node, primary buttons, focus, live status). */
+:root {
+  --paper: #f4f2f7; --ink: #2b1b3d; --ink-soft: #43355a; --ink-mute: #685c78; --line: #ddd7e5;
+  --band: #2b1b3d; --band-ink: #efeaf5; --deep: #1f1330; --proof: #2ec4b6;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --paper: #1a1026; --ink: #efeaf5; --ink-soft: #cfc5dc; --ink-mute: #a194b3;
+    --line: #3a2b4f; --band: #120a1c; --deep: #0d0715; }
+}
+html { font-family: var(--sans); font-size: 17px; }
+h1, h2, h3 { font-family: var(--font); text-transform: none; letter-spacing: -0.02em; line-height: 1.15; }
+h1 { letter-spacing: -0.035em; }
+.eyebrow { text-transform: none; letter-spacing: 0; }
+.wordmark { font-family: var(--font); letter-spacing: .12em; }
+nav, footer { color: var(--band-ink); border: 0;
+  border-image: linear-gradient(var(--band) 0 0) fill 0 / / 0 100vmax; }
+nav + * , main > :first-child { border-top: 0; }
+.mark .node { fill: currentColor; }
+.mark .proof { fill: var(--proof); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible, :focus-visible {
+  outline: 2px solid var(--proof); outline-offset: 3px; }
+.btn, button { font-family: var(--font); font-weight: 600; text-transform: none; letter-spacing: 0;
+  border: 1px solid currentColor; border-radius: 4px; }
+.btn:hover, button:hover { background: color-mix(in srgb, currentColor 10%, transparent); color: inherit; }
+.btn.primary, .btn--primary { background: var(--proof); border-color: var(--proof); color: var(--deep); }
+.btn.primary:hover, .btn--primary:hover { background: #4fd6c9; color: var(--deep); }
+pre { background: var(--deep); color: #e6dff0; border: 0; border-radius: 6px; }
+pre .c { opacity: 1; color: #9284a8; }
+:not(pre) > code { border: 0; background: color-mix(in srgb, var(--line) 55%, transparent);
+  padding: 1px 5px; border-radius: 3px; }
+figure.term { border: 0; border-radius: 6px; overflow: hidden; background: var(--deep); color: #e6dff0; }
+figure.term figcaption { border: 0; text-transform: none; letter-spacing: 0; color: #a497b8; padding-bottom: 0; }
+figure.term figcaption::before, figure.term figcaption::after { content: none; }
+figure.term pre { background: none; color: inherit; border-radius: 0; }
+.dot { border-radius: 50%; background: var(--proof); border-color: var(--proof); }
+.dot.down { background: transparent; border-color: var(--ink-mute); }
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <nav>
-  <a class="brand" href="../" aria-label="Lattice home"><img src="../lattice-mark.svg" width="22" height="22" alt=""><span class="wordmark">LATTICE</span></a>
+  <a class="brand" href="../" aria-label="Lattice home"><svg class="mark" viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><g class="node"><circle cx="8" cy="8" r="2.4"/><circle cx="24" cy="8" r="2.4"/><circle cx="40" cy="8" r="2.4"/><circle cx="8" cy="24" r="2.4"/><circle cx="40" cy="24" r="2.4"/><circle cx="8" cy="40" r="2.4"/><circle cx="24" cy="40" r="2.4"/><circle cx="40" cy="40" r="2.4"/></g><circle class="proof" cx="24" cy="24" r="5"/></svg><span class="wordmark">LATTICE</span></a>
   <span class="links">
     <a href="../download/">Download</a>
     <a href="../docs/">Docs</a>

@@ -1,64 +1,72 @@
-/* Lattice — design tokens (v0, zero-accent)
-   Ultra-minimal: monochrome, one typeface, one unit, hairlines only.
-   The grid is the only graphic; nothing is ever drawn. */
+/* Lattice — design tokens (bismuth)
+   Violet ink on lilac paper, as on the home page. Oxide teal is the one
+   accent, used only as a fill: the mark's center node, primary buttons,
+   focus, live status. It is never used for text on paper. */
 
 :root {
-  /* color — monochrome only, no accent */
-  --paper:    #ffffff;
-  --ink:      #0a0a0a;  /* full ink: headings, wordmark, UI */
-  --ink-soft: #333333;  /* body copy: softer than pure black, less glare */
-  --line:     #e6e6e6;
+  /* color */
+  --paper:    #f4f2f7;
+  --ink:      #2b1b3d;  /* headings, wordmark, UI */
+  --ink-soft: #43355a;  /* body copy */
+  --ink-mute: #685c78;  /* labels, captions */
+  --line:     #ddd7e5;
+  --band:     #2b1b3d;  /* top bar */
+  --band-ink: #efeaf5;
+  --deep:     #1f1330;  /* code panels, text on the accent */
+  --proof:    #2ec4b6;  /* the accent */
 
-  /* type — one family (monospace) */
+  /* type — mono for headings, data and code; system sans for prose */
   --font: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
   --fs-20: 1.25rem;  --fs-28: 1.75rem;  --fs-44: 2.75rem;
-  --lh-body: 1.6; --lh-display: 1.1; --track-display: 0.08em;
+  --lh-body: 1.6; --lh-display: 1.15; --track-display: 0.08em;
 
   /* space — one 8px unit */
   --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px;
   --s-5: 40px; --s-6: 64px; --s-7: 96px;
 
-  /* structure — the hairline is the only decoration */
   --rule: 1px solid var(--line);
-  --radius: 0;
+  --radius: 4px;
   --measure: 66ch;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --line: #1c1c1c; }
+  :root { --paper: #1a1026; --ink: #efeaf5; --ink-soft: #cfc5dc; --ink-mute: #a194b3;
+    --line: #3a2b4f; --band: #120a1c; --deep: #0d0715; }
 }
 
 * { box-sizing: border-box; }
-html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body);
+html { font-family: var(--font); font-size: 17px; line-height: var(--lh-body);
   -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--paper); color: var(--ink);
   -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 
 /* type */
-h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display);
+h1, h2, h3 { letter-spacing: -0.02em;
   line-height: var(--lh-display); font-weight: 600; margin: 0 0 var(--s-3); }
 h1 { font-size: var(--fs-44); }
 h2 { font-size: var(--fs-28); }
 h3 { font-size: var(--fs-20); }
-p, li { max-width: var(--measure); margin: 0 0 var(--s-3); color: var(--ink-soft); }
-small, .meta { font-size: var(--fs-12); }
+p, li { max-width: var(--measure); margin: 0 0 var(--s-3); color: var(--ink-soft); font-family: var(--sans); }
+small, .meta { font-size: var(--fs-12); color: var(--ink-mute); }
 
-/* links & focus — zero-accent: underline + inverted focus, never color */
+/* links & focus */
 a { color: inherit; text-decoration: underline; text-underline-offset: 2px;
   text-decoration-thickness: 1px; }
 a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 2px solid var(--ink); outline-offset: 2px; }
+  outline: 2px solid var(--proof); outline-offset: 3px; }
 
 /* the only divider */
 hr { border: 0; border-top: var(--rule); margin: var(--s-5) 0; }
 
-/* button — text in a hairline box, radius 0, no shadow/gradient */
-button, .btn { font: inherit; text-transform: uppercase; letter-spacing: var(--track-display);
-  background: transparent; color: var(--ink); border: var(--rule);
+/* button — text in a box; primary is the accent */
+button, .btn { font: inherit; font-weight: 600;
+  background: transparent; color: var(--ink); border: 1px solid currentColor;
   border-radius: var(--radius); padding: var(--s-2) var(--s-3); cursor: pointer; }
-.btn--primary { background: var(--ink); color: var(--paper); }
-.btn:hover { background: var(--ink); color: var(--paper); }
+.btn--primary { background: var(--proof); border-color: var(--proof); color: var(--deep); }
+button:hover, .btn:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.btn--primary:hover { background: #4fd6c9; }
 
 /* input — bottom hairline only */
 input, textarea, select { font: inherit; color: var(--ink); background: transparent;
@@ -71,9 +79,14 @@ th { font-weight: 600; }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 code, pre { font-family: var(--font); }
 
-/* the one permitted "graphic": the dot-lattice. use once (hero/footer). */
+/* the dot-lattice */
 .lattice-bg { background-image: radial-gradient(var(--line) 1px, transparent 1px);
   background-size: var(--s-2) var(--s-2); }
 
 /* wordmark — the logo is just the word */
-.wordmark { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+.wordmark { text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+
+/* the mark: violet (or band-ink) nodes around the teal proof */
+.mark .node { fill: currentColor; }
+.mark .proof { fill: var(--proof); }
+

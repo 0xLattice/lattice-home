@@ -1,17 +1,14 @@
-/* Explorer scaffolding only — all visual primitives come from tokens.css
-   (the Lattice design system: monochrome, monospace, hairlines, radius 0,
-   zero accent, the grid is the only graphic). Nothing here introduces color,
-   shadow, gradient, or radius. */
+/* Explorer scaffolding — visual primitives and colors come from tokens.css. */
 
 .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 var(--s-4); }
 
-/* ---- top bar: hairline base, no blur/shadow ---- */
-.topbar { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: var(--rule); }
+/* ---- top bar: the violet band, as on the home page ---- */
+.topbar { position: sticky; top: 0; z-index: 10; background: var(--band); color: var(--band-ink); }
 .topbar .wrap { display: flex; align-items: center; gap: var(--s-4); min-height: 64px; }
 .brand { display: flex; align-items: center; gap: var(--s-2); text-decoration: none; white-space: nowrap; }
-.brand .wordmark { font-size: var(--fs-20); }
-.brand-sub { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); }
-.brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.brand .wordmark { font-size: var(--fs-16); }
+.brand-sub { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: .12em; opacity: .7; }
+.brand:focus-visible { outline: 2px solid var(--proof); outline-offset: 3px; }
 
 /* in-page search (above the blocks list) — full width, button pinned right */
 .search { display: flex; align-items: flex-end; gap: var(--s-3); margin: var(--s-5) 0 var(--s-3); }
@@ -36,7 +33,7 @@ h2 { font-size: var(--fs-20); margin: var(--s-5) 0 var(--s-3); }
    (the system has no cards) ---- */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border: var(--rule); }
 .card { padding: var(--s-3); border-right: var(--rule); border-bottom: var(--rule); }
-.card .k { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); }
+.card .k { font-size: var(--fs-12); color: var(--ink-mute); }
 .card .v { font-size: var(--fs-20); font-weight: 600; margin-top: var(--s-1); }
 .card .v.mono { font-size: var(--fs-14); font-weight: 400; }
 
@@ -44,22 +41,21 @@ h2 { font-size: var(--fs-20); margin: var(--s-5) 0 var(--s-3); }
 .table-wrap { border: var(--rule); }
 .table-wrap th, .table-wrap td { border-bottom: var(--rule); }
 .table-wrap tr:last-child td { border-bottom: 0; }
-.table-wrap thead th { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: 0.04em; }
+.table-wrap thead th { font-size: var(--fs-12); font-weight: 400; color: var(--ink-mute); }
 tbody tr:hover td { background: var(--line); }
 .new-row td { animation: rowin 120ms linear; }
-@keyframes rowin { from { background: var(--ink); } to { background: transparent; } }
+@keyframes rowin { from { background: color-mix(in srgb, var(--proof) 35%, transparent); } to { background: transparent; } }
 
-/* ---- key/value detail: hairline rows, label uppercase ---- */
+/* ---- key/value detail: hairline rows ---- */
 .kv { border: var(--rule); }
 .kv .row { display: grid; grid-template-columns: 220px 1fr; border-bottom: var(--rule); }
 .kv .row:last-child { border-bottom: 0; }
 .kv .row > div { padding: var(--s-2) var(--s-3); }
-.kv .row .key { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); }
+.kv .row .key { font-size: var(--fs-12); color: var(--ink-mute); }
 .kv .row .val { word-break: break-all; }
 
-/* ---- pill: hairline box; invert for emphasis (never color) ---- */
-.pill { display: inline-block; padding: 0 var(--s-2); border: var(--rule); font-size: var(--fs-12);
-  text-transform: uppercase; letter-spacing: 0.04em; }
+/* ---- pill: hairline box; invert for emphasis ---- */
+.pill { display: inline-block; padding: 0 var(--s-2); border: var(--rule); border-radius: 3px; font-size: var(--fs-12); }
 .pill.bad, .pill--invert { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
 .mono { font-family: var(--font); }
@@ -74,7 +70,7 @@ tbody tr:hover td { background: var(--line); }
    when the table is genuinely tight (max-width:0 gives overflow a boundary) */
 .table-wrap td.shrink { width: 100%; max-width: 0; }
 .delta { font-variant-numeric: tabular-nums; }
-.crumbs { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); margin-bottom: var(--s-3); }
+.crumbs { font-size: var(--fs-12); color: var(--ink-mute); margin-bottom: var(--s-3); }
 .market-actions { display: flex; gap: var(--s-2); margin: 0 0 var(--s-4); }
 .market-actions .btn { display: inline-block; text-decoration: none; }
 button.more { margin-top: var(--s-3); }
