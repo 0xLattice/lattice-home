@@ -6,18 +6,18 @@
   <title>Lattice — Browser peer</title>
   <meta name="description" content="This page joins the Lattice network as a peer and checks every block's proof of work itself." />
   <link rel="icon" href="../explorer/assets/lattice-mark.svg" />
-  <link rel="stylesheet" href="../explorer/assets/tokens.css?v=3" />
-  <link rel="stylesheet" href="../explorer/assets/style.css?v=8" />
+  <link rel="stylesheet" href="../explorer/assets/tokens.css?v=4" />
+  <link rel="stylesheet" href="../explorer/assets/style.css?v=9" />
   <style>
     .lead { margin-top: var(--s-5); }
     .controls { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; margin: var(--s-4) 0; }
     input, button { font: inherit; font-size: var(--fs-14); color: var(--ink); background: var(--paper);
-      border: var(--rule); border-color: var(--ink); padding: var(--s-1) var(--s-3); border-radius: 0; }
+      border: 1px solid currentColor; padding: var(--s-1) var(--s-3); border-radius: var(--radius); }
     .status { font-size: var(--fs-14); color: var(--ink-soft); }
     .status b { color: var(--ink); font-weight: 600; }
     .log { width: 100%; border-collapse: collapse; font-size: var(--fs-14); margin-bottom: var(--s-6); }
     .log th, .log td { text-align: left; padding: var(--s-2) var(--s-2) var(--s-2) 0; border-bottom: var(--rule); }
-    .log th { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+    .log th { font-size: var(--fs-12); font-weight: 400; color: var(--ink-mute); }
     .log td.cid { word-break: break-all; }
     .table { overflow-x: auto; }
     @media (max-width: 640px) { .log .hide-narrow { display: none; } }
@@ -27,7 +27,7 @@
   <header class="topbar">
     <div class="wrap">
       <a class="brand" href="../">
-        <img src="../explorer/assets/lattice-mark.svg" width="22" height="22" alt="" />
+        <svg class="mark" viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><g class="node"><circle cx="8" cy="8" r="2.4"/><circle cx="24" cy="8" r="2.4"/><circle cx="40" cy="8" r="2.4"/><circle cx="8" cy="24" r="2.4"/><circle cx="40" cy="24" r="2.4"/><circle cx="8" cy="40" r="2.4"/><circle cx="24" cy="40" r="2.4"/><circle cx="40" cy="40" r="2.4"/></g><circle class="proof" cx="24" cy="24" r="5"/></svg>
         <span class="wordmark">LATTICE</span>
         <span class="brand-sub">BROWSER PEER</span>
       </a>

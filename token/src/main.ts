@@ -10,7 +10,7 @@ const homeUrl = ["127.0.0.1", "localhost"].includes(location.hostname)
 app.innerHTML = `
   <header class="topbar">
     <a class="brand" href="${homeUrl}" aria-label="Lattice home">
-      <img src="./assets/lattice-mark.svg" alt="" width="24" height="24" />
+      <svg class="mark" viewBox="0 0 48 48" width="24" height="24" aria-hidden="true"><g class="node"><circle cx="8" cy="8" r="2.4"/><circle cx="24" cy="8" r="2.4"/><circle cx="40" cy="8" r="2.4"/><circle cx="8" cy="24" r="2.4"/><circle cx="40" cy="24" r="2.4"/><circle cx="8" cy="40" r="2.4"/><circle cx="24" cy="40" r="2.4"/><circle cx="40" cy="40" r="2.4"/></g><circle class="proof" cx="24" cy="24" r="5"/></svg>
       <span class="wordmark">Lattice</span><span class="brand-sub">Token</span>
     </a>
   </header>
