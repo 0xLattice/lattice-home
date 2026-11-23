@@ -6,7 +6,7 @@
 // Repositories pinned by lattice-node's Package.resolved are fetched at that
 // version. The rest follow their default branch.
 export const PINNED = { lattice: "Lattice", ivy2: "Ivy2", tally: "Tally", volumebroker: "VolumeBroker", cashew: "cashew" };
-export const UNPINNED = ["lattice-node", "lattice-sdk", "selfhold-wallet", "lattice-skills"];
+export const UNPINNED = ["lattice-node", "lattice-sdk", "selfhold-wallet", "lattice-skills", "lattice-sponsor"];
 
 const p = (slug, file, label) => ({ slug, file, label });
 const r = (slug, repo, path, label) => ({ slug, repo, path, label });
@@ -64,6 +64,7 @@ export const SECTIONS = [
       r("run/operations", "lattice-node", "docs/operations.md", "Operations runbook"),
       r("run/deployment", "lattice-node", "deploy/README.md", "Deployment"),
       r("run/mining-workers", "lattice-node", "docs/mining-workers.md", "Mining workers"),
+      r("run/fee-sponsor", "lattice-sponsor", "README.md", "Fee sponsor (lattice-sponsor)"),
       r("run/reproducible-builds", "lattice-node", "docs/reproducible-builds.md", "Reproducible builds"),
       r("run/release-verification", "lattice-node", "docs/release-verification.md", "Release verification"),
     ],
