@@ -3,402 +3,318 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lattice — Ship the app. Skip the backend.</title>
-<meta name="description" content="Lattice replaces your backend with permissionless ledgers: records any node can serve and every client can verify, rules the network enforces, payments inside every write, and accounts that are keys. For people and AI agents.">
-<meta property="og:title" content="Lattice — Ship the app. Skip the backend.">
-<meta property="og:description" content="Permissionless ledgers for people and AI agents. No servers to defend, no payment processor, no password database.">
+<title>Lattice — Blockchains anyone can launch.</title>
+<meta name="description" content="Lattice is a tree of proof-of-work blockchains. Anyone can add one.">
+<meta property="og:title" content="Lattice — Blockchains anyone can launch.">
+<meta property="og:description" content="Lattice is a tree of proof-of-work blockchains. Anyone can add one.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://lattice.build/">
+<meta name="theme-color" content="#2b1b3d">
 <link rel="icon" href="./lattice-mark.svg">
 <!-- Styles are inlined so this self-contained page paints in one request,
      with no render-blocking stylesheet round-trip. -->
 <style>
-/* === design tokens === */
+/* === design tokens ===
+   Bismuth: the violet of a bismuth crystal on a pale lilac paper, with the
+   teal of its oxide sheen as the one accent. The accent is taken by the mark's
+   center node (the proof every chain shares); it is used only for that node,
+   the primary action, focus, and live status, never for text on paper. */
 :root {
-  --paper:    #ffffff;
-  --ink:      #0a0a0a;  /* full ink: headings, wordmark, UI */
-  --ink-soft: #333333;  /* body copy: softer than pure black, less glare */
-  --ink-mute: #6b6b6b;  /* comments, captions */
-  --line:     #e6e6e6;
-  --font: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
-  --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
-  --fs-20: 1.25rem;  --fs-28: 1.75rem;  --fs-44: 2.75rem;
-  --lh-body: 1.6; --lh-display: 1.1; --track-display: 0.08em;
-  --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px;
-  --s-5: 40px; --s-6: 64px; --s-7: 96px;
+  --lilac:    #f4f2f7;  /* paper */
+  --bismuth:  #2b1b3d;  /* ink: headings, text, the hero band */
+  --deep:     #1f1330;  /* code panels */
+  --mauve:    #685c78;  /* captions, secondary text */
+  --rule-c:   #ddd7e5;  /* hairlines */
+  --proof:    #2ec4b6;  /* the accent: oxide teal */
+  --paper: var(--lilac); --ink: var(--bismuth); --ink-soft: #43355a; --ink-mute: var(--mauve);
+  --line: var(--rule-c); --band: var(--bismuth); --band-ink: #efeaf5; --band-mute: #b9aecb;
+  --mono: ui-monospace, "Berkeley Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --fs-13: 0.8125rem; --fs-15: 0.9375rem; --fs-17: 1.0625rem;
+  --fs-22: 1.375rem;  --fs-30: 1.875rem;
+  --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px; --s-5: 40px; --s-6: 72px; --s-7: 112px;
   --rule: 1px solid var(--line);
-  --radius: 0;
-  --measure: 66ch;
+  --measure: 62ch;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --paper: #0a0a0a; --ink: #ededed; --ink-soft: #bdbdbd; --ink-mute: #8a8a8a; --line: #262626; }
+  :root { --paper: #1a1026; --ink: #efeaf5; --ink-soft: #cfc5dc; --ink-mute: #a194b3;
+    --line: #3a2b4f; --band: #120a1c; --deep: #0d0715; }
 }
 * { box-sizing: border-box; }
-html { font-family: var(--font); font-size: 18px; line-height: var(--lh-body);
-  -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--paper); color: var(--ink);
-  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-h1, h2, h3 { text-transform: uppercase; letter-spacing: var(--track-display);
-  line-height: var(--lh-display); font-weight: 600; margin: 0 0 var(--s-3); text-wrap: balance; }
-h1 { font-size: var(--fs-44); }
-h2 { font-size: var(--fs-28); }
-h3 { font-size: var(--fs-20); }
+html { font-family: var(--sans); font-size: 17px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { font-family: var(--mono); font-weight: 600; line-height: 1.15; letter-spacing: -0.02em;
+  margin: 0 0 var(--s-3); text-wrap: balance; }
+h2 { font-size: var(--fs-30); }
+h3 { font-size: var(--fs-17); letter-spacing: -0.01em; margin-bottom: var(--s-1); }
 p, li { max-width: var(--measure); margin: 0 0 var(--s-3); color: var(--ink-soft); }
-small, .meta { font-size: var(--fs-12); }
-a { color: inherit; text-decoration: underline; text-underline-offset: 2px;
-  text-decoration-thickness: 1px; }
-a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 2px solid var(--ink); outline-offset: 2px; }
-button, .btn { font: inherit; text-transform: uppercase; letter-spacing: var(--track-display);
-  background: transparent; color: var(--ink); border: 1px solid var(--ink);
-  border-radius: var(--radius); padding: var(--s-2) var(--s-3); cursor: pointer; }
-.btn--primary { background: var(--ink); color: var(--paper); }
-.btn:hover { background: var(--ink); color: var(--paper); }
-.btn--primary:hover { background: var(--paper); color: var(--ink); }
-table { border-collapse: collapse; width: 100%; }
-th, td { text-align: left; vertical-align: top; padding: var(--s-2) var(--s-3); border-bottom: var(--rule); }
-th { font-weight: 600; }
-.num { text-align: right; font-variant-numeric: tabular-nums; }
-code, pre { font-family: var(--font); }
-:not(pre) > code { border: var(--rule); padding: 0 var(--s-1); font-size: 0.9em; }
-figure.term { margin: var(--s-4) 0; border: 1px solid var(--ink); min-width: 0; }
-figure.term figcaption {
-  display: flex; align-items: center; gap: var(--s-2);
-  padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--ink);
-  font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); }
-figure.term figcaption::before { content: "$"; }
-figure.term figcaption::after  { content: "\25AE"; margin-left: auto; }
-figure.term.js figcaption::before { content: "//"; }
-figure.term pre {
-  margin: 0; padding: var(--s-3); overflow-x: auto;
-  background: var(--ink); color: var(--paper);
-  font-size: var(--fs-14); line-height: var(--lh-body); }
-figure.term pre code { border: 0; padding: 0; font-size: inherit; color: inherit; }
-pre .c { opacity: .6; }
-.lattice-bg { background-image: radial-gradient(var(--line) 1px, transparent 1px);
-  background-size: var(--s-2) var(--s-2); }
-.wordmark { text-transform: uppercase; letter-spacing: var(--track-display); font-weight: 600; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--proof); outline-offset: 3px; }
+code, pre { font-family: var(--mono); }
+:not(pre) > code { font-size: 0.88em; background: color-mix(in srgb, var(--line) 55%, transparent);
+  padding: 1px 5px; border-radius: 3px; }
+code.nowrap { white-space: nowrap; }
+.meta { font-size: var(--fs-13); color: var(--ink-mute); }
 
-/* === page === */
-  body { padding: 0 var(--s-4); }
-  main, nav, footer { max-width: 960px; margin: 0 auto; }
-  nav { display: flex; align-items: center; gap: var(--s-3);
-    padding: var(--s-4) 0; font-size: var(--fs-14); }
-  nav a { text-decoration: none; }
-  nav a:hover { text-decoration: underline; }
-  nav .brand { display: inline-flex; align-items: center; gap: var(--s-2); }
-  nav .links { margin-left: auto; display: flex; align-items: center; gap: var(--s-3); }
-  .skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); }
-  .skip:focus { top: var(--s-2); }
-  .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: var(--fs-12); color: var(--ink-mute); margin-bottom: var(--s-2); }
-  .actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
-  .btn { display: inline-block; text-decoration: none; font-size: var(--fs-14); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 var(--s-4); }
+.skip { position: absolute; left: var(--s-4); top: -100px; background: var(--paper); padding: var(--s-2); z-index: 2; }
+.skip:focus { top: var(--s-2); }
 
-  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: var(--s-4) var(--s-5);
-    align-items: start; padding: var(--s-6) 0 var(--s-6); }
-  .hero-head { grid-column: 1 / -1; }
-  .hero h1 { font-size: clamp(1.6rem, 5.4vw, 3.1rem); margin: 0; }
-  .hero .lede { font-size: var(--fs-16); }
-  .hero .actions { margin-top: var(--s-4); }
-  .hero figure.term { margin: 0; }
-  .hero figure.term pre { font-size: 0.8rem; }
+/* buttons */
+.btn { display: inline-block; font: 600 var(--fs-15)/1 var(--mono); text-decoration: none;
+  padding: 13px 20px; border-radius: 4px; border: 1px solid currentColor; cursor: pointer;
+  background: transparent; color: inherit; }
+.btn:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.btn--proof { background: var(--proof); border-color: var(--proof); color: var(--deep); }
+.btn--proof:hover { background: #4fd6c9; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 
-  .ask { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
-    border: var(--rule); padding: var(--s-3); margin: 0 0 var(--s-6); font-size: var(--fs-14); }
-  .ask .label { color: var(--ink-mute); text-transform: uppercase; letter-spacing: var(--track-display); font-size: var(--fs-12); }
-  .ask code { flex: 1 1 24ch; min-width: 0; border: 0 !important; padding: 0 !important; overflow-wrap: anywhere; color: var(--ink); }
-  .ask button { font-size: var(--fs-12); padding: var(--s-1) var(--s-2); }
+/* code panels */
+figure.term { margin: var(--s-4) 0 0; min-width: 0; border-radius: 6px; overflow: hidden;
+  background: var(--deep); color: #e6dff0; }
+figure.term figcaption { font: var(--fs-13) var(--mono); color: #a497b8; padding: 10px var(--s-3) 0; }
+figure.term pre { margin: 0; padding: var(--s-2) var(--s-3) var(--s-3); overflow-x: auto;
+  font-size: 0.8rem; line-height: 1.65; }
+figure.term pre code { background: none; padding: 0; }
+pre .c { color: #9284a8; }
+pre .k { color: var(--proof); }
 
-  section { padding: var(--s-6) 0; border-top: var(--rule); }
-  h2 { font-size: var(--fs-20); }
-  .intro { margin-bottom: var(--s-4); }
+/* === nav + hero: the one bold band === */
+.band { background: var(--band); color: var(--band-ink);
+  background-image: radial-gradient(color-mix(in srgb, var(--band-ink) 16%, transparent) 1.2px, transparent 1.3px);
+  background-size: 24px 24px; background-position: 12px 12px; }
+.band p { color: var(--band-mute); }
+nav { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) 0; font-size: var(--fs-15); }
+nav a { text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+nav .brand { display: inline-flex; align-items: center; gap: 10px; font: 600 var(--fs-15) var(--mono); letter-spacing: 0.12em; }
+nav .links { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-2) var(--s-4); }
+.mark .node { fill: currentColor; }
+.mark .proof { fill: var(--proof); }
 
-  .table-wrap { overflow-x: auto; }
-  .table-wrap + .meta { margin-top: var(--s-3); }
-  code.nowrap { white-space: nowrap; }
-  .swap td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
-  .swap td { font-size: var(--fs-14); color: var(--ink-soft); }
-  .swap td:last-child { color: var(--ink); }
-  .swap th { font-size: var(--fs-12); text-transform: uppercase; letter-spacing: var(--track-display); color: var(--ink-mute); font-weight: 400; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-5);
+  align-items: center; padding: var(--s-6) 0 var(--s-7); }
+.hero h1 { font-size: clamp(2.1rem, 5.2vw, 3.4rem); letter-spacing: -0.045em; line-height: 1.0; margin-bottom: var(--s-4); }
+.hero .lede { font-size: 1.15rem; color: var(--band-ink); opacity: .86; max-width: 34ch; margin-bottom: var(--s-4); }
+.hero figure.term { margin: 0; border: 1px solid color-mix(in srgb, var(--band-ink) 18%, transparent);
+  box-shadow: 0 30px 60px -30px #000a; }
 
-  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-5); align-items: start; }
-  .parts { list-style: none; padding: 0; margin: 0; }
-  .parts li { padding: var(--s-3) 0; border-top: var(--rule); margin: 0; font-size: var(--fs-14); }
-  .parts li:last-child { border-bottom: var(--rule); }
-  .parts b { display: block; color: var(--ink); font-weight: 600; margin-bottom: var(--s-1); font-size: var(--fs-16); }
+.ask { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
+  margin-top: calc(-1 * var(--s-5)); position: relative; background: var(--paper);
+  border: var(--rule); border-left: 4px solid var(--proof); border-radius: 6px;
+  padding: var(--s-3) var(--s-4); font-size: var(--fs-15); }
+.ask .label { color: var(--ink-mute); }
+.ask code { flex: 1 1 28ch; min-width: 0; background: none !important; padding: 0 !important;
+  overflow-wrap: anywhere; color: var(--ink); font-size: var(--fs-15); }
+.ask button { font-size: var(--fs-13); padding: 8px 14px; }
 
-  .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0;
-    border-top: var(--rule); border-left: var(--rule); }
-  .facts > div { padding: var(--s-4); border-right: var(--rule); border-bottom: var(--rule); min-width: 0; }
-  .facts h3 { font-size: var(--fs-16); text-transform: none; letter-spacing: 0; margin-bottom: var(--s-2); }
-  .facts p { font-size: var(--fs-14); margin: 0; }
+/* === sections === */
+section { padding: var(--s-6) 0; border-top: var(--rule); }
+.ask + section { border-top: 0; }
+.head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s-4) var(--s-5); align-items: start; }
+.head h2 { margin: 0; }
 
-  .inline-links { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
-  .inline-links li { margin: 0; }
 
-  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; }
-  ol.steps > li { counter-increment: step; max-width: none; display: grid;
-    grid-template-columns: 3ch minmax(0, 1fr); gap: 0 var(--s-3); padding: var(--s-4) 0; border-top: var(--rule); margin: 0; }
-  ol.steps > li::before { content: counter(step); font-weight: 600; color: var(--ink); }
-  ol.steps h3 { font-size: var(--fs-16); text-transform: none; letter-spacing: 0; margin-bottom: var(--s-2); }
-  ol.steps p { font-size: var(--fs-14); }
-  ol.steps figure.term { margin: var(--s-2) 0 0; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); margin-top: var(--s-5); }
+.trio p { font-size: var(--fs-15); margin: 0; }
 
-  .tradeoffs li { font-size: var(--fs-14); margin-bottom: var(--s-2); }
-  .tradeoffs b { color: var(--ink); }
+ol.steps { list-style: none; counter-reset: step; padding: 0; margin: var(--s-4) 0 0; }
+ol.steps > li { counter-increment: step; max-width: none; display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr); padding: var(--s-4) 0; border-top: var(--rule); margin: 0; }
+ol.steps > li::before { content: counter(step); font: 600 var(--fs-17) var(--mono); color: var(--ink-mute); }
+ol.steps p { font-size: var(--fs-15); margin-bottom: 0; }
+ol.steps figure.term { margin-top: var(--s-3); }
 
-  #network table { font-size: var(--fs-14); margin-top: var(--s-3); }
-  #network td a { text-decoration: none; }
-  #network tr.down td { opacity: .45; }
-  /* status glyph: hollow square = nominal, ink-filled = down (matches the explorer) */
-  #network .dot { display: inline-block; width: 8px; height: 8px; border: 1px solid var(--ink-mute);
-    margin-right: var(--s-1); vertical-align: baseline; }
-  #network .dot.down { background: var(--ink); border-color: var(--ink); }
-  #network code { overflow-wrap: anywhere; }
+.inline-links { list-style: none; padding: 0; margin: var(--s-4) 0 0; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
+.inline-links li { margin: 0; font-size: var(--fs-15); }
 
-  .closing { text-align: left; }
-  .closing h2 { font-size: var(--fs-28); }
+ul.limits { padding: 0; list-style: none; margin: 0; columns: 2; column-gap: var(--s-5); }
+ul.limits li { break-inside: avoid; margin-bottom: var(--s-2); }
+ul.limits b { color: var(--ink); display: block; }
 
-  footer { display: flex; align-items: center; gap: var(--s-3);
-    padding: var(--s-5) 0; border-top: var(--rule); font-size: var(--fs-12); }
-  footer .links { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+#network table { border-collapse: collapse; width: 100%; font-size: var(--fs-15); margin-top: var(--s-3); }
+#network th, #network td { text-align: left; padding: 10px var(--s-3) 10px 0; border-bottom: var(--rule); }
+#network th { font-weight: 400; color: var(--ink-mute); font-size: var(--fs-13); }
+#network .num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+#network td a { text-decoration: none; }
+#network tr.down td { opacity: .5; }
+#network .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--proof);
+  margin-right: var(--s-2); box-shadow: 0 0 0 3px color-mix(in srgb, var(--proof) 25%, transparent); }
+#network .dot.down { background: transparent; border: 1px solid var(--ink-mute); box-shadow: none; }
+#network code { overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; }
 
-  @media (max-width: 820px) {
-    .hero, .two { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
-    .hero { padding-top: var(--s-5); }
-  }
-  @media (max-width: 720px) {
-    body { padding: 0 var(--s-3); }
-    nav { align-items: flex-start; }
-    nav .links { justify-content: flex-end; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
-    .facts { grid-template-columns: minmax(0, 1fr); }
-    .swap thead { display: none; }
-    .swap tr { display: block; padding: var(--s-3) 0; border-bottom: var(--rule); }
-    .swap td { display: block; border: 0; padding: var(--s-1) 0; }
-    .swap td[data-label]::before { content: attr(data-label); display: block; font-size: var(--fs-12);
-      text-transform: uppercase; letter-spacing: var(--track-display); color: var(--ink-mute); }
-    .swap td + td { margin-top: var(--s-2); }
-    footer { flex-wrap: wrap; }
-  }
+
+footer { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-3);
+  padding: var(--s-5) var(--s-4); font-size: var(--fs-13); }
+footer .brand { font: 600 var(--fs-13) var(--mono); letter-spacing: 0.12em; }
+footer .links { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); }
+footer.band p { margin: 0; }
+
+@media (max-width: 860px) {
+  .hero, .head { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding: var(--s-5) 0 var(--s-6); gap: var(--s-4); }
+  .trio { grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+  ul.limits { columns: 1; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 var(--s-3); }
+  nav { align-items: flex-start; }
+  nav .links { gap: var(--s-1) var(--s-3); }
+  .ask { padding: var(--s-3); }
+}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-  <nav>
-    <a class="brand" href="./" aria-label="Lattice home">
-      <img src="./lattice-mark.svg" width="22" height="22" alt="">
-      <span class="wordmark">LATTICE</span>
-    </a>
-    <span class="links">
-      <a href="./download/">Download</a>
-      <a href="docs/">Docs</a>
-      <a href="./apps/">Apps</a>
-      <a href="./explorer/">Explorer</a>
-      <a href="./mine/">Mine</a>
-      <a href="./community/">Community</a>
-      <a href="https://github.com/0xLattice">GitHub</a>
-    </span>
-  </nav>
+<div class="band">
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="./" aria-label="Lattice home">
+        <svg class="mark" viewBox="0 0 48 48" width="22" height="22" aria-hidden="true">
+          <g class="node"><circle cx="8" cy="8" r="2.4"/><circle cx="24" cy="8" r="2.4"/><circle cx="40" cy="8" r="2.4"/><circle cx="8" cy="24" r="2.4"/><circle cx="40" cy="24" r="2.4"/><circle cx="8" cy="40" r="2.4"/><circle cx="24" cy="40" r="2.4"/><circle cx="40" cy="40" r="2.4"/></g>
+          <circle class="proof" cx="24" cy="24" r="5"/>
+        </svg>
+        <span>LATTICE</span>
+      </a>
+      <span class="links">
+        <a href="./download/">Download</a>
+        <a href="docs/">Docs</a>
+        <a href="./explorer/">Explorer</a>
+        <a href="./mine/">Mine</a>
+        <a href="./community/">Community</a>
+        <a href="https://github.com/0xLattice">GitHub</a>
+      </span>
+    </nav>
 
-<main id="main">
-
-  <header class="hero">
-    <div class="hero-head">
-      <p class="eyebrow">Permissionless ledgers for people and AI agents</p>
-      <h1>Ship the app.<br>Skip the backend.</h1>
-    </div>
-    <div>
-      <p class="lede">Every app drags a backend behind it: servers to defend, a database to run, a payment processor to integrate, and passwords to protect. The bill grows with every user, and every bot.</p>
-      <p class="lede">Lattice is that backend as an open network: anyone can run a node, and no one has to ask. You ship the page; people and AI agents bring their own keys and pay as they go.</p>
-      <div class="actions">
-        <a class="btn btn--primary" href="#quickstart">Start building</a>
-        <a class="btn" href="./apps/">See live apps</a>
+    <header class="hero">
+      <div>
+        <h1>Blockchains anyone can launch.</h1>
+        <div class="actions">
+          <a class="btn btn--proof" href="#quickstart">Quickstart</a>
+        </div>
       </div>
-    </div>
-    <figure class="term js">
-      <figcaption>app.js: sell a ticket, no server</figcaption>
-<pre><code><span class="c">// on a click. lattice is the user's wallet</span>
-const me = await lattice.connect();
-await lattice.writeRecords({
-  chainPath: ["Nexus", "testnet", "fanfare-a5688b"],
-  actions: [{
-    key: "own/&lt;artist&gt;/berlin/A12",
-    oldValue: "&lt;holder&gt;@250", <span class="c">// still 250</span>
-    newValue: me,
-  }],
-  payments: [{ to: "&lt;holder&gt;", amount: "250" }],
-  fee: "1",
-});
-<span class="c">// the ticket and the payment land together,
-// or not at all.</span></code></pre>
-    </figure>
-  </header>
+      <figure class="term">
+        <figcaption>launch a chain</figcaption>
+<pre><code>lattice child create Nexus/myapp \
+  --root node \
+  --spec chain/spec.json \
+  --policy-module chain/rules.wasm
+<span class="c"># Nexus/myapp is live once its genesis is mined</span></code></pre>
+      </figure>
+    </header>
+  </div>
+</div>
+
+<main id="main" class="wrap">
 
   <div class="ask" id="agents-prompt">
-    <span class="label">Or ask your coding agent</span>
+    <span class="label">Or ask your coding agent:</span>
     <code id="agent-line">Read https://lattice.build/agents.md and build me an app on Lattice.</code>
-    <button type="button" id="copy-agent">Copy</button>
+    <button type="button" class="btn" id="copy-agent">Copy</button>
   </div>
 
-  <section id="why" aria-labelledby="why-title">
-    <h2 id="why-title">Most of a backend is overhead.</h2>
-    <p class="intro">Little of a typical backend is your product. The rest keeps attackers out, keeps data alive, moves money, and guards logins. You pay for it whether your app takes off or not, and you answer for it when it breaks.</p>
-    <div class="table-wrap">
-    <table class="swap">
-      <thead><tr><th>Overhead</th><th>Today</th><th>With Lattice</th></tr></thead>
-      <tbody>
-        <tr><td>Abuse</td><td data-label="Today">Every bot hits your servers and your bill. A flood can take you offline.</td><td data-label="With Lattice">There is no server of yours to flood. Any node can answer a reader, and writers compete for room on the ledger, not on your machines.</td></tr>
-        <tr><td>Data</td><td data-label="Today">A database to run, back up, scale, and keep online.</td><td data-label="With Lattice">Your data lives on the network. Anyone can host a copy, and readers check each value against its hash, so a stranger’s copy is as good as yours.</td></tr>
-        <tr><td>Payments</td><td data-label="Today">A processor, a merchant account, fees per charge, chargebacks.</td><td data-label="With Lattice">Payment is part of the action. A purchase and what it buys land together or not at all.</td></tr>
-        <tr><td>Accounts</td><td data-label="Today">A password table, resets, 2FA, breach notices.</td><td data-label="With Lattice">Users hold their own keys. There is no credential database to breach.</td></tr>
-        <tr><td>Agents</td><td data-label="Today">Signup forms, API keys, and a credit card no agent can get.</td><td data-label="With Lattice">An agent holds a key and pays as it goes, exactly like a person.</td></tr>
-      </tbody>
-    </table>
-    </div>
-  </section>
 
-  <section id="how" aria-labelledby="how-title">
-    <h2 id="how-title">Only the part that is your product.</h2>
-    <div class="two">
-      <ul class="parts">
-        <li><b>Your rules</b>What counts as a valid action in your app: who may edit what, what a ticket costs, who can resell it. Every node enforces them, so no one, including you, can quietly break them.</li>
-        <li><b>Your page</b>Static files, hosted anywhere. It reads data it can verify and asks the user’s wallet to sign and pay.</li>
-      </ul>
-      <div>
-        <p>Your rules get a ledger of their own: a public record of keys and values that every node checks against those rules. Lattice calls it a chain. Another app’s rush never competes with yours for space.</p>
-        <p>Miners can secure it alongside Nexus, the root ledger, from its first block, with no validators to recruit. Its security is the hashpower that chooses to mine it.</p>
-        <p>Don’t need custom rules? Write to a ledger that already has the right ones. The <a href="./apps/">live apps</a> share Moniker’s for profiles.</p>
-      </div>
-    </div>
-    <figure class="term">
-      <figcaption>put your rules on the network</figcaption>
-<pre><code>lattice child create Nexus/testnet/myapp-7f3c --root node \
-  --spec chain/spec.json --policy-module chain/rules.wasm
-<span class="c"># live once your node mines its first block. no deploy fee, no approval.</span></code></pre>
-    </figure>
-  </section>
 
   <section id="agents" aria-labelledby="agents-title">
-    <h2 id="agents-title">An agent is just another key.</h2>
-    <p class="intro">Today an agent stalls at every signup form, API key, and card field, because each one was built to make sure a human is there. Lattice asks for none of them.</p>
-    <div class="facts">
-      <div><h3>Nothing to sign up for</h3><p>An agent makes its own key and starts working. Where nodes accept zero-fee writes, it needs no money to begin.</p></div>
-      <div><h3>Pays as it goes</h3><p>Any action can carry a payment: buy a ticket, tip a post, rent a spot. No invoices, no account to top up.</p></div>
-      <div><h3>Doesn’t have to trust you</h3><p>Every value it reads is checked against its hash, so a stranger’s node can’t forge data. At worst it serves an out-of-date view, which asking a second node catches.</p></div>
-      <div><h3>Your coding agent already knows it</h3><p>Open agent skills teach it to run nodes, design apps, send payments, and fix what breaks.</p></div>
-    </div>
-    <figure class="term">
-      <figcaption>teach Claude Code lattice</figcaption>
+    <div class="head">
+      <h2 id="agents-title">Agent skills</h2>
+      <div>
+        <figure class="term">
+          <figcaption>teach Claude Code lattice</figcaption>
 <pre><code>/plugin marketplace add 0xLattice/lattice-skills
 /plugin install lattice@lattice-skills</code></pre>
-    </figure>
-    <p class="meta">Other agents: copy the <code>skills/</code> folders from <a href="https://github.com/0xLattice/lattice-skills">lattice-skills</a>, or point them at <a href="./agents.md">agents.md</a>.</p>
+        </figure>
+        <p class="meta" style="margin-top: var(--s-3)">Other agents: <a href="./agents.md">agents.md</a></p>
+      </div>
+    </div>
   </section>
 
-
   <section id="quickstart" aria-labelledby="qs-title">
-    <h2 id="qs-title">From nothing to a live app.</h2>
-    <p class="intro">Command-line setup is one command on Apple-silicon Macs and x86-64 Linux (elsewhere, <a href="https://github.com/0xLattice/lattice-node">build from source</a> with Swift 6.1+). (Just want a node and a wallet? <a href="./download/">Lattice Desktop</a> runs both with no setup.) Develop under <code>Nexus/testnet</code>: once a chain launches, its rules can never change.</p>
+    <div class="head">
+      <h2 id="qs-title">Quickstart</h2>
+      <p>Command-line setup for Apple-silicon Macs and x86-64 Linux, or <a href="./download/">Download Lattice Desktop</a>.</p>
+    </div>
     <ol class="steps">
       <li><div>
-        <h3>Install and start a node</h3>
-        <p>With no <code>peers</code> set, the node joins the public Nexus network. A node hosts a chain only under a parent it hosts, so add the public testnet before you start it.</p>
+        <h3>Start a node</h3>
 <figure class="term"><figcaption>node</figcaption>
 <pre><code>curl -fsSL https://lattice.build/install.sh | sh
 export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
 <span class="c"># in node/lattice.json add:  "hostedChains": ["Nexus/testnet"]</span>
-lattice up --root node
-lattice status --root node   <span class="c"># wait until Nexus/testnet is in sync</span></code></pre></figure>
+lattice up --root node</code></pre></figure>
       </div></li>
       <li><div>
         <h3>Write your rules</h3>
-        <p>A chain is a JSON spec: block time, rewards, size limits, and the CIDs of its policy modules. Policies are WASM modules; the examples are written in Rust. Start from <a href="https://github.com/adalinxx/moniker/tree/main/policy">Moniker’s <code>policy/</code> crate</a>, or let the <code>lattice-app-builder</code> skill write one with you.</p>
+        <p>Start from <a href="https://github.com/adalinxx/moniker/tree/main/policy">Moniker’s policy crate</a>.</p>
       </div></li>
       <li><div>
         <h3>Launch the chain</h3>
-        <p>Make a key first. The node starts hosting the chain immediately. To fund the key in genesis, set <code>premine</code> in the spec and add <code class="nowrap">--premine-to &lt;address&gt;</code>.</p>
 <figure class="term"><figcaption>launch</figcaption>
-<pre><code>lattice key generate --out ./wallet.json   <span class="c"># prints its address</span>
-lattice child create Nexus/testnet/myapp-7f3c \
-  --root node \
-  --spec chain/spec.json \
-  --policy-module chain/rules.wasm</code></pre></figure>
+<pre><code>lattice key generate --out ./wallet.json
+lattice child create Nexus/testnet/myapp-7f3c --root node \
+  --spec chain/spec.json --policy-module chain/rules.wasm</code></pre></figure>
       </div></li>
       <li><div>
-        <h3>Mine it, or let others</h3>
-        <p>A chain advances when someone mines it. Pay the chain’s rewards to your key and start the bundled CPU miner; GPU miners can merge-mine it alongside Nexus. A chain with no recipient burns its rewards.</p>
+        <h3>Mine it</h3>
 <figure class="term"><figcaption>mine</figcaption>
 <pre><code><span class="c"># in node/lattice.json add:
 #   "mine": { "worker": "cpu", "workers": 2,
 #     "recipients": { "Nexus/testnet/myapp-7f3c": "&lt;address&gt;" } }</span>
-lattice mine start --root node
-<span class="c"># once it has coin, the key can pay others:</span>
-lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
-  --key ./wallet.json --to &lt;address&gt; --amount 25 --fee 1</code></pre></figure>
+lattice mine start --root node</code></pre></figure>
       </div></li>
       <li><div>
         <h3>Ship a page</h3>
-        <p>Read with the <a href="https://github.com/0xLattice/lattice-sdk">TypeScript SDK</a>, which checks every value against the latest block. Write with <code>window.lattice</code> from the user’s wallet. Host the page anywhere static files go.</p>
+        <p>Read with the <a href="https://github.com/0xLattice/lattice-sdk">TypeScript SDK</a>. Write with <code>window.lattice</code>.</p>
       </div></li>
     </ol>
     <ul class="inline-links">
+      <li><a href="docs/run/getting-started/">Full guide</a></li>
       <li><a href="docs/run/operator-cli/">Operator CLI</a></li>
       <li><a href="docs/build/http-api/">RPC API</a></li>
-      <li><a href="docs/run/getting-started/">Getting started</a></li>
-      <li><a href="docs/run/mining-workers/">Mining workers</a></li>
     </ul>
   </section>
 
   <section id="tradeoffs" aria-labelledby="tradeoffs-title">
-    <h2 id="tradeoffs-title">When Lattice is the wrong choice.</h2>
-    <ul class="tradeoffs">
-      <li><b>You need instant confirmation.</b> A write takes effect in the next block: about a minute on the testnet app ledgers today, and an hour on average on Nexus.</li>
-      <li><b>You need a write to be final.</b> Lattice follows the chain with the most proof of work, and a heavier competing history can replace recent writes. Confirm important ones by reading them back.</li>
-      <li><b>You need to charge in dollars.</b> Payments are in the coin of the ledger they happen on. Users get it by mining, from another user, or by trading for it; there is no card on-ramp.</li>
-      <li><b>You need to change your rules later.</b> A launched ledger’s rules are fixed. To change them, launch a new ledger and have your page read both.</li>
-      <li><b>You need private data.</b> Everything on a chain is public. Encrypt it yourself before you write it.</li>
-      <li><b>You need code that runs on its own.</b> Your rules can only accept or reject an action. Feeds, ranking, matching, and anything scheduled run in your page or your own service.</li>
-      <li><b>You need someone else to keep it running.</b> A chain lives while people mine and host it. A small chain is only as secure as the hashpower that chooses to mine it.</li>
-      <li><b>You need stability today.</b> Lattice is pre-1.0. Networks have been reset at protocol upgrades, the SDK is not yet on npm, and the command-line tools build from source.</li>
+    <h2 id="tradeoffs-title">Limitations</h2>
+    <ul class="limits">
+      <li>Writes wait for the next block.</li>
+      <li>Everything on a chain is public.</li>
+      <li>Rules can’t change after launch.</li>
+      <li>Pre-1.0: networks may reset.</li>
     </ul>
     <ul class="inline-links">
       <li><a href="docs/protocol/spec/">Protocol specification</a></li>
-      <li><a href="https://github.com/0xLattice/Lattice">Consensus source</a></li>
     </ul>
   </section>
 
   <section id="network" aria-labelledby="network-title">
-    <h2 id="network-title">The network right now.</h2>
-    <p>Height and peers read directly from each node’s public read surface, refreshed every 15&nbsp;seconds. Browse blocks and transactions in the <a href="./explorer/">explorer</a>. Want to help secure it? <a href="docs/run/operations/">Run a node</a> or <a href="./mine/">mine</a>.</p>
-    <p class="meta">Nexus genesis <code>bafyreiggtg4ezifboyekbf4gxst2jr3mpjqcxsbmopy7w6fp46g4ngpgxa</code>, dated 2026-10-04 06:19:59&nbsp;UTC</p>
+    <h2 id="network-title">Network status</h2>
     <div class="table-wrap">
     <table>
       <thead><tr><th>Chain</th><th>Node</th><th class="num">Height</th><th class="num">Peers</th><th>Status</th></tr></thead>
       <tbody id="net-rows"></tbody>
     </table>
     </div>
-    <noscript><p>Enable JavaScript for live node status, or visit the block explorer.</p></noscript>
+    <ul class="inline-links">
+      <li><a href="./explorer/">Explorer</a></li>
+      <li><a href="docs/run/operations/">Run a node</a></li>
+      <li><a href="./mine/">Mine</a></li>
+    </ul>
+    <noscript><p>Enable JavaScript for live node status.</p></noscript>
   </section>
 
-  <section class="closing" aria-labelledby="closing-title">
-    <h2 id="closing-title">Ship the app. Skip the backend.</h2>
-    <p>Every line of it is on GitHub, and there is no one to ask for permission.</p>
-    <div class="actions">
-      <a class="btn btn--primary" href="#quickstart">Start the quickstart</a>
-      <a class="btn" href="./download/">Download Lattice Desktop</a>
-      <a class="btn" href="https://github.com/0xLattice/lattice-node/discussions">Ask a question</a>
-    </div>
-  </section>
 
 </main>
 
-  <footer>
-    <span class="wordmark">LATTICE</span>
+<div class="band">
+  <footer class="wrap">
+    <span class="brand">LATTICE</span>
     <span class="links">
       <a href="docs/">Docs</a>
-      <a href="./apps/">Apps</a>
       <a href="./download/">Download</a>
       <a href="./agents.md">agents.md</a>
       <a href="./explorer/">Explorer</a>
@@ -409,6 +325,7 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
       <a href="https://github.com/0xLattice">GitHub</a>
     </span>
   </footer>
+</div>
 
 <script>
   document.getElementById("copy-agent").addEventListener("click", async (event) => {
@@ -425,7 +342,6 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
     ["iad", "https://seed1.lattice.build"],
     ["ams", "https://seed2.lattice.build"],
     ["sjc", "https://seed3.lattice.build"],
-    ["seed4", "https://seed4.lattice.build"],
     ["read (iad)", "https://lattice-mainnet-read.fly.dev"]
   ];
 
@@ -436,7 +352,7 @@ lattice tx send --root node --chain Nexus/testnet/myapp-7f3c \
       <td><a href="${url}/health">${region}</a></td>
       <td class="num" data-cell="height">…</td>
       <td class="num" data-cell="peers">…</td>
-      <td data-cell="status"><span class="dot"></span>…</td>
+      <td data-cell="status"><span class="dot down"></span>…</td>
     </tr>`).join("");
 
   async function poll() {
