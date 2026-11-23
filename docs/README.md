@@ -6,7 +6,7 @@ built with [Starlight](https://starlight.astro.build/).
 Each document has one home: the repository whose code it describes. This site
 is the place to read them. `sync.mjs` fetches `lattice-node` main, reads its
 `Package.resolved`, and fetches Lattice, Ivy2, Tally, VolumeBroker and cashew at
-the versions it pins (`lattice-sdk`, `selfhold-wallet` and `lattice-skills`
+the versions it pins (`lattice-sdk`, `selfhold-wallet`, `lattice-skills` and `lattice-sponsor`
 follow their default branch). It copies the files listed in `sources.mjs` into
 `src/content/docs`, rewrites links between published files to site URLs and
 other relative links to GitHub at the fetched version, and writes the sidebar.
