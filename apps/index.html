@@ -293,7 +293,7 @@ figure.term pre { background: none; color: inherit; border-radius: 0; }
         <div class="more">
           <ul>${app.built.map((line) => `<li>${esc(line)}</li>`).join("")}</ul>
         </div>
-        <p class="live"><span class="tags">${[app.network, app.status, app.source ? "" : "closed source"]
+        <p class="live"><span class="tags">${[app.network, app.source ? "" : "closed source"]
           .filter(Boolean).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</span><span data-live="${i}">${esc(app.chain)}</span></p>
       </li>`).join("");
     apps.forEach((app, i) => live(app, list.querySelector(`[data-live="${i}"]`)));
