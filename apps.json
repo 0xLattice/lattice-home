@@ -6,7 +6,6 @@
     "source": "https://github.com/adalinxx/moniker",
     "chain": "Nexus/testnet/moniker-da6f57",
     "network": "testnet",
-    "status": "experimental",
     "built": [
       "Profiles and handles live on one shared ledger any app can read.",
       "Handles are sold person to person; the payment and the transfer land together.",
@@ -21,7 +20,6 @@
     "source": "https://github.com/adalinxx/fanfare",
     "chain": "Nexus/testnet/fanfare-a5688b",
     "network": "testnet",
-    "status": "experimental",
     "built": [
       "Each ticket is a record its holder controls; buying it pays the seller in the same step.",
       "Door staff check a pass signed by the holder's wallet.",
@@ -36,7 +34,6 @@
     "source": "https://github.com/adalinxx/stoa",
     "chain": "Nexus/testnet/stoa-41d5ab",
     "network": "testnet",
-    "status": "experimental",
     "built": [
       "Every community gets a ledger of its own, and anyone can start one.",
       "Each reader chooses which moderators' labels to follow.",
@@ -51,7 +48,6 @@
     "source": "https://github.com/adalinxx/rave",
     "chain": "Nexus/testnet/rave-186079",
     "network": "testnet",
-    "status": "experimental",
     "built": [
       "Runs on Stoa's rules unchanged: places, reviews and replies are all posts.",
       "Ranking and filtering happen in the reader's page, and it says why.",
@@ -66,7 +62,6 @@
     "source": "https://github.com/adalinxx/wheatpaste",
     "chain": "Nexus/testnet/wheatpaste-acbbcf",
     "network": "testnet",
-    "status": "experimental",
     "built": [
       "Space on the board is owned, cut up, and resold like land.",
       "An ad pays each square's owner for every block it runs, up front.",

@@ -64,15 +64,14 @@ for (const component of ["0xLattice/lattice-node", "adalinxx/nexus-wallet", "0xL
 const apps = JSON.parse(readFileSync("apps.json", "utf8"));
 assert.ok(Array.isArray(apps) && apps.length > 0, "apps.json lists apps");
 const names = new Set();
-const fields = new Set(["name", "summary", "url", "source", "chain", "network", "status", "built", "added"]);
+const fields = new Set(["name", "summary", "url", "source", "chain", "network", "built", "added"]);
 for (const app of apps) {
   for (const field of Object.keys(app)) assert.ok(fields.has(field), `${app.name}: unknown field ${field}`);
-  for (const field of ["name", "summary", "url", "chain", "network", "status", "added"])
+  for (const field of ["name", "summary", "url", "chain", "network", "added"])
     assert.ok(typeof app[field] === "string" && app[field], `${app.name}: ${field}`);
   assert.match(app.name, /^[A-Za-z0-9][A-Za-z0-9 .'-]{0,23}$/, `${app.name}: a short plain name`);
   assert.ok(!names.has(app.name.toLowerCase()), `${app.name} is listed once`); names.add(app.name.toLowerCase());
   assert.ok(app.summary.split(/\s+/).length <= 12 && app.summary.length <= 100, `${app.name}: summary is 12 words or fewer`);
-  assert.ok(["experimental", "beta", "stable"].includes(app.status), `${app.name}: status`);
   for (const link of [app.url, app.source].filter(Boolean)) assert.match(link, /^https:\/\//, `${app.name}: https link`);
   assert.match(app.chain, /^Nexus(\/[A-Za-z0-9._-]+){1,5}$/, `${app.name}: chain path`);
   assert.ok(["testnet", "mainnet"].includes(app.network), `${app.name}: network`);

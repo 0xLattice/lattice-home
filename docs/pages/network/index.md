@@ -30,5 +30,4 @@ and transactions directly from public nodes. Any node's
 
 ## Status
 
-Lattice is pre-1.0 software. Chains have no finality, and a launched chain's
-rules cannot be changed.
+Chains have no finality, and a launched chain's rules cannot be changed.
