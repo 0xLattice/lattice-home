@@ -12,7 +12,7 @@ A landing page for developers building apps for people and AI agents, and the do
 - **Built for agents** — keys without signup, pay per action, verified reads, the lattice-skills plugin
 - **Apps** — featured rows from `apps.json`, linking to `/apps/`
 - **Command-line setup** — node → rules → chain → mining → page
-- **When Lattice is the wrong choice** — latency, no finality, coin not dollars, fixed rules, public data, no automation, hosting, pre-1.0
+- **When Lattice is the wrong choice** — latency, no finality, coin not dollars, fixed rules, public data, no automation, hosting
 - **Network** — live height and peers from the public nodes
 
 Claims on the page must hold for the shipped software; state the tradeoff rather than round it up.
