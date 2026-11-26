@@ -26,7 +26,7 @@ Claims on the page must hold for the shipped software; state the tradeoff rather
 - `docs/` — the documentation site, served at `/docs/`. See [docs/README.md](docs/README.md).
 - `explorer/` — the Lattice block explorer, vendored in (client-side, talks to the nodes directly). Served at `/explorer/`.
 - `vendor/` — the Lattice SDK bundled for the browser; the explorer finds child-chain nodes with it.
-- `token/` — a redirect to the Buy/Sell pages, which live in [lattice-exchange](https://github.com/0xLattice/lattice-exchange); the explorer links there.
+- `token/` — a redirect to the Buy/Sell pages, which live outside this project in [lattice-exchange](https://github.com/adalinxx/lattice-exchange); the explorer links there.
 - `lattice-mark.svg` — the mark (favicon).
 - `.nojekyll` — so GitHub Pages serves the explorer assets raw.
 

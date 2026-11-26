@@ -182,7 +182,7 @@ const txLink = (cid, text) => link(`#/tx/${encodeURIComponent(cid)}${chainQ()}`,
 const addrLink = (a, text) => link(`#/address/${encodeURIComponent(a)}${chainQ()}`, text || hashEl(a), "mono");
 
 function tokenLink(chainPath, side) {
-  const base = CFG.tokenUrl || "https://0xlattice.github.io/lattice-exchange/";
+  const base = CFG.tokenUrl || "https://adalinxx.github.io/lattice-exchange/";
   const url = new URL(base, window.location.href);
   url.searchParams.set("chain", chainPath);
   url.hash = `#/market/${side}`;
