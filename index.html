@@ -244,7 +244,7 @@ footer.band p { margin: 0; }
 <pre><code>curl -fsSL https://lattice.build/install.sh | sh
 export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
-<span class="c"># in node/lattice.json add:  "hostedChains": ["Nexus/testnet"]</span>
+lattice child host Nexus/testnet --root node
 lattice up --root node</code></pre></figure>
       </div></li>
       <li><div>

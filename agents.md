@@ -50,8 +50,8 @@ but for development use the CLI:
 curl -fsSL https://lattice.build/install.sh | sh
 export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
-# A node hosts a chain only under a parent it hosts. Add the public testnet
-# to node/lattice.json:  "hostedChains": ["Nexus/testnet"]
+# A node hosts a chain only under a parent it hosts, so host the public testnet:
+lattice child host Nexus/testnet --root node
 lattice up --root node
 lattice status --root node   # wait until Nexus/testnet is in sync
 ```
