@@ -261,8 +261,8 @@ lattice child create Nexus/testnet/myapp-7f3c --root node \
       <li><div>
         <h3>Mine it</h3>
 <figure class="term"><figcaption>mine</figcaption>
-<pre><code><span class="c"># in node/lattice.json add:
-#   "mine": { "worker": "cpu", "workers": 2,
+<pre><code><span class="c"># write node/miner.json:
+#   { "worker": "cpu", "workers": 2,
 #     "recipients": { "Nexus/testnet/myapp-7f3c": "&lt;address&gt;" } }</span>
 lattice mine start --root node</code></pre></figure>
       </div></li>
