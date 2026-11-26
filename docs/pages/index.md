@@ -7,7 +7,7 @@ host. Start with the section that matches what you are doing.
 | Section | For | Start with |
 |---|---|---|
 | [Learn](/docs/learn/) | Anyone new to Lattice | [What Lattice is](/docs/learn/) |
-| [Use](/docs/use/) | People holding coins or using apps | [Wallets and the desktop app](/docs/use/) |
+| [Use](/docs/use/) | People holding coins or using apps | [Keys and the desktop app](/docs/use/) |
 | [Build](/docs/build/getting-started/) | App and client developers | [Getting started](/docs/build/getting-started/) |
 | [Run](/docs/run/getting-started/) | Node operators and miners | [Getting started](/docs/run/getting-started/) |
 | [Protocol](/docs/protocol/spec/) | Researchers, auditors, contributors | [Specification](/docs/protocol/spec/) |
@@ -15,5 +15,5 @@ host. Start with the section that matches what you are doing.
 
 Each page is published from the repository whose code it describes: from
 `lattice-node` main and the dependency versions it pins, and from the default
-branch of the SDK, wallet, and skills repositories. The footer of every page
+branch of the SDK, skills, and sponsor repositories. The footer of every page
 names its source file; edit it there.

@@ -25,20 +25,17 @@ Claims on the page must hold for the shipped software; state the tradeoff rather
 - `download/` — beginner desktop setup and a fail-closed release configuration.
 - `docs/` — the documentation site, served at `/docs/`. See [docs/README.md](docs/README.md).
 - `explorer/` — the Lattice block explorer, vendored in (client-side, talks to the nodes directly). Served at `/explorer/`.
-- `vendor/` — the Lattice SDK bundled for the browser; the explorer and token module find child-chain nodes with it.
-- `token/` — the cross-chain Buy/Sell module. It stages wallet requests and is built to `/token/` during deployment.
+- `vendor/` — the Lattice SDK bundled for the browser; the explorer finds child-chain nodes with it.
+- `token/` — a redirect to the Buy/Sell pages, which live outside this project in [lattice-exchange](https://github.com/adalinxx/lattice-exchange); the explorer links there.
 - `lattice-mark.svg` — the mark (favicon).
 - `.nojekyll` — so GitHub Pages serves the explorer assets raw.
 
-The home page and explorer remain plain static files. The token module (Vite) and the docs site (Astro) are the build steps:
+The home page and explorer are plain static files. The docs site (Astro) is the one build step:
 
 ```sh
-npm ci --prefix token
-npm test --prefix token
-npm run build --prefix token
 ```
 
-Pull requests run the same test and build. The Pages workflow builds in a job that can only read the repository, then publishes the static root and explorer alongside `token/dist` at `/token/` from a separate job that runs no repository code. Everything remains client-side with no website signing bridge or backend.
+Pull requests run the same test and build. The Pages workflow builds in a job that can only read the repository, then publishes the static root and explorer alongside the built docs from a separate job that runs no repository code. Everything remains client-side with no website signing bridge or backend.
 
 ## Deliberately omitted
 
@@ -56,7 +53,7 @@ For a new release, download the exact public package, SHA256SUMS,
 SHA256SUMS.minisig, and project public key. Verify the package digest and manifest
 signature against the trusted key, and confirm the version, source revision,
 requirements, and setup instructions before setting `published: true`.
-Run `node test-site.mjs` and the token checks above, then test the direct download
+Run `node test-site.mjs`, then test the direct download
 in a browser. This change does not create releases or modify release keys.
 
 Published filenames, versions, build-source revisions, sizes, digests and

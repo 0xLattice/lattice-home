@@ -26,7 +26,7 @@ for (const page of pages) {
 
   for (const match of html.matchAll(/(?:href|src)="([^"#]+)"/g)) {
     const target = match[1];
-    if (/^https:\/\/github\.com\/(?:0xLattice|adalinxx)\//.test(target)) { ownedGitHubLinks.add(target); continue; }
+    if (/^https:\/\/github\.com\/0xLattice\//.test(target)) { ownedGitHubLinks.add(target); continue; }
     if (/^(?:https?:|mailto:|data:)/.test(target) || target.includes("${")) continue;
     const resolved = new URL(target, new URL(`file://${process.cwd()}/${page}`));
     let path = decodeURIComponent(resolved.pathname);
@@ -56,7 +56,7 @@ assert.ok(ownedGitHubLinks.has("https://github.com/0xLattice/lattice-node/discus
 for (const policy of ["CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"]) {
   assert.ok(ownedGitHubLinks.has(`https://github.com/0xLattice/lattice-node/blob/main/${policy}`), `${policy} has a canonical lattice-node link`);
 }
-for (const component of ["0xLattice/lattice-node", "adalinxx/nexus-wallet", "0xLattice/lattice-home", "0xLattice/lattice-sdk", "0xLattice/lattice-miner-gpu", "0xLattice/Lattice"]) {
+for (const component of ["0xLattice/lattice-node", "0xLattice/lattice-home", "0xLattice/lattice-sdk", "0xLattice/lattice-miner-gpu", "0xLattice/Lattice"]) {
   assert.ok(ownedGitHubLinks.has(`https://github.com/${component}`), `${component} is in the software directory`);
 }
 

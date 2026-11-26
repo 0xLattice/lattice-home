@@ -79,7 +79,7 @@ node, not by the chain (`minRelayFee` in `/api/chain/info`).
 - Ask the user before anything that spends coin, publishes a chain, or exposes
   a node publicly. A launched chain cannot be changed.
 - Never ask for or handle a user's recovery phrase. In web apps, users sign
-  with the Selfhold wallet through `window.lattice`; your page never holds keys.
+  with their own wallet through `window.lattice`; your page never holds keys.
 - Reads: trust a node only for the chain tip. Check everything else by CID
   (the SDK does this).
 - Writes are not final. Confirm an important write by reading it back.
@@ -91,7 +91,6 @@ node, not by the chain (`minRelayFee` in `/api/chain/info`).
   HTTP API: https://lattice.build/docs/build/http-api/)
 - Protocol: https://lattice.build/docs/protocol/spec/
 - TypeScript SDK: https://github.com/0xLattice/lattice-sdk
-- Wallet page API (`window.lattice`): https://github.com/adalinxx/selfhold-wallet
 - Example apps, each with `chain/` and `client/` folders, and `policy/` except
   Rave, which runs on Stoa's policy:
   https://github.com/adalinxx/moniker, https://github.com/adalinxx/fanfare,
