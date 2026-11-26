@@ -35,7 +35,16 @@ export const SECTIONS = [
       r("build/policies", "lattice-skills", "skills/lattice-app-builder/references/policy.md", "Validity policies"),
       r("build/chainspec", "lattice-skills", "skills/lattice-child-chains/references/chainspec.md", "ChainSpec reference"),
       r("build/transaction-format", "lattice-skills", "skills/lattice-transactions/references/transaction-format.md", "Transaction format"),
-      r("build/http-api", "lattice-node", "docs/rpc-api.md", "HTTP API"),
+      {
+        label: "HTTP API",
+        items: [
+          r("build/http-api", "lattice-node", "docs/rpc-api.md", "Overview and route index"),
+          r("build/http-api/reads-and-transactions", "lattice-node", "docs/api-reads-and-transactions.md", "Reads and transactions"),
+          r("build/http-api/mining", "lattice-node", "docs/api-mining.md", "Mining routes"),
+          r("build/http-api/operator", "lattice-node", "docs/api-operator.md", "Operator routes"),
+        ],
+      },
+      r("build/sponsor-api", "lattice-sponsor", "docs/api.md", "Fee sponsor HTTP API"),
       p("build/agents", "agents.md", "For coding agents"),
       {
         label: "SDK",
@@ -65,7 +74,14 @@ export const SECTIONS = [
       r("run/operations", "lattice-node", "docs/operations.md", "Running in production"),
       r("run/deployment", "lattice-node", "deploy/README.md", "systemd units"),
       r("run/troubleshooting", "lattice-node", "docs/troubleshooting.md", "Troubleshooting"),
-      r("run/fee-sponsor", "lattice-sponsor", "README.md", "Fee sponsor (lattice-sponsor)"),
+      {
+        label: "Fee sponsor",
+        items: [
+          r("run/fee-sponsor", "lattice-sponsor", "README.md", "Overview"),
+          r("run/fee-sponsor/operating", "lattice-sponsor", "docs/operating.md", "Operating a fee sponsor"),
+          r("run/fee-sponsor/risks", "lattice-sponsor", "docs/risks.md", "Risks"),
+        ],
+      },
       r("run/reproducible-builds", "lattice-node", "docs/reproducible-builds.md", "Reproducible builds"),
       r("run/release-verification", "lattice-node", "docs/release-verification.md", "Release verification"),
     ],
@@ -82,9 +98,10 @@ export const SECTIONS = [
       {
         label: "Node",
         items: [
-          r("protocol/node/boundary", "lattice-node", "docs/protocol.md", "Protocol boundary"),
-          r("protocol/node/architecture", "lattice-node", "docs/architecture.md", "Architecture"),
-          r("protocol/node/invariants", "lattice-node", "docs/correctness-invariants.md", "Correctness invariants"),
+          r("protocol/node/peer-protocol", "lattice-node", "docs/protocol.md", "Peer protocol"),
+          r("protocol/node/mempool", "lattice-node", "docs/mempool.md", "Transaction pool policy"),
+          r("protocol/node/architecture", "lattice-node", "docs/architecture.md", "Node architecture"),
+          r("protocol/node/invariants", "lattice-node", "docs/correctness-invariants.md", "Node invariants"),
         ],
       },
       {
@@ -107,8 +124,9 @@ export const SECTIONS = [
         ],
       },
       {
-        label: "Design records",
+        label: "Node design documents",
         items: [
+          r("protocol/design", "lattice-node", "docs/design/README.md", "Index"),
           r("protocol/design/fractal-structure", "lattice-node", "docs/design/fractal-structure.md"),
           r("protocol/design/chain-addressing", "lattice-node", "docs/design/chain-addressing.md"),
           r("protocol/design/process-trust-model", "lattice-node", "docs/design/process-trust-model.md"),
@@ -119,6 +137,8 @@ export const SECTIONS = [
           r("protocol/design/block-fetching", "lattice-node", "docs/design/block-fetching.md"),
           r("protocol/design/mining-role-boundaries", "lattice-node", "docs/design/mining-role-boundaries.md"),
           r("protocol/design/bitcoin-anchored-genesis", "lattice-node", "docs/design/bitcoin-anchored-genesis.md"),
+          r("protocol/design/node-design", "lattice-node", "docs/design/node-design.md"),
+          r("protocol/design/sync-architecture", "lattice-node", "docs/design/sync-architecture.md"),
         ],
       },
     ],
