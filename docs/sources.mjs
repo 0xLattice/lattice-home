@@ -6,7 +6,7 @@
 // Repositories pinned by lattice-node's Package.resolved are fetched at that
 // version. The rest follow their default branch.
 export const PINNED = { lattice: "Lattice", ivy2: "Ivy2", tally: "Tally", volumebroker: "VolumeBroker", cashew: "cashew" };
-export const UNPINNED = ["lattice-node", "lattice-sdk", "selfhold-wallet", "lattice-skills", "lattice-sponsor"];
+export const UNPINNED = ["lattice-node", "lattice-sdk", "lattice-skills", "lattice-sponsor"];
 
 const p = (slug, file, label) => ({ slug, file, label });
 const r = (slug, repo, path, label) => ({ slug, repo, path, label });
@@ -24,11 +24,7 @@ export const SECTIONS = [
   {
     label: "Use",
     items: [
-      p("use", "docs/pages/use/index.md", "Wallets and the desktop app"),
-      r("use/node-trust", "selfhold-wallet", "docs/node-trust.md", "Node trust and purchase safety"),
-      r("use/network-binding", "selfhold-wallet", "docs/network-binding.md", "Networks, chain paths, and replay"),
-      r("use/backup-formats", "selfhold-wallet", "docs/qr-formats.md", "Backup and transfer formats"),
-      r("use/privacy", "selfhold-wallet", "docs/privacy-policy.md", "Selfhold privacy policy"),
+      p("use", "docs/pages/use/index.md", "Keys and the desktop app"),
     ],
   },
   {

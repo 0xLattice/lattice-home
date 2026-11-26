@@ -22,11 +22,6 @@ jobs:
         run: |
           sh install.sh
           ~/.lattice/bin/lattice --help
-      - name: Test and build token module
-        run: |
-          npm ci --ignore-scripts --prefix token
-          npm test --prefix token
-          npm run build --prefix token
   docs:
     runs-on: ubuntu-latest
     steps:
