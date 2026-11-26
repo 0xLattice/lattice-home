@@ -44,6 +44,7 @@ export const SECTIONS = [
           r("build/http-api/operator", "lattice-node", "docs/api-operator.md", "Operator routes"),
         ],
       },
+      r("build/sponsor-api", "lattice-sponsor", "docs/api.md", "Fee sponsor HTTP API"),
       p("build/agents", "agents.md", "For coding agents"),
       {
         label: "SDK",
@@ -73,7 +74,14 @@ export const SECTIONS = [
       r("run/operations", "lattice-node", "docs/operations.md", "Running in production"),
       r("run/deployment", "lattice-node", "deploy/README.md", "systemd units"),
       r("run/troubleshooting", "lattice-node", "docs/troubleshooting.md", "Troubleshooting"),
-      r("run/fee-sponsor", "lattice-sponsor", "README.md", "Fee sponsor (lattice-sponsor)"),
+      {
+        label: "Fee sponsor",
+        items: [
+          r("run/fee-sponsor", "lattice-sponsor", "README.md", "Overview"),
+          r("run/fee-sponsor/operating", "lattice-sponsor", "docs/operating.md", "Operating a fee sponsor"),
+          r("run/fee-sponsor/risks", "lattice-sponsor", "docs/risks.md", "Risks"),
+        ],
+      },
       r("run/reproducible-builds", "lattice-node", "docs/reproducible-builds.md", "Reproducible builds"),
       r("run/release-verification", "lattice-node", "docs/release-verification.md", "Release verification"),
     ],
