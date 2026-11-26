@@ -190,7 +190,7 @@ ls "$PWD/lattice-miner-gpu-$V-$P/bin/lattice-miner-gpu"</code></pre>
           <li>macOS: the binary is unsigned. If macOS blocks it (for example after a browser download), clear the quarantine flag: <code>xattr -d com.apple.quarantine &lt;path&gt;</code>.</li>
           <li>Windows: the release's Windows archive is a standalone worker only, with no node or coordinator. Run these Linux steps inside WSL2 with the Linux archive; WSL2 passes NVIDIA GPUs through for CUDA, but AMD and Intel OpenCL is generally not available there.</li>
         </ul>
-        <p>One worker process drives one GPU (CUDA device 0, the first OpenCL GPU, or the default Metal device); more <code>workers</code> share that same device, so one node mines with one GPU. The OpenCL kernel is checked against a CPU reference on a CPU OpenCL device and the CUDA kernel is compile-checked only; neither has been validated on physical GPUs by the release checks.</p>
+        <p>One worker process drives one GPU (CUDA device 0, the first OpenCL GPU, or the default Metal device); more <code>workers</code> share that same device, so one node mines with one GPU. The 0.1.0 release has been checked on a physical NVIDIA RTX 3060 (driver 570): the CUDA and OpenCL backends both returned the same nonces and hashes as the CPU reference. It has not been tested on an AMD or Intel GPU yet.</p>
         <p>To build from source instead (Rust), the binary is <code>target/release/lattice-miner-gpu</code>. On macOS (Metal):</p>
 <pre><code>git clone https://github.com/0xLattice/lattice-miner-gpu.git
 cd lattice-miner-gpu
