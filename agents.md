@@ -50,8 +50,8 @@ but for development use the CLI:
 curl -fsSL https://lattice.build/install.sh | sh
 export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
-# A node hosts a chain only under a parent it hosts. Add the public testnet
-# to node/lattice.json:  "hostedChains": ["Nexus/testnet"]
+# A node hosts a chain only under a parent it hosts, so host the public testnet:
+lattice child host Nexus/testnet --root node
 lattice up --root node
 lattice status --root node   # wait until Nexus/testnet is in sync
 ```
@@ -68,8 +68,10 @@ lattice child create Nexus/testnet/<app>-<random> \
 Make a key before you launch (`lattice key generate --out ./wallet.json`
 prints its address). To fund it in genesis, set `premine` in the spec and pass
 `--premine-to <address>` to `child create`. Set the same address as the
-chain's entry in `mine.recipients` in `node/lattice.json` (an omitted
-recipient burns that chain's rewards), and run `lattice mine start --root node`.
+chain's entry in `recipients` in `node/miner.json`, for example
+`{"worker": "cpu", "workers": 2, "recipients": {"Nexus/testnet/<app>-<random>": "<address>"}}`
+(an omitted recipient burns that chain's rewards), and run
+`lattice mine start --root node`.
 
 Payments on a chain are in that chain's own coin. Fee floors are set by each
 node, not by the chain (`minRelayFee` in `/api/chain/info`).

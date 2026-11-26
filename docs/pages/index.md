@@ -1,19 +1,18 @@
 # Lattice documentation
 
-Lattice is a network of permissionless proof-of-work ledgers arranged as a
-tree. Nexus is the root; anyone can add a child chain beneath a chain they
-host. Start with the section that matches what you are doing.
+Lattice is a network of proof-of-work blockchains arranged as a tree. Nexus
+is the root chain. Anyone can launch a chain beneath a chain they run,
+without asking anyone.
 
-| Section | For | Start with |
-|---|---|---|
-| [Learn](/docs/learn/) | Anyone new to Lattice | [What Lattice is](/docs/learn/) |
-| [Use](/docs/use/) | People holding coins or using apps | [Keys and the desktop app](/docs/use/) |
-| [Build](/docs/build/getting-started/) | App and client developers | [Getting started](/docs/build/getting-started/) |
-| [Run](/docs/run/getting-started/) | Node operators and miners | [Getting started](/docs/run/getting-started/) |
-| [Protocol](/docs/protocol/spec/) | Researchers, auditors, contributors | [Specification](/docs/protocol/spec/) |
-| [Network](/docs/network/) | Anyone evaluating the network | [Network facts](/docs/network/) |
+| I want to | Start with |
+|---|---|
+| Understand what Lattice is | [What Lattice is](/docs/learn/) |
+| Hold coins or use an app | [Keys and the desktop app](/docs/use/) |
+| Build an app | [Build: getting started](/docs/build/getting-started/) |
+| Run a node, mine, or launch a chain | [Run: getting started](/docs/run/getting-started/) |
+| Implement or audit the protocol | [Specification](/docs/protocol/spec/) |
+| Check the network's parameters | [Network facts](/docs/network/) |
 
-Each page is published from the repository whose code it describes: from
-`lattice-node` main and the dependency versions it pins, and from the default
-branch of the SDK, skills, and sponsor repositories. The footer of every page
-names its source file; edit it there.
+Each page is published from the repository whose code it describes, at the
+version the node uses. The footer of every page names its
+source file; propose changes there.

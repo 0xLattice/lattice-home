@@ -244,7 +244,7 @@ footer.band p { margin: 0; }
 <pre><code>curl -fsSL https://lattice.build/install.sh | sh
 export PATH="$HOME/.lattice/bin:$PATH"
 lattice init --root node
-<span class="c"># in node/lattice.json add:  "hostedChains": ["Nexus/testnet"]</span>
+lattice child host Nexus/testnet --root node
 lattice up --root node</code></pre></figure>
       </div></li>
       <li><div>
@@ -261,8 +261,8 @@ lattice child create Nexus/testnet/myapp-7f3c --root node \
       <li><div>
         <h3>Mine it</h3>
 <figure class="term"><figcaption>mine</figcaption>
-<pre><code><span class="c"># in node/lattice.json add:
-#   "mine": { "worker": "cpu", "workers": 2,
+<pre><code><span class="c"># write node/miner.json:
+#   { "worker": "cpu", "workers": 2,
 #     "recipients": { "Nexus/testnet/myapp-7f3c": "&lt;address&gt;" } }</span>
 lattice mine start --root node</code></pre></figure>
       </div></li>
