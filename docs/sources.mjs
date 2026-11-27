@@ -16,9 +16,11 @@ export const SECTIONS = [
     label: "Learn",
     items: [
       p("learn", "docs/pages/learn/index.md", "What Lattice is"),
-      r("learn/philosophy", "Lattice", "docs/philosophy.md", "Design philosophy"),
+      p("learn/how-it-works", "docs/pages/learn/how-it-works.md", "How Lattice works"),
+      p("learn/first-look", "docs/pages/learn/first-look.md", "Look at the live network"),
       r("learn/glossary", "lattice-skills", "skills/lattice-concepts/references/glossary.md", "Glossary"),
       r("learn/misconceptions", "lattice-skills", "skills/lattice-concepts/references/misconceptions.md", "Common misconceptions"),
+      r("learn/philosophy", "Lattice", "docs/philosophy.md", "Design philosophy"),
     ],
   },
   {
@@ -30,6 +32,7 @@ export const SECTIONS = [
   {
     label: "Build",
     items: [
+      p("build", "docs/pages/build/index.md", "Start here"),
       r("build/getting-started", "lattice-sdk", "docs/getting-started.md", "Getting started"),
       r("build/client-patterns", "lattice-skills", "skills/lattice-app-builder/references/client-patterns.md", "Client patterns"),
       r("build/policies", "lattice-skills", "skills/lattice-app-builder/references/policy.md", "Validity policies"),
@@ -63,6 +66,7 @@ export const SECTIONS = [
   {
     label: "Run",
     items: [
+      p("run", "docs/pages/run/index.md", "Start here"),
       r("run/getting-started", "lattice-node", "docs/getting-started.md", "Getting started"),
       r("run/configuration", "lattice-node", "docs/configuration.md", "Configuration"),
       r("run/operator-cli", "lattice-node", "docs/operator-cli.md", "Operator CLI"),
@@ -89,10 +93,11 @@ export const SECTIONS = [
   {
     label: "Protocol",
     items: [
-      r("protocol/spec", "Lattice", "docs/spec.md", "Specification"),
+      p("protocol", "docs/pages/protocol/index.md", "Start here"),
       r("protocol/architecture", "Lattice", "docs/foundational-architecture.md", "Architecture"),
       r("protocol/fork-choice", "Lattice", "docs/consensus-fork-choice.md", "Work and fork choice"),
       r("protocol/cross-chain", "Lattice", "docs/cross-chain.md", "Cross-chain transfers"),
+      r("protocol/spec", "Lattice", "docs/spec.md", "Specification"),
       r("protocol/simulator", "Lattice", "docs/consensus-simulator.md", "Consensus simulator"),
       r("protocol/vectors", "Lattice", "Vectors/README.md", "Conformance vectors"),
       {

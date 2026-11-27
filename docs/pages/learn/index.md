@@ -1,65 +1,79 @@
 # What Lattice is
 
-Lattice is a network of proof-of-work blockchains arranged as a tree.
-**Nexus** is the root chain. Anyone can launch a child chain beneath a chain
-their node runs, with one command and no approval.
+Lattice is a network of blockchains arranged as a tree. This page explains
+the idea in plain words. It assumes only that you have heard of Bitcoin.
 
-A chain is named by its path from the root: `Nexus`, `Nexus/Payments`,
-`Nexus/Payments/Rollups`.
+## The idea in one minute
 
-## How it works
+A blockchain is a shared record that nobody owns. Bitcoin is one: a single
+chain of blocks, kept honest by miners who spend computing power on it.
 
-- **Each chain is its own ledger.** It has its own rules, its own coin, its
-  own block time and its own limits, fixed when it is launched. It validates
-  its own blocks and chooses its own best chain.
-- **One mining search secures many chains.** A miner searches for a single
-  proof of work that counts on every chain it chooses to mine. This is
-  called merged mining.
-- **A child is secured by the work that includes it.** A parent block can
-  carry a child block. The child is credited only with work from blocks that
-  actually carry it. It does not inherit all of Nexus's mining power.
-- **Parents do not validate children.** A parent records that a child block
-  exists. Whether that block is valid is decided by the nodes that run the
-  child.
-- **Coins move between a chain and its direct child** by a two-party
-  exchange, not a bridge.
+Lattice is many such chains instead of one. They form a tree:
 
-## What an app on Lattice is made of
+```text
+Nexus                     the root chain
+├── Payments              a chain launched under Nexus
+│   └── Rollups           a chain launched under Payments
+└── Guestbook             another chain under Nexus
+```
 
-1. **A chain**, usually the app's own child chain, such as `Nexus/<app>`.
-2. **Key-value state** on that chain. Every write names the value it expects
-   to replace and is rejected if that value has changed, so two writers
-   cannot silently overwrite each other.
-3. **A validity policy**: a small WebAssembly program that accepts or rejects
-   each write. A policy is not a smart contract: it cannot hold funds or
-   change state, and there is no gas.
-4. **A client**, often a static web page, that reads state it can verify and
-   writes through the user's wallet.
+- **Nexus** is the chain at the root. There is exactly one.
+- Every other chain is a **child chain**. It sits under one **parent**.
+- A chain is named by its path from the root, like a folder:
+  `Nexus/Payments/Rollups`.
 
-An app does not always need a chain of its own. A chain enforces exactly one
-set of rules, so its own chain buys an app custom rules, isolation from other
-apps' traffic, and its own fees and limits.
+Anyone can launch a child chain, with one command and nobody's approval.
+
+## Why a tree
+
+One chain has one set of rules, one coin and one queue for everyone's
+transactions. Lattice lets each use have its own chain instead:
+
+- **Its own rules.** A chain decides what a valid write is.
+- **Its own coin**, with its own supply schedule.
+- **Its own pace and limits**: how often blocks come and how big they are.
+- **Its own traffic.** A busy chain does not fill up its neighbours' blocks.
+
+The chains still share one thing: mining. A miner does one piece of work,
+and that work counts on Nexus and on every child chain the miner chose to
+include. A miner can secure a new chain without taking computing power away
+from the others.
+
+## What you can do with it
+
+| You are | You can |
+|---|---|
+| Someone who holds coins or uses apps | Keep your own keys, pay, and use apps that run on a chain. See [Keys and the desktop app](/docs/use/). |
+| A developer | Build an app that stores its data on a chain and lets users sign their own writes. See [Build](/docs/build/). |
+| An operator | Run a node, mine, or launch a chain of your own. See [Run](/docs/run/). |
+| A researcher or implementer | Read the rules every node enforces. See [Protocol](/docs/protocol/). |
 
 ## What Lattice does not do
 
-- **No finality.** A block can be replaced by a heavier chain, and there is
-  no standard number of confirmations. Confirm an important write by reading
-  it back.
-- **No instant writes.** A write waits for the next block. Nexus's block
-  time is one hour; a child chain sets its own.
+Lattice leaves out some things other blockchains have. Knowing them early
+saves surprises.
+
+- **No finality.** A block can be replaced if a branch with more mining
+  work behind it appears. There is no number of confirmations after which a
+  write is guaranteed. Confirm an important write by reading it back.
+- **No instant writes.** A write waits for the next block. On Nexus a block
+  comes about once an hour; a child chain sets its own pace.
 - **No private data.** Everything on a chain is public. Encrypt what must
-  stay private before writing it.
-- **No changing the rules.** A chain's parameters and policy cannot be
-  changed after launch. To change them, launch a new chain.
-- **No programs that act on their own.** A policy only accepts or rejects a
-  write someone submits.
+  stay private before you write it.
+- **No changing the rules.** A chain's settings are fixed when it is
+  launched. To change them, launch a new chain.
+- **No smart contracts.** A chain can run a small program that accepts or
+  rejects each write, but that program cannot hold coins or act on its own.
 
 ## Read next
 
-- [Glossary](/docs/learn/glossary/): the vocabulary used across these docs.
-- [Common misconceptions](/docs/learn/misconceptions/): what people expect
-  from other blockchains that is not true here.
-- [Design philosophy](/docs/learn/philosophy/): why it is built this way,
-  and the tradeoffs.
-- [Work and fork choice](/docs/protocol/fork-choice/): how mining secures
-  each chain.
+1. [How Lattice works](/docs/learn/how-it-works/): blocks, mining, the
+   tree, transactions and apps, one idea at a time.
+2. [Look at the live network](/docs/learn/first-look/): read real blocks
+   from your terminal.
+3. [Glossary](/docs/learn/glossary/): every term these docs use.
+
+If you already know another blockchain well,
+[Common misconceptions](/docs/learn/misconceptions/) lists what works
+differently here, and [Design philosophy](/docs/learn/philosophy/) explains
+why.
