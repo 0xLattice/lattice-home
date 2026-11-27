@@ -50,10 +50,11 @@ chain when its rules already fit your app. Launch your own when you need:
 
 ## A first project, step by step
 
-1. **Read a chain from code.** Install the SDK and read a block:
+1. **Build a page that reads and writes.** The SDK guide makes a guestbook
+   on the public test chain, `Nexus/testnet`, with no coin and no wallet:
    [Getting started](/docs/build/getting-started/).
-2. **Read and write key-value data** on the public test chain,
-   `Nexus/testnet`: [Client patterns](/docs/build/client-patterns/).
+2. **Learn the common recipes**: reading keys, writing, storing files and
+   finding a node: [Client patterns](/docs/build/client-patterns/).
 3. **Write the rules.** Decide who may write which keys and turn that into
    a policy: [Validity policies](/docs/build/policies/).
 4. **Launch a development chain** under `Nexus/testnet` with your policy.
@@ -73,4 +74,6 @@ Building with a coding agent? Point it at
 | [Transaction format](/docs/build/transaction-format/) | You build or sign a transaction yourself instead of through the SDK or a wallet. |
 | [HTTP API](/docs/build/http-api/) | You talk to a node directly, in any language. |
 | [Fee sponsor HTTP API](/docs/build/sponsor-api/) | Your client asks a sponsor to pay a fee. |
+| [`connect` reference](/docs/build/sdk/connect/) | You want to know what `connect` checks and every option it takes. |
+| [SDK API reference](/docs/build/sdk/api/) | You look up a function or type. |
 | SDK packages (in the sidebar) | You want one capability of the SDK without the rest. |
