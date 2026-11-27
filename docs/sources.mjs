@@ -53,13 +53,16 @@ export const SECTIONS = [
       {
         label: "SDK",
         items: [
-          r("build/sdk/architecture", "lattice-sdk", "docs/architecture.md", "Architecture"),
+          r("build/sdk/connect", "lattice-sdk", "docs/connect.md", "connect reference"),
+          r("build/sdk/api", "lattice-sdk", "docs/api.md", "API reference"),
+          r("build/sdk/architecture", "lattice-sdk", "docs/architecture.md", "SDK architecture"),
           r("build/sdk/content-gateway", "lattice-sdk", "docs/content-gateway.md", "Content gateway"),
           r("build/sdk/sdk", "lattice-sdk", "packages/sdk/README.md", "lattice-sdk"),
           r("build/sdk/client", "lattice-sdk", "packages/client/README.md", "lattice-client"),
           r("build/sdk/core", "lattice-sdk", "packages/core/README.md", "lattice-core"),
           r("build/sdk/volumes", "lattice-sdk", "packages/volumes/README.md", "lattice-volumes"),
           r("build/sdk/relay", "lattice-sdk", "packages/relay/README.md", "lattice-relay"),
+          r("build/sdk/peer", "lattice-sdk", "packages/peer/README.md", "lattice-peer"),
         ],
       },
     ],
