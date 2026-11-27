@@ -26,6 +26,10 @@ Anyone can launch a child chain, with one command and nobody's approval.
 
 ## Why a tree
 
+The short version is below;
+[Why Lattice is built this way](/docs/learn/why/) gives the reasons for
+every design choice and what each costs.
+
 One chain has one set of rules, one coin and one queue for everyone's
 transactions. Lattice lets each use have its own chain instead:
 
@@ -67,13 +71,15 @@ saves surprises.
 
 ## Read next
 
-1. [How Lattice works](/docs/learn/how-it-works/): blocks, mining, the
+1. [Why Lattice is built this way](/docs/learn/why/): the problem, each
+   design choice, and what each one costs.
+2. [How Lattice works](/docs/learn/how-it-works/): blocks, mining, the
    tree, transactions and apps, one idea at a time.
-2. [Look at the live network](/docs/learn/first-look/): read real blocks
+3. [Look at the live network](/docs/learn/first-look/): read real blocks
    from your terminal.
-3. [Glossary](/docs/learn/glossary/): every term these docs use.
+4. [Glossary](/docs/learn/glossary/): every term these docs use.
 
 If you already know another blockchain well,
 [Common misconceptions](/docs/learn/misconceptions/) lists what works
-differently here, and [Design philosophy](/docs/learn/philosophy/) explains
-why.
+differently here, and [Design philosophy](/docs/learn/philosophy/) gives
+the reasoning in the protocol's own terms.

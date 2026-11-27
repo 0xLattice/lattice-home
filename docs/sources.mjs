@@ -16,6 +16,7 @@ export const SECTIONS = [
     label: "Learn",
     items: [
       p("learn", "docs/pages/learn/index.md", "What Lattice is"),
+      p("learn/why", "docs/pages/learn/why.md", "Why it is built this way"),
       p("learn/how-it-works", "docs/pages/learn/how-it-works.md", "How Lattice works"),
       p("learn/first-look", "docs/pages/learn/first-look.md", "Look at the live network"),
       r("learn/glossary", "lattice-skills", "skills/lattice-concepts/references/glossary.md", "Glossary"),

@@ -2,7 +2,9 @@
 
 The ideas the rest of the documentation builds on, one at a time. Each
 section is short, introduces its own terms, and ends with a link to the
-full account. Read [What Lattice is](/docs/learn/) first.
+full account. Read [What Lattice is](/docs/learn/) first. For the reasons
+behind each choice, see
+[Why Lattice is built this way](/docs/learn/why/).
 
 ## 1. A chain is a list of blocks
 
@@ -40,7 +42,8 @@ checking it takes almost none.
 Because a branch with more work always wins, no block is ever beyond
 replacement. That is what "Lattice has no finality" means.
 
-More: [Work and fork choice](/docs/protocol/fork-choice/).
+- Why: [no finality](/docs/learn/why/#why-there-is-no-finality).
+- More: [Work and fork choice](/docs/protocol/fork-choice/).
 
 ## 3. Chains form a tree
 
@@ -58,7 +61,9 @@ A child chain is a full chain, not a part of its parent:
 Launching a child chain takes no transaction and no permission. Whoever
 runs a node on the parent writes a spec and starts mining the new chain.
 
-More: [Child chains](/docs/run/child-chains/).
+- Why: [a tree](/docs/learn/why/#why-a-tree-of-chains), and
+  [parents that do not check children](/docs/learn/why/#why-a-parent-does-not-check-its-children).
+- More: [Child chains](/docs/run/child-chains/).
 
 ## 4. One search mines many chains
 
@@ -84,7 +89,8 @@ Two consequences:
   of Nexus's mining power.
 - **A chain nobody mines stands still.**
 
-More: [Mining](/docs/run/mining/).
+- Why: [shared mining](/docs/learn/why/#why-one-mining-search-counts-on-many-chains).
+- More: [Mining](/docs/run/mining/).
 
 ## 5. Accounts, keys and transactions
 
@@ -135,7 +141,8 @@ So an app on Lattice has four parts:
 4. **A client**, often a plain web page, that reads the chain and asks the
    user's wallet to sign writes.
 
-More: [Build: start here](/docs/build/).
+- Why: [policies, not smart contracts](/docs/learn/why/#why-policies-instead-of-smart-contracts).
+- More: [Build: start here](/docs/build/).
 
 ## 7. Coins move between a chain and its child
 
@@ -151,7 +158,8 @@ Chains further apart need one exchange per step of the tree. A lock cannot
 be cancelled or refunded, so it is only worth making when someone is ready
 to take the other side.
 
-More: [Cross-chain transfers](/docs/protocol/cross-chain/).
+- Why: [an exchange, not a bridge](/docs/learn/why/#why-coins-move-by-exchange-not-through-a-bridge).
+- More: [Cross-chain transfers](/docs/protocol/cross-chain/).
 
 ## 8. Nodes, and checking what they tell you
 
@@ -168,7 +176,8 @@ sent them.
 The one thing a fingerprint cannot tell you is which block is the current
 tip. For that you rely on the nodes you ask, or run your own.
 
-More: [Run: start here](/docs/run/).
+- Why: [fingerprints](/docs/learn/why/#why-everything-is-named-by-a-fingerprint).
+- More: [Run: start here](/docs/run/).
 
 ## Where to go next
 
