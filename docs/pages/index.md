@@ -6,13 +6,15 @@ run, without asking anyone.
 
 ## New to Lattice?
 
-Read these three pages in order. They take about fifteen minutes and assume
+Read these four pages in order. They take about twenty minutes and assume
 only that you have heard of Bitcoin.
 
 1. [What Lattice is](/docs/learn/): the idea, in plain words.
-2. [How Lattice works](/docs/learn/how-it-works/): the ideas the rest of
+2. [Why Lattice is built this way](/docs/learn/why/): the problem it
+   solves, each design choice, and what each one costs.
+3. [How Lattice works](/docs/learn/how-it-works/): the ideas the rest of
    the docs build on, one at a time.
-3. [Look at the live network](/docs/learn/first-look/): read real blocks
+4. [Look at the live network](/docs/learn/first-look/): read real blocks
    from your terminal, with nothing to install.
 
 A word you do not know is in the [glossary](/docs/learn/glossary/).

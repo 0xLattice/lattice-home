@@ -42,6 +42,8 @@ explorer does. To run your own, see
 
 - [Fees and majority-reorg cost](/docs/network/fees-and-reorg-cost/): how
   fees work and what reversing history costs an attacker.
+- [Merged-mining security of a child chain](/docs/network/merged-mining-security/):
+  what reorganizing a child chain costs.
 - [Adversarial security](/docs/network/adversarial-security/): simulated
   attacks on a chain with no finality, and the thresholds found.
 - [Specification](/docs/protocol/spec/): the consensus rules.

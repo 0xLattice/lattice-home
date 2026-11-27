@@ -15,6 +15,17 @@ A node is a program that follows the Lattice network. It:
 A node always follows Nexus. It also follows the child chains you tell it
 to, which is called **hosting** them. One node process handles all of them.
 
+## Why run one
+
+- **To trust nobody.** Your own node checks every block itself. Without
+  one, you rely on someone else's node to tell you the newest block.
+- **To mine.** Mining earns a chain's block rewards and fees, and it is
+  done through a node.
+- **To launch a chain.** A chain exists because nodes host it and miners
+  include it. The first of both is you.
+- **To serve others.** An app's users or an explorer need a node to read
+  from.
+
 ## Do you need one?
 
 | You want to | Need a node? |
