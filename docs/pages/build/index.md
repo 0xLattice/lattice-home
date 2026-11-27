@@ -7,6 +7,22 @@ If Lattice itself is new to you, read
 [How Lattice works](/docs/learn/how-it-works/) first. It takes ten minutes
 and this section assumes it.
 
+## Why build on Lattice
+
+- **No backend to run.** The chain stores your app's data and enforces
+  your rules. Your app can be a static web page.
+- **Users own their accounts.** They sign their own writes with their own
+  keys. You never hold a password or a key for them.
+- **Your own rules and your own room.** With a chain of its own, your app
+  sets its own fees and limits, and other apps' traffic cannot crowd it.
+- **Answers anyone can check.** What your app reads from a node is checked
+  against the chain's fingerprints, so users do not have to trust your
+  server, or anyone's.
+
+The costs are real too: writes are slow, never final and always public, and
+a chain's rules cannot be changed after launch.
+[Why Lattice is built this way](/docs/learn/why/) explains each one.
+
 ## What an app is made of
 
 ```text
