@@ -11,7 +11,7 @@ use, build on or operate Lattice you do not need them;
 
 1. [How Lattice works](/docs/learn/how-it-works/), if you have not read it.
    It gives the vocabulary.
-2. [Architecture](/docs/protocol/architecture/): who decides what. Each
+2. [Lattice library architecture](/docs/protocol/architecture/): who decides what. Each
    chain is validated on its own; the node routes and stores.
 3. [Work and fork choice](/docs/protocol/fork-choice/): how mining work is
    counted for each chain and how a chain picks its tip.
@@ -28,7 +28,7 @@ The [glossary](/docs/learn/glossary/) defines every term these pages use.
 |---|---|
 | Is this block or transaction valid? | [Specification](/docs/protocol/spec/). It is the only authority on consensus. |
 | Does my implementation agree with it? | [Conformance vectors](/docs/protocol/vectors/): inputs with the exact bytes and results expected. |
-| How do nodes talk to each other? | [Peer protocol](/docs/protocol/node/peer-protocol/). |
+| How do nodes talk to each other? | [Peer protocol](/docs/protocol/node/peer-protocol/) for what nodes ask and answer, and the [Ivy wire protocol](/docs/protocol/ivy/wire-protocol/) for the bytes beneath it. |
 | Which transactions does a node accept and pass on? | [Transaction pool policy](/docs/protocol/node/mempool/). This is each node's choice, not consensus. |
 | How does the node software work inside? | [Node architecture](/docs/protocol/node/architecture/). |
 | What does the node guarantee, and what tests it? | [Node invariants](/docs/protocol/node/invariants/). |

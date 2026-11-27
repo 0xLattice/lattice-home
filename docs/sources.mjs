@@ -94,7 +94,7 @@ export const SECTIONS = [
     label: "Protocol",
     items: [
       p("protocol", "docs/pages/protocol/index.md", "Start here"),
-      r("protocol/architecture", "Lattice", "docs/foundational-architecture.md", "Architecture"),
+      r("protocol/architecture", "Lattice", "docs/foundational-architecture.md", "Lattice library architecture"),
       r("protocol/fork-choice", "Lattice", "docs/consensus-fork-choice.md", "Work and fork choice"),
       r("protocol/cross-chain", "Lattice", "docs/cross-chain.md", "Cross-chain transfers"),
       r("protocol/spec", "Lattice", "docs/spec.md", "Specification"),
@@ -114,7 +114,8 @@ export const SECTIONS = [
         items: [
           r("protocol/ivy", "Ivy2", "README.md", "Ivy (networking)"),
           r("protocol/ivy/architecture", "Ivy2", "docs/architecture.md", "Ivy architecture"),
-          r("protocol/ivy/event-codec", "Ivy2", "docs/event-codec.md", "Ivy event codec"),
+          r("protocol/ivy/wire-protocol", "Ivy2", "docs/wire-protocol.md", "Ivy wire protocol"),
+          r("protocol/ivy/event-codec", "Ivy2", "docs/event-codec.md", "Ivy host event codec"),
           r("protocol/ivy/invariants", "Ivy2", "docs/correctness-invariants.md", "Ivy invariants"),
           r("protocol/tally", "Tally", "README.md", "Tally (peer reputation)"),
           r("protocol/tally/architecture", "Tally", "docs/architecture.md", "Tally architecture"),
@@ -154,6 +155,7 @@ export const SECTIONS = [
       p("network", "docs/pages/network/index.md", "Network facts"),
       r("network/tokenomics", "Lattice", "docs/economics/nexus-tokenomics.md", "Nexus tokenomics"),
       r("network/fees-and-reorg-cost", "Lattice", "docs/economics/fee-market-and-51pct.md", "Fees and majority-reorg cost"),
+      r("network/merged-mining-security", "Lattice", "docs/economics/merged-mining-security.md", "Merged-mining security of a child chain"),
       r("network/adversarial-security", "Lattice", "docs/consensus/adversarial-report.md", "Adversarial security"),
     ],
   },
